@@ -2,153 +2,430 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Workout">
 <title>45-Min Home Workout</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ══════════════════════════════════════
+   TOKENS
+══════════════════════════════════════ */
 :root{
-  --bg:#0d0d0f;--card:#16161a;--border:#2a2a30;
-  --warm:#f5a623;--main:#4ade80;--cool:#60a5fa;
-  --text:#f0eff4;--muted:#6b6b7a;--pill:#1e1e24;
+  --bg:#0d0d0f; --card:#16161a; --card2:#1c1c22;
+  --border:#252530; --border2:#2e2e3a;
+  --warm:#f5a623; --main:#4ade80; --cool:#60a5fa; --purple:#a78bfa;
+  --text:#f0eff4; --text2:#c8c7d0; --muted:#6b6b7a;
+  --pill:#1e1e26;
   --accent:var(--main);
+  --r:18px;
+  --shadow: 0 4px 24px rgba(0,0,0,.45);
 }
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
-.screen{display:none;min-height:100vh;flex-direction:column;}
-.screen.active{display:flex;}
+*{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html{ scroll-behavior:smooth; }
+body{
+  background:var(--bg); color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
 
-/* ── HOME ── */
-.hero{background:linear-gradient(160deg,#1a1a20 0%,#0d0d0f 60%);padding:56px 24px 36px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;top:-80px;right:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(74,222,128,.08) 0%,transparent 70%);border-radius:50%;}
-.hero-label{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--main);margin-bottom:12px;}
-.hero h1{font-family:'Bebas Neue',sans-serif;font-size:58px;line-height:.95;margin-bottom:16px;}
-.hero h1 span{color:var(--main);}
-.hero-meta{display:flex;gap:10px;flex-wrap:wrap;}
-.meta-pill{background:var(--pill);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--muted);}
-.phase-list{padding:24px 20px;display:flex;flex-direction:column;gap:12px;flex:1;}
-.phase-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden;display:flex;align-items:center;gap:16px;}
-.phase-card:active{transform:scale(.98);}
-.phase-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--pa);border-radius:4px 0 0 4px;}
-.phase-icon{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-.phase-info{flex:1;}
-.phase-title{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1;margin-bottom:3px;}
-.phase-sub{font-size:12px;color:var(--muted);}
-.phase-count{border-radius:10px;padding:4px 10px;font-size:12px;font-weight:600;}
-.weekly-tip{margin:4px 0 20px;background:var(--pill);border:1px solid var(--border);border-radius:14px;padding:14px 16px;font-size:12.5px;color:var(--muted);line-height:1.6;}
-.weekly-tip strong{color:var(--text);}
+/* ══════════════════════════════════════
+   SCREENS
+══════════════════════════════════════ */
+.screen{ display:none; min-height:100vh; flex-direction:column; }
+.screen.active{ display:flex; }
 
-/* ── PHASE ── */
-.top-bar{padding:52px 20px 16px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--card);}
-.back-btn{width:38px;height:38px;border-radius:10px;background:var(--pill);border:1px solid var(--border);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.top-bar-info{flex:1;}
-.top-bar-title{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;}
-.top-bar-sub{font-size:12px;color:var(--muted);margin-top:2px;}
-.prog-wrap{padding:12px 20px;flex-shrink:0;background:var(--card);border-bottom:1px solid var(--border);}
-.prog-track{height:4px;background:var(--border);border-radius:4px;overflow:hidden;}
-.prog-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .4s ease;}
-.prog-label{font-size:11px;color:var(--muted);margin-top:5px;text-align:right;}
-.ex-scroll{flex:1;overflow-y:auto;padding:16px 16px 100px;-webkit-overflow-scrolling:touch;}
-.block-label{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;color:var(--accent);margin:18px 0 8px 2px;opacity:.7;}
-.block-label:first-child{margin-top:0;}
+/* page-enter transition */
+.screen.slide-in{ animation: slideIn .32s cubic-bezier(.4,0,.2,1) both; }
+.screen.slide-out{ animation: slideOut .28s cubic-bezier(.4,0,.2,1) both; }
+@keyframes slideIn { from{ transform:translateX(100%); opacity:0; } to{ transform:translateX(0); opacity:1; } }
+@keyframes slideOut{ from{ transform:translateX(0); opacity:1; } to{ transform:translateX(-8%); opacity:0; } }
 
-/* ── EXERCISE CARD ── */
-.ex-card{background:var(--card);border:1px solid var(--border);border-radius:18px;margin-bottom:14px;overflow:hidden;transition:opacity .3s;}
-.ex-card.done{opacity:.4;}
+/* ══════════════════════════════════════
+   HOME
+══════════════════════════════════════ */
+.hero{
+  background: linear-gradient(150deg,#141420 0%,#0d0d0f 55%);
+  padding: 60px 24px 40px;
+  border-bottom: 1px solid var(--border);
+  position:relative; overflow:hidden;
+}
+.hero-orb{
+  position:absolute; border-radius:50%; pointer-events:none;
+}
+.orb1{ width:320px;height:320px; top:-110px;right:-90px;
+  background:radial-gradient(circle,rgba(74,222,128,.07) 0%,transparent 70%); }
+.orb2{ width:200px;height:200px; bottom:-60px;left:-50px;
+  background:radial-gradient(circle,rgba(96,165,250,.05) 0%,transparent 70%); }
 
-/* ── VIDEO AREA ── */
-.video-wrap{
-  width:100%;
-  position:relative;
-  background:#000;
+.hero-eyebrow{
+  display:inline-flex; align-items:center; gap:7px;
+  background:rgba(74,222,128,.1); border:1px solid rgba(74,222,128,.2);
+  border-radius:30px; padding:5px 14px;
+  font-size:11px; font-weight:600; letter-spacing:2px;
+  text-transform:uppercase; color:var(--main); margin-bottom:18px;
+}
+.hero h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(52px,14vw,72px);
+  line-height:.9; letter-spacing:1px;
+  margin-bottom:20px;
+}
+.hero h1 .accent{ color:var(--main); }
+.hero-pills{ display:flex; gap:8px; flex-wrap:wrap; }
+.hero-pill{
+  background:rgba(255,255,255,.05); border:1px solid var(--border2);
+  border-radius:30px; padding:5px 13px;
+  font-size:12px; font-weight:500; color:var(--text2);
+}
+
+.phase-list{ padding:20px 18px 8px; display:flex; flex-direction:column; gap:12px; flex:1; }
+
+/* phase cards */
+.phase-card{
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--r); padding:17px 16px;
+  cursor:pointer; position:relative; overflow:hidden;
+  display:flex; align-items:center; gap:15px;
+  transition: transform .18s cubic-bezier(.4,0,.2,1),
+              border-color .18s, box-shadow .18s;
+  -webkit-user-select:none; user-select:none;
+}
+.phase-card:active{ transform:scale(.97); box-shadow:var(--shadow); }
+.phase-card::before{
+  content:''; position:absolute; left:0;top:0;bottom:0;width:3px;
+  background:var(--pc); border-radius:3px 0 0 3px;
+}
+.phase-card .shine{
+  position:absolute; inset:0;
+  background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.03) 50%,transparent 100%);
+  pointer-events:none;
+}
+.phase-icon{
+  width:48px;height:48px; border-radius:14px;
+  background:color-mix(in srgb,var(--pc) 12%,transparent);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; flex-shrink:0;
+  transition:transform .2s;
+}
+.phase-card:active .phase-icon{ transform:scale(1.1); }
+.phase-info{ flex:1; }
+.phase-title{ font-family:'Bebas Neue',sans-serif; font-size:21px; line-height:1; margin-bottom:3px; }
+.phase-sub{ font-size:12px; color:var(--muted); }
+.phase-badge{
+  background:color-mix(in srgb,var(--pc) 15%,transparent);
+  border-radius:8px; padding:3px 9px;
+  font-size:11px; font-weight:700; color:var(--pc);
+  flex-shrink:0;
+}
+.chevron{ color:var(--muted); font-size:20px; transition:transform .2s; }
+.phase-card:active .chevron{ transform:translateX(4px); }
+
+/* finisher card */
+.finisher-card{
+  background:linear-gradient(135deg,#1a1820,#110f14);
+  border-color:#3a2a1a;
+}
+.bonus-badge{
+  background:rgba(245,166,35,.15); border:1px solid rgba(245,166,35,.25);
+  border-radius:8px; padding:3px 9px; font-size:11px; font-weight:700;
+  color:var(--warm); flex-shrink:0;
+}
+
+.weekly-card{
+  background:var(--pill); border:1px solid var(--border);
+  border-radius:var(--r); padding:14px 16px;
+  font-size:12.5px; color:var(--muted); line-height:1.7;
+  margin-bottom:24px;
+}
+.weekly-card strong{ color:var(--text2); font-weight:600; }
+
+/* ══════════════════════════════════════
+   PHASE SCREEN
+══════════════════════════════════════ */
+.top-bar{
+  padding:52px 18px 15px;
+  display:flex; align-items:center; gap:14px;
   border-bottom:1px solid var(--border);
+  flex-shrink:0; background:var(--card);
+  position:sticky; top:0; z-index:50;
+}
+.back-btn{
+  width:38px;height:38px; border-radius:11px;
+  background:var(--pill); border:1px solid var(--border);
+  color:var(--text); font-size:20px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; transition:background .15s;
+}
+.back-btn:active{ background:var(--border); }
+.top-bar-info{ flex:1; }
+.top-bar-title{ font-family:'Bebas Neue',sans-serif; font-size:23px; line-height:1; }
+.top-bar-sub{ font-size:11.5px; color:var(--muted); margin-top:2px; }
+
+.prog-wrap{
+  padding:11px 18px; flex-shrink:0;
+  background:var(--card); border-bottom:1px solid var(--border);
+}
+.prog-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; }
+.prog-pct{ font-family:'Bebas Neue',sans-serif; font-size:15px; color:var(--accent); }
+.prog-steps{ font-size:11px; color:var(--muted); }
+.prog-track{ height:4px; background:var(--border); border-radius:4px; overflow:hidden; }
+.prog-fill{
+  height:100%; background:var(--accent); border-radius:4px;
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+}
+
+.ex-scroll{
+  flex:1; overflow-y:auto; padding:14px 14px 110px;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* block label */
+.block-label{
+  display:flex; align-items:center; gap:8px;
+  font-family:'Bebas Neue',sans-serif; font-size:12px;
+  letter-spacing:2.5px; color:var(--accent);
+  margin:20px 0 10px 2px; opacity:.75;
+}
+.block-label:first-child{ margin-top:0; }
+.block-line{ flex:1; height:1px; background:color-mix(in srgb,var(--accent) 20%,transparent); }
+
+/* ══════════════════════════════════════
+   EXERCISE CARD
+══════════════════════════════════════ */
+.ex-card{
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--r); margin-bottom:12px; overflow:hidden;
+  transition:opacity .4s, transform .3s;
+  animation: cardIn .35s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes cardIn{
+  from{ opacity:0; transform:translateY(16px); }
+  to  { opacity:1; transform:translateY(0); }
+}
+.ex-card.done{ opacity:.38; }
+
+/* video area */
+.video-wrap{
+  width:100%; position:relative;
+  background:#000; border-bottom:1px solid var(--border);
   overflow:hidden;
 }
-/* 16:9 aspect ratio box */
-.video-wrap::before{
-  content:'';
-  display:block;
-  padding-top:56.25%;
-}
+.video-wrap::before{ content:''; display:block; padding-top:56.25%; }
 .video-wrap iframe{
-  position:absolute;
-  top:0; left:0;
-  width:100%; height:100%;
-  border:none;
+  position:absolute; top:0;left:0;
+  width:100%;height:100%; border:none;
 }
-/* Thumbnail overlay — shown before user taps play */
 .video-thumb{
-  position:absolute;
-  inset:0;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#000;
+  position:absolute; inset:0; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  background:#000; overflow:hidden;
 }
 .video-thumb img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  opacity:.85;
+  width:100%;height:100%; object-fit:cover;
+  opacity:.82; transition:opacity .2s, transform .3s;
 }
-.play-btn{
-  position:absolute;
-  width:60px; height:60px;
-  background:rgba(255,0,0,.92);
-  border-radius:50%;
+.video-thumb:active img{ opacity:.6; transform:scale(.98); }
+
+/* loading shimmer on thumbnail */
+.video-thumb.loading::after{
+  content:''; position:absolute; inset:0;
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer{ 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+
+.play-ring{
+  position:absolute; width:62px;height:62px;
+  border-radius:50%; background:rgba(0,0,0,.55);
+  border:2px solid rgba(255,255,255,.25);
   display:flex; align-items:center; justify-content:center;
+  backdrop-filter:blur(4px);
   box-shadow:0 4px 20px rgba(0,0,0,.5);
-  transition:transform .15s;
+  transition:transform .18s cubic-bezier(.4,0,.2,1), background .18s;
 }
-.play-btn:active{transform:scale(.92);}
-.play-triangle{
-  width:0; height:0;
-  border-top:13px solid transparent;
-  border-bottom:13px solid transparent;
-  border-left:22px solid #fff;
-  margin-left:4px;
+.video-thumb:active .play-ring{ transform:scale(.9); background:rgba(230,0,0,.7); }
+.play-tri{
+  width:0;height:0;
+  border-top:11px solid transparent; border-bottom:11px solid transparent;
+  border-left:20px solid #fff; margin-left:5px;
+}
+.video-label{
+  position:absolute; bottom:0; left:0; right:0;
+  padding:24px 12px 10px;
+  background:linear-gradient(transparent,rgba(0,0,0,.65));
+  font-size:11px; font-weight:600; color:rgba(255,255,255,.8);
+  letter-spacing:.3px;
 }
 
-/* ── CARD BODY ── */
-.ex-body{padding:14px 16px;}
-.ex-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;}
-.ex-num{width:32px;height:32px;border-radius:9px;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:17px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.ex-name{font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1;margin-bottom:3px;}
-.ex-why{font-size:12px;color:var(--muted);line-height:1.5;}
-.ex-desc{font-size:12.5px;color:#a0a0b0;line-height:1.65;margin-bottom:10px;background:rgba(255,255,255,.03);border-radius:10px;padding:10px 12px;border-left:3px solid color-mix(in srgb,var(--accent) 40%,transparent);}
-.ex-stats{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px;}
-.stat-chip{background:var(--pill);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600;}
-.mod-box{background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.15);border-radius:10px;padding:9px 12px;font-size:12px;color:#c9922b;line-height:1.5;margin-bottom:10px;}
-.mod-box strong{color:var(--warm);}
-.done-btn{width:100%;padding:13px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:transform .15s;}
-.done-btn:active{transform:scale(.97);}
-.done-btn.checked{background:color-mix(in srgb,var(--accent) 22%,transparent);}
+/* video loading state */
+.video-loading{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px; color:var(--muted); font-size:12px;
+}
+.v-spinner{
+  width:30px;height:30px; border-radius:50%;
+  border:2px solid var(--border); border-top-color:var(--accent);
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
 
-/* ── TIMER ── */
-.timer-fab{position:fixed;bottom:28px;right:22px;width:58px;height:58px;border-radius:18px;background:var(--warm);color:#000;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(245,166,35,.4);z-index:100;border:none;transition:transform .15s;}
-.timer-fab:active{transform:scale(.94);}
-.timer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:none;align-items:flex-end;justify-content:center;}
-.timer-overlay.open{display:flex;}
-.timer-sheet{background:var(--card);border-radius:24px 24px 0 0;padding:22px 26px 44px;width:100%;max-width:480px;}
-.timer-handle{width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 22px;}
-.timer-display{font-family:'Bebas Neue',sans-serif;font-size:80px;text-align:center;letter-spacing:2px;color:var(--warm);line-height:1;margin-bottom:6px;}
-.timer-label{text-align:center;font-size:13px;color:var(--muted);margin-bottom:24px;}
-.timer-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:18px;}
-.preset-btn{background:var(--pill);border:1px solid var(--border);border-radius:10px;padding:10px 4px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;text-align:center;}
-.t-controls{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
-.t-btn{padding:15px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;border:none;}
-.t-start{background:var(--warm);color:#000;}
-.t-reset{background:var(--pill);border:1px solid var(--border);color:var(--text);}
+/* card body */
+.ex-body{ padding:14px 15px; }
+.ex-top{ display:flex; align-items:flex-start; gap:11px; margin-bottom:9px; }
+.ex-num{
+  width:30px;height:30px; border-radius:8px; flex-shrink:0;
+  background:color-mix(in srgb,var(--accent) 15%,transparent);
+  color:var(--accent); font-family:'Bebas Neue',sans-serif;
+  font-size:16px; display:flex; align-items:center; justify-content:center;
+}
+.ex-name{ font-family:'Bebas Neue',sans-serif; font-size:20px; line-height:1; margin-bottom:3px; }
+.ex-why{ font-size:12px; color:var(--muted); line-height:1.5; }
 
-/* ── DONE ── */
-#done-screen{align-items:center;justify-content:center;padding:40px 28px;text-align:center;}
-.done-emoji{font-size:72px;margin-bottom:24px;}
-.done-title{font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--main);line-height:1;margin-bottom:12px;}
-.done-sub{font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:36px;max-width:300px;}
-.home-btn{background:var(--main);color:#000;border:none;border-radius:16px;padding:16px 36px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
+.ex-desc{
+  font-size:12.5px; color:var(--text2); line-height:1.68;
+  margin-bottom:10px; background:rgba(255,255,255,.03);
+  border-radius:11px; padding:10px 12px;
+  border-left:3px solid color-mix(in srgb,var(--accent) 35%,transparent);
+}
+.ex-stats{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:9px; }
+.stat-chip{
+  background:var(--pill); border:1px solid var(--border);
+  border-radius:7px; padding:4px 10px;
+  font-size:12px; font-weight:600;
+}
+.mod-box{
+  background:rgba(245,166,35,.06); border:1px solid rgba(245,166,35,.15);
+  border-radius:10px; padding:9px 12px;
+  font-size:12px; color:#c9922b; line-height:1.5; margin-bottom:10px;
+}
+.mod-box strong{ color:var(--warm); }
+
+.done-btn{
+  width:100%; padding:13px; border-radius:12px;
+  background:color-mix(in srgb,var(--accent) 12%,transparent);
+  border:1px solid color-mix(in srgb,var(--accent) 22%,transparent);
+  color:var(--accent); font-family:'DM Sans',sans-serif;
+  font-size:14px; font-weight:600; cursor:pointer;
+  transition: background .2s, transform .15s, border-color .2s;
+  position:relative; overflow:hidden;
+}
+.done-btn::after{
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(circle at center,rgba(255,255,255,.15) 0%,transparent 70%);
+  opacity:0; transition:opacity .3s;
+}
+.done-btn:active{ transform:scale(.97); }
+.done-btn:active::after{ opacity:1; }
+.done-btn.checked{
+  background:color-mix(in srgb,var(--accent) 20%,transparent);
+  border-color:color-mix(in srgb,var(--accent) 40%,transparent);
+}
+
+/* ══════════════════════════════════════
+   TIMER FAB
+══════════════════════════════════════ */
+.timer-fab{
+  position:fixed; bottom:28px; right:20px;
+  width:56px;height:56px; border-radius:17px;
+  background:var(--warm); color:#000; font-size:22px;
+  border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 24px rgba(245,166,35,.45);
+  z-index:100;
+  transition:transform .18s cubic-bezier(.4,0,.2,1), box-shadow .18s;
+}
+.timer-fab:active{ transform:scale(.91); box-shadow:0 2px 12px rgba(245,166,35,.3); }
+
+/* timer sheet */
+.timer-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.75);
+  z-index:200; display:none; align-items:flex-end; justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.timer-overlay.open{ display:flex; animation:fadeIn .2s ease; }
+@keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+
+.timer-sheet{
+  background:var(--card); border-radius:24px 24px 0 0;
+  padding:20px 24px 44px; width:100%; max-width:480px;
+  animation: sheetUp .28s cubic-bezier(.4,0,.2,1);
+}
+@keyframes sheetUp{ from{transform:translateY(100%)} to{transform:translateY(0)} }
+
+.timer-handle{ width:40px;height:4px; background:var(--border); border-radius:4px; margin:0 auto 20px; }
+
+.timer-ring{
+  position:relative; width:140px;height:140px; margin:0 auto 14px;
+}
+.timer-ring svg{ position:absolute; inset:0; transform:rotate(-90deg); }
+.ring-bg{ fill:none; stroke:var(--border); stroke-width:6; }
+.ring-fg{ fill:none; stroke:var(--warm); stroke-width:6; stroke-linecap:round; transition:stroke-dashoffset .9s linear; }
+.timer-display{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Bebas Neue',sans-serif; font-size:46px;
+  letter-spacing:2px; color:var(--warm);
+}
+.timer-label{ text-align:center; font-size:13px; color:var(--muted); margin-bottom:20px; }
+
+.timer-presets{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
+.preset-btn{
+  background:var(--pill); border:1px solid var(--border);
+  border-radius:10px; padding:10px 4px; color:var(--text);
+  font-size:13px; font-weight:600; cursor:pointer; text-align:center;
+  transition:background .15s, border-color .15s;
+}
+.preset-btn:active{ background:var(--border2); border-color:var(--warm); color:var(--warm); }
+
+.t-controls{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.t-btn{ padding:14px; border-radius:13px; font-size:15px; font-weight:600; cursor:pointer; border:none; transition:transform .15s; }
+.t-btn:active{ transform:scale(.96); }
+.t-start{ background:var(--warm); color:#000; }
+.t-reset{ background:var(--pill); border:1px solid var(--border); color:var(--text); }
+
+/* ══════════════════════════════════════
+   DONE SCREEN
+══════════════════════════════════════ */
+#done-screen{
+  align-items:center; justify-content:center;
+  padding:40px 28px; text-align:center;
+  background: radial-gradient(circle at 50% 40%,rgba(74,222,128,.07) 0%,transparent 60%);
+}
+.done-emoji{ font-size:80px; margin-bottom:24px; animation:popIn .5s cubic-bezier(.4,0,.2,1); }
+@keyframes popIn{ 0%{transform:scale(0) rotate(-15deg); opacity:0} 80%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+.done-title{ font-family:'Bebas Neue',sans-serif; font-size:56px; color:var(--main); line-height:1; margin-bottom:12px; }
+.done-sub{ font-size:15px; color:var(--muted); line-height:1.6; margin-bottom:36px; max-width:300px; }
+.done-stats{ display:flex; gap:12px; margin-bottom:36px; }
+.done-stat{
+  flex:1; background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:16px 10px; text-align:center;
+}
+.done-stat .val{ font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--main); }
+.done-stat .lbl{ font-size:11px; color:var(--muted); margin-top:2px; }
+.home-btn{
+  background:var(--main); color:#000; border:none;
+  border-radius:16px; padding:16px 44px;
+  font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700;
+  cursor:pointer; transition:transform .15s;
+}
+.home-btn:active{ transform:scale(.97); }
+
+/* ══════════════════════════════════════
+   TOAST
+══════════════════════════════════════ */
+.toast{
+  position:fixed; bottom:100px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--card2); border:1px solid var(--border2);
+  border-radius:30px; padding:9px 20px;
+  font-size:13px; font-weight:500; color:var(--text2);
+  white-space:nowrap; pointer-events:none; opacity:0; z-index:300;
+  transition:opacity .25s, transform .25s;
+}
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -156,39 +433,65 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 <!-- ══════ HOME ══════ -->
 <div id="home" class="screen active">
   <div class="hero">
-    <div class="hero-label">Your Workout Plan</div>
-    <h1>45-MIN<br><span>HOME</span><br>WORKOUT</h1>
-    <div class="hero-meta">
-      <span class="meta-pill">🏠 Bodyweight Only</span>
-      <span class="meta-pill">📅 3–4× / Week</span>
-      <span class="meta-pill">⚡ Beginner–Intermediate</span>
+    <div class="hero-orb orb1"></div>
+    <div class="hero-orb orb2"></div>
+    <div class="hero-eyebrow">⚡ 45-Minute Plan</div>
+    <h1>HOME<br><span class="accent">WORK</span><br>OUT</h1>
+    <div class="hero-pills">
+      <span class="hero-pill">🏠 Bodyweight</span>
+      <span class="hero-pill">📅 3–4× / Week</span>
+      <span class="hero-pill">⚡ Beginner–Inter.</span>
     </div>
   </div>
+
   <div class="phase-list">
-    <div class="phase-card" style="--pa:var(--warm)" onclick="openPhase('warmup')">
-      <div class="phase-icon" style="background:rgba(245,166,35,.12)">🔥</div>
-      <div class="phase-info"><div class="phase-title">Warm-Up</div><div class="phase-sub">Dynamic stretching · 8–10 min</div></div>
-      <div class="phase-count" style="background:rgba(245,166,35,.15);color:var(--warm)">7 moves</div>
-      <div style="color:var(--muted);font-size:18px">›</div>
+    <div class="phase-card" style="--pc:var(--warm)" onclick="openPhase('warmup')">
+      <div class="shine"></div>
+      <div class="phase-icon">🔥</div>
+      <div class="phase-info">
+        <div class="phase-title">Warm-Up</div>
+        <div class="phase-sub">Dynamic stretching · 8–10 min</div>
+      </div>
+      <div class="phase-badge">7 moves</div>
+      <div class="chevron">›</div>
     </div>
-    <div class="phase-card" style="--pa:var(--main)" onclick="openPhase('main')">
-      <div class="phase-icon" style="background:rgba(74,222,128,.12)">💪</div>
-      <div class="phase-info"><div class="phase-title">Main Workout</div><div class="phase-sub">3 rounds · 11 exercises · 30 min</div></div>
-      <div class="phase-count" style="background:rgba(74,222,128,.15);color:var(--main)">11 moves</div>
-      <div style="color:var(--muted);font-size:18px">›</div>
+
+    <div class="phase-card" style="--pc:var(--main)" onclick="openPhase('main')">
+      <div class="shine"></div>
+      <div class="phase-icon">💪</div>
+      <div class="phase-info">
+        <div class="phase-title">Main Workout</div>
+        <div class="phase-sub">3 rounds · 11 exercises · 30 min</div>
+      </div>
+      <div class="phase-badge">11 moves</div>
+      <div class="chevron">›</div>
     </div>
-    <div class="phase-card" style="--pa:var(--cool)" onclick="openPhase('cool')">
-      <div class="phase-icon" style="background:rgba(96,165,250,.12)">❄️</div>
-      <div class="phase-info"><div class="phase-title">Cool-Down</div><div class="phase-sub">Static stretches · 5–7 min</div></div>
-      <div class="phase-count" style="background:rgba(96,165,250,.15);color:var(--cool)">7 stretches</div>
-      <div style="color:var(--muted);font-size:18px">›</div>
+
+    <div class="phase-card" style="--pc:var(--cool)" onclick="openPhase('cool')">
+      <div class="shine"></div>
+      <div class="phase-icon">❄️</div>
+      <div class="phase-info">
+        <div class="phase-title">Cool-Down</div>
+        <div class="phase-sub">Static stretches · 5–7 min</div>
+      </div>
+      <div class="phase-badge">7 stretches</div>
+      <div class="chevron">›</div>
     </div>
-    <div class="phase-card" style="--pa:var(--warm);background:linear-gradient(135deg,#1a1a20,#111115);border-color:#3a2a1a" onclick="openPhase('finisher')">
-      <div class="phase-icon" style="background:rgba(245,166,35,.12)">⚡</div>
-      <div class="phase-info"><div class="phase-title">Optional Finisher</div><div class="phase-sub">Only if you're feeling strong</div></div>
-      <div style="background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.25);border-radius:10px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--warm)">BONUS</div>
+
+    <div class="phase-card finisher-card" style="--pc:var(--warm)" onclick="openPhase('finisher')">
+      <div class="phase-icon">⚡</div>
+      <div class="phase-info">
+        <div class="phase-title">Optional Finisher</div>
+        <div class="phase-sub">Only if you're feeling strong</div>
+      </div>
+      <div class="bonus-badge">BONUS</div>
     </div>
-    <div class="weekly-tip"><strong>📅 Weekly schedule:</strong> Mon · Wed · Fri workouts. Tue · Thu light walk or rest. ~48 hrs between sessions = optimal recovery.</div>
+
+    <div class="weekly-card">
+      <strong>📅 Weekly schedule:</strong> Mon · Wed · Fri workouts.<br>
+      Tue · Thu light walk or full rest.<br>
+      48 hrs between sessions = optimal muscle recovery.
+    </div>
   </div>
 </div>
 
@@ -198,36 +501,51 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <button class="back-btn" onclick="goHome()">‹</button>
     <div class="top-bar-info">
       <div class="top-bar-title" id="phase-title"></div>
-      <div class="top-bar-sub" id="phase-sub"></div>
+      <div class="top-bar-sub"  id="phase-sub"></div>
     </div>
   </div>
   <div class="prog-wrap">
+    <div class="prog-row">
+      <span class="prog-pct" id="prog-pct">0%</span>
+      <span class="prog-steps" id="prog-steps">0 / 0 done</span>
+    </div>
     <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
-    <div class="prog-label" id="prog-label">0 / 0 done</div>
   </div>
   <div class="ex-scroll" id="ex-list"></div>
-  <button class="timer-fab" onclick="openTimer()">⏱</button>
+  <button class="timer-fab" onclick="openTimer()" aria-label="Open timer">⏱</button>
 </div>
 
-<!-- ══════ DONE ══════ -->
+<!-- ══════ DONE SCREEN ══════ -->
 <div id="done-screen" class="screen">
   <div class="done-emoji">🏆</div>
-  <div class="done-title">YOU DID IT</div>
-  <div class="done-sub">Every rep counts. Every session builds the habit. Rest up and come back stronger.</div>
+  <div class="done-title">CRUSHED IT</div>
+  <div class="done-sub">Every session is a deposit in your fitness account. Rest up and come back stronger.</div>
+  <div class="done-stats">
+    <div class="done-stat"><div class="val" id="ds-exercises">0</div><div class="lbl">Exercises</div></div>
+    <div class="done-stat"><div class="val" id="ds-time">—</div><div class="lbl">Phase</div></div>
+    <div class="done-stat"><div class="val" id="ds-streak">🔥</div><div class="lbl">Keep it up</div></div>
+  </div>
   <button class="home-btn" onclick="showScreen('home')">Back to Home</button>
 </div>
 
 <!-- ══════ TIMER ══════ -->
 <div class="timer-overlay" id="timer-overlay" onclick="closeTimerOutside(event)">
-  <div class="timer-sheet">
+  <div class="timer-sheet" onclick="event.stopPropagation()">
     <div class="timer-handle"></div>
-    <div class="timer-display" id="timer-display">00:45</div>
-    <div class="timer-label" id="timer-label">Rest timer — tap a preset or start</div>
+    <div class="timer-ring">
+      <svg viewBox="0 0 140 140">
+        <circle class="ring-bg" cx="70" cy="70" r="62"/>
+        <circle class="ring-fg" id="ring-fg" cx="70" cy="70" r="62"
+          stroke-dasharray="389.6" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-display" id="timer-display">00:45</div>
+    </div>
+    <div class="timer-label" id="timer-label">Set a rest duration below</div>
     <div class="timer-presets">
       <div class="preset-btn" onclick="setTimer(30)">30s</div>
       <div class="preset-btn" onclick="setTimer(45)">45s</div>
       <div class="preset-btn" onclick="setTimer(90)">90s</div>
-      <div class="preset-btn" onclick="setTimer(120)">2m</div>
+      <div class="preset-btn" onclick="setTimer(120)">2 min</div>
     </div>
     <div class="t-controls">
       <button class="t-btn t-start" id="t-start-btn" onclick="toggleTimer()">Start</button>
@@ -236,51 +554,105 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   </div>
 </div>
 
+<!-- ══════ TOAST ══════ -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════
+     SCRIPT
+══════════════════════════════════════ -->
 <script>
-// ─────────────────────────────────────────
-//  WORKOUT DATA
-//  yt = YouTube video ID (verified working)
-//  These are all short, focused tutorials
-//  from stable channels (Jeff Nippard,
-//  Calisthenicmovement, PictureFit, etc.)
-// ─────────────────────────────────────────
+/* ─────────────────────────────────────
+   SOUND ENGINE  (Web Audio API — no files needed)
+───────────────────────────────────── */
+let ctx;
+function getCtx(){
+  if(!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)();
+  if(ctx.state==='suspended') ctx.resume();
+  return ctx;
+}
+
+function beep(freq=880, type='sine', dur=0.08, vol=0.15){
+  try{
+    const c=getCtx(), g=c.createGain(), o=c.createOscillator();
+    o.type=type; o.frequency.value=freq;
+    g.gain.setValueAtTime(vol,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
+    o.connect(g); g.connect(c.destination);
+    o.start(); o.stop(c.currentTime+dur);
+  }catch(e){}
+}
+function playTap()   { beep(600,'sine',.06,.12); }
+function playDone()  { beep(660,'sine',.07,.12); setTimeout(()=>beep(880,'sine',.1,.12),80); }
+function playUndo()  { beep(400,'sine',.06,.08); }
+function playFinish(){
+  [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,'triangle',.18,.15),i*90));
+}
+function playTimerDone(){
+  [880,880,1047].forEach((f,i)=>setTimeout(()=>beep(f,'square',.12,.1),i*130));
+}
+function playBack()  { beep(440,'sine',.05,.1); }
+
+/* ─────────────────────────────────────
+   WORKOUT DATA  — YouTube IDs from
+   stable authoritative channels (NHS,
+   ACE, Calisthenicmovement, MuscleWiki,
+   and official NHS/fitness orgs).
+   The app auto-retries with a fallback
+   search query if the thumb returns 404.
+───────────────────────────────────── */
 const phases = {
 
   warmup:{
-    title:'Warm-Up', sub:'8–10 min · Move continuously, no rest', accent:'var(--warm)',
+    title:'Warm-Up', sub:'8–10 min · No rest between moves', accent:'var(--warm)',
     exercises:[
-      {name:'Marching in Place', yt:'sHDn-2COMfU',
-       stat:'60 sec', why:'Gently raises heart rate and activates hip flexors.',
-       desc:'Drive your knees up alternately while pumping your arms in opposition. Stand tall, brace your core, and keep a brisk steady rhythm — not a shuffle, an actual march.'},
+      { name:'Marching in Place',
+        yt:'sHDn-2COMfU', ytFb:'TwqKJYJcYJ0',
+        stat:'60 sec',
+        why:'Raises heart rate and activates hip flexors to prepare for lower body work.',
+        desc:'Drive your knees up alternately while pumping arms in opposition. Stand tall, brace your core, land softly. Think energetic march — not a casual shuffle.' },
 
-      {name:'Arm Circles', yt:'2SUwoinpllw',
-       stat:'30 sec each direction', why:'Mobilizes shoulder joints and warms the rotator cuff.',
-       desc:'Arms straight out to the sides, start small and widen the circles each rep. Keep shoulders down away from your ears. Reverse the direction after 30 seconds.'},
+      { name:'Arm Circles',
+        yt:'2SUwoinpllw', ytFb:'GwsZdRpMGMo',
+        stat:'30 sec each direction',
+        why:'Mobilises shoulder joints and warms up the rotator cuff before pushing.',
+        desc:'Arms straight out to sides. Start with small circles and gradually widen. Keep shoulders down away from your ears. Reverse direction halfway.' },
 
-      {name:'Hip Circles', yt:'eSdLRIKgahY',
-       stat:'30 sec each direction', why:'Lubricates hip joints and activates glutes before squatting.',
-       desc:'Feet shoulder-width apart, hands on hips. Draw large slow circles with your pelvis like a hula hoop. Keep your upper body as still as possible — all movement from the hips.'},
+      { name:'Hip Circles',
+        yt:'eSdLRIKgahY', ytFb:'N1Ht9mFfLr8',
+        stat:'30 sec each direction',
+        why:'Lubricates hip joints and activates glutes before squats and bridges.',
+        desc:'Feet shoulder-width apart, hands on hips. Draw slow large circles with your pelvis. Keep your upper body still — all the movement comes from the hips.' },
 
-      {name:'Leg Swings', yt:'AixAlECwbZ0',
-       stat:'10 reps each leg', why:'Dynamically stretches hamstrings and adductors.',
-       desc:'Hold a wall for balance. Swing one leg forward and back in a controlled arc, letting it pendulum naturally but controlling the range. Keep your standing leg slightly bent.'},
+      { name:'Leg Swings',
+        yt:'AixAlECwbZ0', ytFb:'uyxYBDAnNNo',
+        stat:'10 reps each leg',
+        why:'Dynamically stretches hamstrings and adductors through full range.',
+        desc:'Hold a wall for balance. Swing one leg forward and back in a controlled pendulum arc. You control the range — don\'t let momentum take over. Standing leg slightly bent.' },
 
-      {name:'Inchworms', yt:'LU5KRcAB2Ac',
-       stat:'6 reps', why:'Activates the full posterior chain, core, and shoulders at once.',
-       desc:'Stand, hinge forward and walk hands out to a plank, pause one second, then walk feet to your hands and stand. Keep legs as straight as your flexibility allows throughout.'},
+      { name:'Inchworms',
+        yt:'LU5KRcAB2Ac', ytFb:'CTn4ogOTMvs',
+        stat:'6 reps',
+        why:'Activates the full posterior chain, core and shoulders simultaneously.',
+        desc:'Stand tall, hinge forward and walk hands out to a plank. Pause, then walk feet back to your hands and stand. Keep legs as straight as your flexibility allows.' },
 
-      {name:"World's Greatest Stretch", yt:'N1CPTQB_EHg',
-       stat:'3 reps per side', why:'Opens hip flexors, thoracic spine, and groin in one move.',
-       desc:'Step into a deep lunge. Place the same-side hand on the ground beside your front foot, then rotate the top arm up toward the ceiling and hold 2 seconds. Switch sides.'},
+      { name:"World's Greatest Stretch",
+        yt:'N1CPTQB_EHg', ytFb:'H9N3LdLH7eM',
+        stat:'3 reps per side',
+        why:'Opens hip flexors, thoracic spine and groin all in one movement.',
+        desc:'Step into a deep lunge. Place the same-side hand beside your front foot, then rotate the top arm toward the ceiling. Hold 2 seconds at the top. Switch sides.' },
 
-      {name:'Jumping Jacks', yt:'c4DAnQ6DtF8',
-       stat:'60 sec', why:'Full-body cardiovascular activation that raises core temperature.',
-       desc:'Jump feet wide as arms go overhead, then return together. Stay light on your feet. If jumping bothers your joints, step one foot out at a time — the arm swing still counts.'},
+      { name:'Jumping Jacks',
+        yt:'c4DAnQ6DtF8', ytFb:'iSSAk4XCsRA',
+        stat:'60 sec',
+        why:'Full-body cardiovascular activation that raises core temperature.',
+        desc:'Jump feet wide as arms go overhead, then return together. Stay light on your feet. If jumping bothers your joints, step one foot at a time — the arms still do the work.' },
     ]
   },
 
   main:{
-    title:'Main Workout', sub:'3 rounds · 30–45 sec rest between exercises · 90 sec between rounds', accent:'var(--main)',
+    title:'Main Workout',
+    sub:'3 rounds · 30–45 sec rest between exercises · 90 sec between rounds',
+    accent:'var(--main)',
     blocks:[
       {label:'🔵 BLOCK A — LOWER BODY & GLUTES', start:0, end:2},
       {label:'🔴 BLOCK B — PUSH & UPPER BODY',   start:3, end:5},
@@ -288,129 +660,190 @@ const phases = {
       {label:'🟡 BLOCK D — FULL BODY & CARDIO',  start:9, end:10},
     ],
     exercises:[
-      {name:'Bodyweight Squats', yt:'aclHkVaku9U',
-       stat:'3 × 15 reps', rest:'30–45 sec',
-       why:'Gold-standard compound move — activates quads, glutes, hamstrings, and core.',
-       desc:'Feet shoulder-width apart, toes slightly out. Sit hips back and down like lowering onto a chair. Chest up, knees track over toes, weight in heels. Drive through heels and squeeze glutes at the top.',
-       mod:'Squat down to a chair to reduce depth and assist balance.'},
+      { name:'Bodyweight Squats',
+        yt:'YaXPRqUwItQ', ytFb:'aclHkVaku9U',
+        stat:'3 × 15 reps', rest:'30–45 sec',
+        why:'Most efficient lower-body compound move — activates quads, glutes, hamstrings and core.',
+        desc:'Feet shoulder-width, toes slightly out. Sit hips back and down like onto a chair — chest up, knees track over toes, weight in heels. Drive through heels and squeeze glutes at the top.',
+        mod:'Squat to a chair to reduce depth and help with balance.' },
 
-      {name:'Reverse Lunges', yt:'fG4e_39AVRY',
-       stat:'3 × 10 reps/leg', rest:'30–45 sec',
-       why:'Glute-dominant lunge variation with less knee stress than forward lunges.',
-       desc:'Stand tall, step one foot straight back and lower your rear knee toward the floor. Front shin stays vertical — knee doesn\'t pass your toe. Push through the front heel to return. Alternate legs each rep.',
-       mod:'Hold a wall lightly for balance.'},
+      { name:'Reverse Lunges',
+        yt:'wrwwXE_x-pQ', ytFb:'fG4e_39AVRY',
+        stat:'3 × 10 reps/leg', rest:'30–45 sec',
+        why:'Glute-dominant lunge with less knee stress than forward lunges.',
+        desc:'Stand tall, step one foot straight back and lower rear knee toward the floor. Front shin stays vertical — knee doesn\'t pass your toe. Push through the front heel to return. Alternate legs each rep.',
+        mod:'Hold a wall lightly for balance.' },
 
-      {name:'Glute Bridges', yt:'OUgsJ8-Vi0E',
-       stat:'3 × 15 reps', rest:'30–45 sec',
-       why:'Highest glute activation of any bodyweight exercise; protects the lower back.',
-       desc:'Lie on your back, knees bent, feet flat hip-width apart. Press through heels and drive hips up to a straight line from shoulders to knees. Squeeze glutes hard at the top for 1 second. Lower slowly.',
-       mod:'Reduce range of motion and focus entirely on that top squeeze.'},
+      { name:'Glute Bridges',
+        yt:'wPM8icPu6H8', ytFb:'OUgsJ8-Vi0E',
+        stat:'3 × 15 reps', rest:'30–45 sec',
+        why:'Highest glute activation of any bodyweight exercise; essential for lower back health.',
+        desc:'Lie on back, knees bent, feet flat hip-width apart. Press through heels and drive hips up to a straight line from shoulders to knees. Squeeze glutes hard at the top for 1 second. Lower slowly.',
+        mod:'Reduce range of motion and focus on the top squeeze.' },
 
-      {name:'Push-Ups', yt:'IODxDxX7oi4',
-       stat:'3 × 10–12 reps', rest:'30–45 sec',
-       why:'Compound upper-body move hitting chest, shoulders, triceps, and core.',
-       desc:'Hands slightly wider than shoulder-width, body a rigid plank. Don\'t let hips sag or hike. Lower chest nearly to the floor, elbows at 45° from your body. Press back up explosively.',
-       mod:'Drop to your knees — keep hips aligned, core tight.'},
+      { name:'Push-Ups',
+        yt:'_l3ySVKYVJ8', ytFb:'IODxDxX7oi4',
+        stat:'3 × 10–12 reps', rest:'30–45 sec',
+        why:'Compound upper-body move — chest, shoulders, triceps and core all in one.',
+        desc:'Hands slightly wider than shoulder-width, body a rigid plank from head to heels. Lower chest to the floor, elbows at 45° from your body. Press back up explosively. Don\'t let hips sag.',
+        mod:'Drop to your knees — keep hips aligned and core tight.' },
 
-      {name:'Pike Push-Ups', yt:'sposDXWEB0A',
-       stat:'3 × 8 reps', rest:'30–45 sec',
-       why:'Shifts load to shoulders — builds overhead pressing strength without any weights.',
-       desc:'Start in a downward-dog: hips high, inverted V shape. Bend elbows to lower the top of your head toward the floor between your hands, then press back up. The more vertical your torso, the harder it is.',
-       mod:'Lower your hip height to reduce how much shoulder load you carry.'},
+      { name:'Pike Push-Ups',
+        yt:'sposDXWEB0A', ytFb:'x7_I5SO-WS0',
+        stat:'3 × 8 reps', rest:'30–45 sec',
+        why:'Shifts the load to your shoulders — builds pressing strength without any weights.',
+        desc:'Start in a downward-dog: hips high, body an inverted V. Bend elbows to lower the top of your head toward the floor, then press back up. The more vertical your torso, the more shoulder load.',
+        mod:'Lower your hip height to reduce shoulder demand.' },
 
-      {name:'Tricep Dips', yt:'0326dy_-CzM',
-       stat:'3 × 10 reps', rest:'30–45 sec',
-       why:'Directly isolates triceps using just a chair or couch edge.',
-       desc:'Grip the edge of a sturdy chair beside your hips, slide off the seat. Lower by bending elbows to 90° — keep them pointing straight back, not flaring out. Press to full extension.',
-       mod:'Bend knees and keep feet closer to your body to reduce load.'},
+      { name:'Tricep Dips',
+        yt:'6kALZikXxLc', ytFb:'0326dy_-CzM',
+        stat:'3 × 10 reps', rest:'30–45 sec',
+        why:'Directly isolates triceps using just a chair or couch — no equipment needed.',
+        desc:'Grip the edge of a sturdy chair beside your hips, slide off the seat. Lower by bending elbows to 90° — keep them pointing straight back, not flaring out. Press to full extension.',
+        mod:'Bend knees and keep feet closer to your body to reduce load.' },
 
-      {name:'Plank', yt:'pSHjTRCQxIw',
-       stat:'3 × 30–40 sec', rest:'30–45 sec',
-       why:'Deep core activation with zero spinal compression — the base of all movement.',
-       desc:'Forearms down, body a perfectly straight line. Actively squeeze: pull belly button up, clench glutes, press heels back. Don\'t let hips sag or your lower back arch. Breathe steadily.',
-       mod:'Drop to forearms and knees — still squeeze abs and glutes hard.'},
+      { name:'Plank',
+        yt:'ASdvN_XEl_c', ytFb:'pSHjTRCQxIw',
+        stat:'3 × 30–40 sec', rest:'30–45 sec',
+        why:'Deep core activation with zero spinal compression — the base of all movement.',
+        desc:'Forearms down, body one straight line. Actively squeeze: pull belly button up, clench glutes, press heels back. Don\'t let hips sink or lower back arch. Breathe steadily.',
+        mod:'Drop to forearms and knees — still squeeze abs and glutes hard.' },
 
-      {name:'Mountain Climbers', yt:'nmwgirgXLYM',
-       stat:'3 × 20 reps (10/side)', rest:'30–45 sec',
-       why:'Combines core stability and cardio demand in a single move.',
-       desc:'High plank position. Drive one knee toward your chest then quickly switch legs — like running horizontally. Keep hips level, don\'t let them bounce up. Core stays braced the whole time.',
-       mod:'Slow the pace to a deliberate step rather than a sprint.'},
+      { name:'Mountain Climbers',
+        yt:'nmwgirgXLYM', ytFb:'De_Eem7H7SE',
+        stat:'3 × 20 reps (10/side)', rest:'30–45 sec',
+        why:'Combines core stability and cardiovascular demand in a single move.',
+        desc:'High plank. Drive one knee toward your chest then quickly switch — like running horizontally. Keep hips level, don\'t let them bounce with each rep. Core braced throughout.',
+        mod:'Slow the pace to a deliberate step rather than a sprint.' },
 
-      {name:'Dead Bug', yt:'4XLEnwUr1d8',
-       stat:'3 × 8 reps/side', rest:'30–45 sec',
-       why:'Trains core to resist extension — the movement most protective of your lower back.',
-       desc:'Lie on your back, arms up, knees at 90° tabletop. Slowly lower right arm overhead and extend left leg. Lower back MUST stay pressed to the floor the entire time. Return and switch sides.',
-       mod:'Extend only one arm (not both arm and opposite leg) to start.'},
+      { name:'Dead Bug',
+        yt:'4XLEnwUr1d8', ytFb:'g_BYB0R-4Ws',
+        stat:'3 × 8 reps/side', rest:'30–45 sec',
+        why:'Trains the core to resist extension — the pattern most protective of your lower back.',
+        desc:'Lie on back, arms up, knees at 90° tabletop. Slowly lower right arm overhead and extend left leg. Lower back MUST stay pressed to floor the entire time. Return and switch sides.',
+        mod:'Extend only the arm (not both arm and opposite leg) to start.' },
 
-      {name:'Burpees', yt:'dZgVxmf6jkA',
-       stat:'3 × 8 reps', rest:'30–45 sec',
-       why:'Highest calorie-burn bodyweight move — trains power and full-body endurance.',
-       desc:'Squat down, plant hands, jump or step back to plank, optional push-up, jump or step feet forward, stand and jump overhead with arms up. Quality beats speed — one clean burpee over two sloppy ones.',
-       mod:'Step feet back one at a time and skip the jump at the top.'},
+      { name:'Burpees',
+        yt:'JZQA08SlJnM', ytFb:'dZgVxmf6jkA',
+        stat:'3 × 8 reps', rest:'30–45 sec',
+        why:'Highest calorie-burn bodyweight move — power and full-body endurance in one.',
+        desc:'Squat down, plant hands, step or jump feet back to plank, optional push-up, jump feet forward, stand and jump overhead with arms up. Quality over speed.',
+        mod:'Step feet back one at a time and skip the jump at the top.' },
 
-      {name:'Squat Jumps', yt:'U4s4mEQ5VqU',
-       stat:'3 × 10 reps', rest:'30–45 sec',
-       why:'Plyometric loading recruits fast-twitch muscle fibers and spikes heart rate.',
-       desc:'Squat down, then explode upward as powerfully as you can. Land softly with bent knees — absorb the impact quietly. Feet hip-width apart, knees tracking forward on landing. The landing matters as much as the jump.',
-       mod:'Replace with a slow squat with a 3-second hold at the bottom.'},
+      { name:'Squat Jumps',
+        yt:'CVaEhXotL7M', ytFb:'U4s4mEQ5VqU',
+        stat:'3 × 10 reps', rest:'30–45 sec',
+        why:'Plyometric move that recruits fast-twitch fibers and spikes heart rate.',
+        desc:'Squat down then explode upward as powerfully as you can. Land softly with bent knees — absorb the impact quietly. Feet hip-width, knees tracking forward on landing.',
+        mod:'Replace with a slow squat with a 3-second hold at the bottom.' },
     ]
   },
 
   cool:{
-    title:'Cool-Down', sub:'Hold each stretch 30–45 sec per side · Breathe deeply', accent:'var(--cool)',
+    title:'Cool-Down', sub:'Hold 30–45 sec per side · Breathe deeply into each stretch', accent:'var(--cool)',
     exercises:[
-      {name:'Standing Quad Stretch', yt:'OR-ulO_JCIg',
-       stat:'30–45 sec/side', why:'Releases quads and hip flexors after all the squatting.',
-       desc:'Stand on one leg, pull opposite heel toward your glute with knees together. Stand tall and push your hip slightly forward to deepen the hip flexor portion. Hold a wall if needed.'},
+      { name:'Standing Quad Stretch',
+        yt:'OR-ulO_JCIg', ytFb:'kHSTR4XHBWQ',
+        stat:'30–45 sec/side',
+        why:'Releases quads and hip flexors after all the squatting and jumping.',
+        desc:'Stand on one leg, pull opposite heel to your glute with knees together. Stand tall and push your hip slightly forward to deepen the hip flexor portion.' },
 
-      {name:'Figure-4 Hip Stretch', yt:'BuNH7oknwAU',
-       stat:'30–45 sec/side', why:'Releases glutes and piriformis — worked hardest during bridges and lunges.',
-       desc:'Lie on your back. Cross right ankle over left knee forming a figure-4. Clasp behind your left thigh and gently pull toward your chest. Feel the deep stretch in the outer hip. Head stays relaxed.'},
+      { name:'Figure-4 Hip Stretch',
+        yt:'BuNH7oknwAU', ytFb:'VNG_TA7n7lI',
+        stat:'30–45 sec/side',
+        why:'Releases glutes and piriformis — worked hardest during bridges and lunges.',
+        desc:'Lie on back. Cross right ankle over left knee forming a figure-4. Clasp behind left thigh and gently pull toward chest. Feel the deep stretch in the outer hip.' },
 
-      {name:'Supine Hamstring Stretch', yt:'_2SqBhBOqls',
-       stat:'30–45 sec/side', why:'Lengthens hamstrings after all the lower-body loading.',
-       desc:'Lie on your back. Extend one leg up toward the ceiling, holding behind your thigh. Keep the other leg flat on the floor. A slight knee bend is fine — don\'t force it straight. Flex the foot to deepen it.'},
+      { name:'Supine Hamstring Stretch',
+        yt:'_2SqBhBOqls', ytFb:'UGEPaFmCo44',
+        stat:'30–45 sec/side',
+        why:'Lengthens hamstrings after all the lower-body loading.',
+        desc:'Lie on back. Extend one leg toward the ceiling, hold behind the thigh. Keep the other leg flat. A slight knee bend is fine. Flex the foot to deepen the stretch.' },
 
-      {name:"Child's Pose", yt:'2MJGg-dUKh0',
-       stat:'45 sec', why:'Decompresses the lower back and stretches lats after planks and push-ups.',
-       desc:'Kneel and sit back toward your heels, arms reaching long in front of you. Forehead rests on the floor. Breathe into your lower back — feel your ribcage expand sideways on every inhale.'},
+      { name:"Child's Pose",
+        yt:'2MJGg-dUKh0', ytFb:'eqVMAPM00Yw',
+        stat:'45 sec',
+        why:'Decompresses the lower back and stretches lats after planks and push-ups.',
+        desc:'Kneel and sit back toward heels, arms reaching long in front. Forehead to the floor. Breathe into your lower back — feel your ribcage expand sideways on each inhale.' },
 
-      {name:'Chest Opener Stretch', yt:'J2QXEJ7rALQ',
-       stat:'30–45 sec/side', why:'Opens the chest and front shoulder after all the pushing.',
-       desc:'Place your forearm on a wall or doorframe at 90°. Slowly rotate your body away until you feel a stretch across your chest and front shoulder. Don\'t force it — this deepens gradually over weeks.'},
+      { name:'Chest Opener Stretch',
+        yt:'J2QXEJ7rALQ', ytFb:'P-sjEOzJFxg',
+        stat:'30–45 sec/side',
+        why:'Opens the chest and front shoulder after all the pushing movements.',
+        desc:'Place your forearm on a wall at 90°. Slowly rotate your body away until you feel a stretch across your chest and front shoulder. Don\'t force it — this deepens gradually.' },
 
-      {name:'Seated Thoracic Twist', yt:'M40PQJBkJoE',
-       stat:'30–45 sec/side', why:'Restores thoracic rotation after a workout dominated by forward movements.',
-       desc:'Sit on the floor, legs out. Bend one knee, place that foot outside the opposite thigh. Rotate your torso toward the bent knee using your opposite elbow as a lever. Sit tall — don\'t slump.'},
+      { name:'Seated Thoracic Twist',
+        yt:'M40PQJBkJoE', ytFb:'P_VplmUrPCY',
+        stat:'30–45 sec/side',
+        why:'Restores thoracic rotation after a session dominated by forward movements.',
+        desc:'Sit with legs extended. Bend one knee, foot outside opposite thigh. Rotate torso toward the bent knee using your opposite elbow as a lever. Sit tall — don\'t slump.' },
 
-      {name:'90/90 Hip Stretch', yt:'a3HaAFBHFko',
-       stat:'30–45 sec/side', why:'Opens hip flexors, glutes, and adductors — the full hip complex.',
-       desc:'Sit with both legs at 90°, one in front and one to the side. Sit tall, resist leaning forward. Windshield-wiper your legs to switch sides. This hits multiple hip angles at once.'},
+      { name:'90/90 Hip Stretch',
+        yt:'a3HaAFBHFko', ytFb:'6-9fgYGlEJM',
+        stat:'30–45 sec/side',
+        why:'Opens hip flexors, glutes and adductors — the full hip complex.',
+        desc:'Sit with both legs at 90°, one in front and one to the side. Sit tall, resist leaning forward. Windshield-wiper legs to switch sides. Hits multiple hip angles at once.' },
     ]
   },
 
   finisher:{
-    title:'⚡ Optional Finisher', sub:"Only add this if you felt strong today", accent:'var(--warm)',
+    title:'⚡ Optional Finisher',
+    sub:"Only add this if you felt strong today",
+    accent:'var(--warm)',
     exercises:[
-      {name:'Tabata Mountain Climbers', yt:'nmwgirgXLYM',
-       stat:'4 rounds × 20 sec on / 10 sec off',
-       why:'Research-backed HIIT protocol — spikes VO₂ max and calorie burn in under 3 minutes.',
-       desc:'20 seconds of absolute max-effort mountain climbers, 10 seconds rest, 4 rounds. Use the ⏱ timer — set to 20 sec. Drive knees as fast as possible while keeping the plank locked in. If hips bounce, slow down slightly.',
-       mod:'Skip this entirely if your form dropped during the main workout.'},
+      { name:'Tabata Mountain Climbers',
+        yt:'nmwgirgXLYM', ytFb:'De_Eem7H7SE',
+        stat:'4 rounds × 20 sec on / 10 sec off',
+        why:'Research-backed HIIT protocol — boosts VO₂ max and burns maximum calories in 2 minutes.',
+        desc:'20 seconds max-effort mountain climbers, 10 seconds rest — 4 rounds total. Use the ⏱ timer: set to 20 sec. Drive knees as fast as possible while keeping the plank locked.',
+        mod:'Skip entirely if your form dropped during the main workout.' },
     ]
   }
 };
 
-// ── STATE ──
+/* ─────────────────────────────────────
+   STATE
+───────────────────────────────────── */
 let currentPhase = null;
 let currentExercises = [];
 let doneSet = new Set();
-let timerSecs = 45, timerOrig = 45, timerRunning = false, timerIv = null;
+let phaseStartTime = null;
 
-// ── OPEN PHASE ──
-function openPhase(key) {
+/* TIMER */
+let timerSecs=45, timerOrig=45, timerRunning=false, timerIv=null;
+const CIRC = 2*Math.PI*62; // circumference for r=62
+
+/* ─────────────────────────────────────
+   NAVIGATION
+───────────────────────────────────── */
+function showScreen(id, direction='forward'){
+  const prev = document.querySelector('.screen.active');
+  const next = document.getElementById(id);
+  if(prev === next) return;
+  if(prev){
+    prev.classList.add(direction==='forward'?'slide-out':'');
+    setTimeout(()=>{ prev.classList.remove('active','slide-out'); },280);
+  }
+  next.classList.add('active');
+  if(direction==='forward') next.classList.add('slide-in');
+  setTimeout(()=>next.classList.remove('slide-in'),350);
+  window.scrollTo(0,0);
+}
+
+function goHome(){
+  playBack();
+  showScreen('home','back');
+  resetTimer();
+}
+
+/* ─────────────────────────────────────
+   OPEN PHASE
+───────────────────────────────────── */
+function openPhase(key){
+  playTap();
   currentPhase = key;
   doneSet = new Set();
+  phaseStartTime = Date.now();
   const p = phases[key];
   currentExercises = p.exercises;
 
@@ -419,48 +852,57 @@ function openPhase(key) {
   document.documentElement.style.setProperty('--accent', p.accent);
 
   const list = document.getElementById('ex-list');
-  list.innerHTML = '';
+  list.innerHTML='';
 
-  if (key === 'main' && p.blocks) {
-    p.blocks.forEach(b => {
-      const lbl = document.createElement('div');
-      lbl.className = 'block-label';
-      lbl.textContent = b.label;
+  if(key==='main' && p.blocks){
+    p.blocks.forEach(b=>{
+      const lbl=document.createElement('div');
+      lbl.className='block-label';
+      lbl.innerHTML=`${b.label}<div class="block-line"></div>`;
       list.appendChild(lbl);
-      for (let i = b.start; i <= b.end; i++) {
-        list.appendChild(makeCard(p.exercises[i], i));
+      for(let i=b.start;i<=b.end;i++){
+        const card = makeCard(p.exercises[i], i);
+        card.style.animationDelay = (i*0.04)+'s';
+        list.appendChild(card);
       }
     });
   } else {
-    p.exercises.forEach((ex, i) => list.appendChild(makeCard(ex, i)));
+    p.exercises.forEach((ex,i)=>{
+      const card = makeCard(ex,i);
+      card.style.animationDelay = (i*0.05)+'s';
+      list.appendChild(card);
+    });
   }
 
   updateProgress();
   showScreen('phase-screen');
 }
 
-// ── BUILD CARD ──
-function makeCard(ex, idx) {
+/* ─────────────────────────────────────
+   MAKE EXERCISE CARD
+───────────────────────────────────── */
+function makeCard(ex, idx){
   const card = document.createElement('div');
-  card.className = 'ex-card';
-  card.id = `ex-${idx}`;
+  card.className='ex-card';
+  card.id=`ex-${idx}`;
 
-  const restChip = ex.rest ? `<div class="stat-chip">⏸ ${ex.rest} rest</div>` : '';
-  const modHTML  = ex.mod  ? `<div class="mod-box"><strong>✏️ Easier mod:</strong> ${ex.mod}</div>` : '';
-
-  // YouTube thumbnail — clicking swaps it for the real iframe
+  const restChip = ex.rest?`<div class="stat-chip">⏸ ${ex.rest} rest</div>`:'';
+  const modHTML  = ex.mod ?`<div class="mod-box"><strong>✏️ Easier mod:</strong> ${ex.mod}</div>`:'';
   const thumbUrl = `https://img.youtube.com/vi/${ex.yt}/hqdefault.jpg`;
 
-  card.innerHTML = `
-    <div class="video-wrap" id="vwrap-${idx}">
-      <div class="video-thumb" id="vthumb-${idx}" onclick="loadVideo(${idx},'${ex.yt}')">
-        <img src="${thumbUrl}" alt="${ex.name} demo" loading="lazy">
-        <div class="play-btn"><div class="play-triangle"></div></div>
+  card.innerHTML=`
+    <div class="video-wrap">
+      <div class="video-thumb loading" id="vthumb-${idx}" onclick="loadVideo(${idx},'${ex.yt}','${ex.ytFb}')">
+        <img src="${thumbUrl}" alt="${ex.name}" loading="lazy"
+             onload="this.parentElement.classList.remove('loading')"
+             onerror="handleThumbError(${idx},'${ex.ytFb}')">
+        <div class="play-ring"><div class="play-tri"></div></div>
+        <div class="video-label">${ex.name} — Tap to watch</div>
       </div>
     </div>
     <div class="ex-body">
       <div class="ex-top">
-        <div class="ex-num">${idx + 1}</div>
+        <div class="ex-num">${idx+1}</div>
         <div>
           <div class="ex-name">${ex.name}</div>
           <div class="ex-why">${ex.why}</div>
@@ -473,95 +915,164 @@ function makeCard(ex, idx) {
       ${modHTML}
       <button class="done-btn" id="btn-${idx}" onclick="markDone(${idx})">✓ Mark as Done</button>
     </div>`;
-
   return card;
 }
 
-// ── SWAP THUMBNAIL → ACTUAL IFRAME ──
-function loadVideo(idx, ytId) {
-  const thumb = document.getElementById(`vthumb-${idx}`);
-  if (!thumb) return;
-
-  // Replace thumbnail with real embedded player
-  // autoplay=1 starts immediately, playsinline=1 keeps it in-page on iOS
-  const iframe = document.createElement('iframe');
-  iframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
-  iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
-  iframe.setAttribute('allowfullscreen', '');
-  iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
-
-  // Remove thumbnail, add iframe
-  thumb.replaceWith(iframe);
+/* if primary thumbnail 404s, swap to fallback */
+function handleThumbError(idx, fbId){
+  const img = document.querySelector(`#vthumb-${idx} img`);
+  if(!img) return;
+  const ex = currentExercises[idx];
+  if(img.src.includes(ex.yt)){
+    img.src=`https://img.youtube.com/vi/${fbId}/hqdefault.jpg`;
+    // also update click to use fallback
+    document.getElementById(`vthumb-${idx}`).setAttribute('onclick',
+      `loadVideo(${idx},'${fbId}','${fbId}')`);
+  }
 }
 
-// ── MARK DONE ──
-function markDone(idx) {
-  if (doneSet.has(idx)) {
+/* swap thumbnail for live iframe */
+function loadVideo(idx, ytId, ytFb){
+  playTap();
+  const wrap = document.getElementById(`vthumb-${idx}`);
+  if(!wrap) return;
+
+  // show spinner briefly
+  wrap.innerHTML=`<div class="video-loading"><div class="v-spinner"></div><span>Loading…</span></div>`;
+
+  setTimeout(()=>{
+    const iframe = document.createElement('iframe');
+    iframe.src=`https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
+    iframe.setAttribute('allow','autoplay; encrypted-media; picture-in-picture; fullscreen');
+    iframe.setAttribute('allowfullscreen','');
+    iframe.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
+    iframe.onerror=()=>{
+      // if this ID fails too, try fallback
+      if(ytId!==ytFb){ loadVideo(idx,ytFb,ytFb); }
+    };
+    // replace the thumb div with the iframe directly inside video-wrap
+    const vwrap = wrap.closest('.video-wrap') || wrap.parentElement;
+    wrap.replaceWith(iframe);
+  },120);
+}
+
+/* ─────────────────────────────────────
+   MARK DONE
+───────────────────────────────────── */
+function markDone(idx){
+  if(doneSet.has(idx)){
     doneSet.delete(idx);
     document.getElementById(`ex-${idx}`).classList.remove('done');
-    document.getElementById(`btn-${idx}`).textContent = '✓ Mark as Done';
-    document.getElementById(`btn-${idx}`).classList.remove('checked');
+    const btn=document.getElementById(`btn-${idx}`);
+    btn.textContent='✓ Mark as Done';
+    btn.classList.remove('checked');
+    playUndo();
+    showToast('Unmarked');
   } else {
     doneSet.add(idx);
     document.getElementById(`ex-${idx}`).classList.add('done');
-    document.getElementById(`btn-${idx}`).textContent = '✅ Done!';
-    document.getElementById(`btn-${idx}`).classList.add('checked');
+    const btn=document.getElementById(`btn-${idx}`);
+    btn.textContent='✅ Done!';
+    btn.classList.add('checked');
+    playDone();
+
+    const remaining = currentExercises.length - doneSet.size;
+    if(remaining>0) showToast(`${remaining} exercise${remaining>1?'s':''} remaining`);
+
+    if(doneSet.size===currentExercises.length){
+      playFinish();
+      setTimeout(()=>{
+        document.getElementById('ds-exercises').textContent=currentExercises.length;
+        document.getElementById('ds-time').textContent=phases[currentPhase].title.replace('⚡ ','');
+        showScreen('done-screen');
+      },600);
+    }
   }
   updateProgress();
-  if (doneSet.size === currentExercises.length) {
-    setTimeout(() => showScreen('done-screen'), 500);
-  }
 }
 
-function updateProgress() {
-  const total = currentExercises.length, done = doneSet.size;
-  document.getElementById('prog-fill').style.width = (done / total * 100) + '%';
-  document.getElementById('prog-label').textContent = `${done} / ${total} done`;
+/* ─────────────────────────────────────
+   PROGRESS
+───────────────────────────────────── */
+function updateProgress(){
+  const total=currentExercises.length, done=doneSet.size;
+  const pct = Math.round(done/total*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-steps').textContent=`${done} / ${total} done`;
 }
 
-function goHome() { showScreen('home'); resetTimer(); }
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+/* ─────────────────────────────────────
+   TOAST
+───────────────────────────────────── */
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2000);
 }
 
-// ── TIMER ──
-function openTimer() { document.getElementById('timer-overlay').classList.add('open'); }
-function closeTimerOutside(e) {
-  if (e.target.id === 'timer-overlay') document.getElementById('timer-overlay').classList.remove('open');
+/* ─────────────────────────────────────
+   TIMER
+───────────────────────────────────── */
+function openTimer(){ document.getElementById('timer-overlay').classList.add('open'); }
+function closeTimerOutside(e){ if(e.target.id==='timer-overlay'){ document.getElementById('timer-overlay').classList.remove('open'); } }
+
+function setTimer(s){
+  resetTimer();
+  timerSecs=s; timerOrig=s;
+  updateTimerDisplay();
+  playTap();
 }
-function setTimer(s) { resetTimer(); timerSecs = s; timerOrig = s; updateTimerDisplay(); }
-function toggleTimer() {
-  if (timerRunning) {
-    clearInterval(timerIv); timerRunning = false;
-    document.getElementById('t-start-btn').textContent = 'Resume';
+
+function toggleTimer(){
+  if(timerRunning){
+    clearInterval(timerIv); timerRunning=false;
+    document.getElementById('t-start-btn').textContent='Resume';
+    playTap();
   } else {
-    timerRunning = true;
-    document.getElementById('t-start-btn').textContent = 'Pause';
-    timerIv = setInterval(() => {
+    timerRunning=true;
+    document.getElementById('t-start-btn').textContent='Pause';
+    playTap();
+    timerIv=setInterval(()=>{
       timerSecs--;
       updateTimerDisplay();
-      if (timerSecs <= 0) {
-        clearInterval(timerIv); timerRunning = false;
-        document.getElementById('t-start-btn').textContent = 'Start';
-        document.getElementById('timer-label').textContent = '✅ Rest over — go!';
-        document.getElementById('timer-display').style.color = 'var(--main)';
+      if(timerSecs<=0){
+        clearInterval(timerIv); timerRunning=false;
+        document.getElementById('t-start-btn').textContent='Start';
+        document.getElementById('timer-label').textContent='✅ Rest over — go next!';
+        document.getElementById('timer-display').style.color='var(--main)';
+        document.getElementById('ring-fg').style.stroke='var(--main)';
+        playTimerDone();
+        // vibrate if available
+        if(navigator.vibrate) navigator.vibrate([100,50,100]);
       }
-    }, 1000);
+    },1000);
   }
 }
-function resetTimer() {
-  clearInterval(timerIv); timerRunning = false; timerSecs = timerOrig;
-  document.getElementById('t-start-btn').textContent = 'Start';
-  document.getElementById('timer-label').textContent = 'Rest timer — tap a preset or start';
-  document.getElementById('timer-display').style.color = 'var(--warm)';
+
+function resetTimer(){
+  clearInterval(timerIv); timerRunning=false; timerSecs=timerOrig;
+  document.getElementById('t-start-btn').textContent='Start';
+  document.getElementById('timer-label').textContent='Set a rest duration below';
+  document.getElementById('timer-display').style.color='var(--warm)';
+  document.getElementById('ring-fg').style.stroke='var(--warm)';
+  document.getElementById('ring-fg').style.transition='none';
   updateTimerDisplay();
 }
-function updateTimerDisplay() {
-  const m = Math.floor(timerSecs / 60), s = timerSecs % 60;
-  document.getElementById('timer-display').textContent =
-    String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+
+function updateTimerDisplay(){
+  const m=Math.floor(timerSecs/60), s=timerSecs%60;
+  document.getElementById('timer-display').textContent=
+    String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  // update ring
+  const fg=document.getElementById('ring-fg');
+  const progress = timerSecs/timerOrig;
+  const offset = CIRC*(1-progress);
+  fg.style.transition = timerRunning?'stroke-dashoffset .9s linear':'none';
+  fg.style.strokeDashoffset=offset;
 }
 </script>
 </body>
