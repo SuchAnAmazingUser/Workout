@@ -9,89 +9,56 @@
 <title>45-Min Home Workout</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* ══ TOKENS ══ */
 :root{
-  --bg:#0d0d0f; --card:#16161a; --card2:#1c1c23;
-  --border:#252530; --border2:#303040;
-  --warm:#f5a623; --main:#4ade80; --cool:#60a5fa; --purple:#a78bfa;
-  --text:#f0eff4; --text2:#b0afba; --muted:#5a5a6a;
-  --pill:#1e1e28; --accent:var(--main);
-  --ease:cubic-bezier(.4,0,.2,1);
-  --spring:cubic-bezier(.34,1.56,.64,1);
-  --ambient-r:13; --ambient-g:13; --ambient-b:15;
+  --bg:#0d0d0f;--card:#16161a;--card2:#1c1c23;
+  --border:#252530;--border2:#303040;
+  --warm:#f5a623;--main:#4ade80;--cool:#60a5fa;--purple:#a78bfa;--spot:#1DB954;
+  --text:#f0eff4;--text2:#b0afba;--muted:#5a5a6a;
+  --pill:#1e1e28;--accent:var(--main);
+  --ease:cubic-bezier(.4,0,.2,1);--spring:cubic-bezier(.34,1.56,.64,1);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html{scroll-behavior:smooth;}
-body{
-  background:var(--bg); color:var(--text);
-  font-family:'DM Sans',sans-serif; min-height:100vh;
-  overflow-x:hidden; -webkit-font-smoothing:antialiased;
-  position:relative;
-}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;position:relative;}
+#ambient-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% 100%,rgba(13,13,15,0.1) 0%,transparent 70%);transition:background 1.6s ease;}
 
-/* ── AMBIENT VISUALIZER BG ── */
-#ambient-bg{
-  position:fixed; inset:0; z-index:0; pointer-events:none;
-  background:radial-gradient(ellipse at 50% 100%,
-    rgba(var(--ambient-r),var(--ambient-g),var(--ambient-b),0.18) 0%,
-    transparent 70%);
-  transition:background 1.6s ease;
-}
+/* PERSIST BAR */
+#persist-bar{position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(14,14,17,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:10px 16px 8px;padding-top:max(10px,env(safe-area-inset-top));}
+.pb-date{flex:1;min-width:0;}
+.pb-date-main{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.5px;color:var(--text);line-height:1;}
+.pb-block{font-size:10px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pb-block.active-block{color:var(--main);}
+.pb-timer{display:flex;align-items:center;gap:6px;background:var(--pill);border:1px solid var(--border);border-radius:12px;padding:5px 10px;cursor:pointer;transition:background .15s,border-color .15s,transform .15s var(--spring);flex-shrink:0;}
+.pb-timer:hover{background:var(--border);border-color:var(--warm);}
+.pb-timer:active{transform:scale(.95);}
+.pb-timer-icon{font-size:13px;}
+.pb-timer-val{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--warm);letter-spacing:1px;min-width:44px;text-align:center;}
+.pb-timer.running{border-color:rgba(245,166,35,.5);background:rgba(245,166,35,.08);}
+.pb-timer.done{border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.08);}
+.pb-timer.done .pb-timer-val{color:var(--main);}
 
-/* ── PERSISTENT HEADER ── */
-#persist-bar{
-  position:fixed; top:0; left:0; right:0; z-index:999;
-  background:rgba(14,14,17,.96); backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--border);
-  display:flex; align-items:center; gap:10px;
-  padding:10px 16px 8px;
-  padding-top: max(10px, env(safe-area-inset-top));
-}
-.pb-date{ flex:1; min-width:0; }
-.pb-date-main{ font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:.5px; color:var(--text); line-height:1; }
-.pb-block{ font-size:10px; color:var(--muted); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.pb-block.active-block{ color:var(--main); }
-/* persistent timer pill */
-.pb-timer{
-  display:flex; align-items:center; gap:6px;
-  background:var(--pill); border:1px solid var(--border);
-  border-radius:12px; padding:5px 10px; cursor:pointer;
-  transition:background .15s, border-color .15s, transform .15s var(--spring);
-  flex-shrink:0;
-}
-.pb-timer:hover{ background:var(--border); border-color:var(--warm); }
-.pb-timer:active{ transform:scale(.95); }
-.pb-timer-icon{ font-size:13px; }
-.pb-timer-val{ font-family:'Bebas Neue',sans-serif; font-size:16px; color:var(--warm); letter-spacing:1px; min-width:44px; text-align:center; }
-.pb-timer.running{ border-color:rgba(245,166,35,.5); background:rgba(245,166,35,.08); }
-.pb-timer.done{ border-color:rgba(74,222,128,.5); background:rgba(74,222,128,.08); }
-.pb-timer.done .pb-timer-val{ color:var(--main); }
-
-/* all screens need top padding for persist-bar */
-.screen{ padding-top:54px; }
-
-/* ── SCREENS ── */
-.screen{display:none;min-height:100vh;flex-direction:column;opacity:0;position:relative;z-index:1;}
+/* SCREENS */
+.screen{display:none;min-height:100vh;flex-direction:column;opacity:0;position:relative;z-index:1;padding-top:54px;}
 .screen.active{display:flex;animation:screenIn .38s var(--ease) forwards;}
 .screen.back-active{display:flex;animation:screenBack .32s var(--ease) forwards;}
-@keyframes screenIn   {from{opacity:0;transform:translateX(48px)}to{opacity:1;transform:none}}
-@keyframes screenBack {from{opacity:0;transform:translateX(-48px)}to{opacity:1;transform:none}}
-@keyframes screenOut     {from{opacity:1;transform:none}to{opacity:0;transform:translateX(-40px)}}
-@keyframes screenOutBack {from{opacity:1;transform:none}to{opacity:0;transform:translateX(40px)}}
+@keyframes screenIn{from{opacity:0;transform:translateX(48px)}to{opacity:1;transform:none}}
+@keyframes screenBack{from{opacity:0;transform:translateX(-48px)}to{opacity:1;transform:none}}
+@keyframes screenOut{from{opacity:1;transform:none}to{opacity:0;transform:translateX(-40px)}}
+@keyframes screenOutBack{from{opacity:1;transform:none}to{opacity:0;transform:translateX(40px)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes cardSlide{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 @keyframes popIn{0%{transform:scale(0) rotate(-20deg);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
 @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes donePulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 50%,transparent)}70%{box-shadow:0 0 0 12px transparent}100%{box-shadow:0 0 0 0 transparent}}
-@keyframes fabIn{from{transform:scale(0) rotate(45deg);opacity:0}to{transform:none;opacity:1}}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
 @keyframes skele{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @keyframes musicPulse{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.8)}}
 @keyframes orbFloat{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
 @keyframes todayPulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.3);opacity:0}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-/* ── HOME HERO ── */
+/* HERO */
 .hero{background:linear-gradient(155deg,#141422 0%,#0d0d0f 60%);padding:24px 24px 40px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
 .orb{position:absolute;border-radius:50%;pointer-events:none;opacity:0;animation:orbFloat 3s var(--ease) forwards;}
 .orb1{width:340px;height:340px;top:-100px;right:-80px;background:radial-gradient(circle,rgba(74,222,128,.07) 0%,transparent 68%);animation-delay:.2s;}
@@ -102,7 +69,7 @@ body{
 .hero-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;opacity:0;animation:fadeUp .5s var(--ease) .35s forwards;}
 .hero-pill{background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:30px;padding:5px 13px;font-size:12px;color:var(--text2);}
 
-/* ── PHASE LIST ── */
+/* PHASE LIST */
 .phase-list{padding:20px 18px 10px;display:flex;flex-direction:column;gap:11px;flex:1;}
 .phase-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:17px 16px;cursor:pointer;position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;transition:border-color .22s,box-shadow .22s,transform .18s var(--spring);-webkit-user-select:none;user-select:none;opacity:0;}
 .phase-card.visible{animation:cardSlide .42s var(--ease) forwards;}
@@ -129,92 +96,104 @@ body{
 .finisher-card{background:linear-gradient(135deg,#1a1820,#110f14);border-color:#3a2a1a;}
 .bonus-badge{background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.25);border-radius:8px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--warm);flex-shrink:0;}
 
-/* ── MUSIC CARD (home) ── */
+/* ══ SPOTIFY MUSIC CARD ══ */
 .music-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:11px;opacity:0;}
 .music-card.visible{animation:cardSlide .42s var(--ease) .15s forwards;}
 .music-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
-.music-icon{width:36px;height:36px;border-radius:10px;background:rgba(167,139,250,.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.music-icon{width:36px;height:36px;border-radius:10px;background:rgba(29,185,84,.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
 .music-title{font-family:'Bebas Neue',sans-serif;font-size:17px;line-height:1;}
 .music-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+
+/* spotify connect state */
+.spot-connect{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 0 8px;}
+.spot-logo{font-size:36px;margin-bottom:4px;}
+.spot-connect p{font-size:13px;color:var(--muted);text-align:center;line-height:1.5;max-width:240px;}
+.spot-btn{display:inline-flex;align-items:center;gap:8px;background:var(--spot);color:#000;border:none;border-radius:30px;padding:12px 24px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:transform .18s var(--spring),filter .18s;text-decoration:none;}
+.spot-btn:hover{filter:brightness(1.1);transform:scale(1.03);}
+.spot-btn:active{transform:scale(.97);}
+
+/* spotify logged-in state */
+.spot-user{display:flex;align-items:center;gap:10px;background:rgba(29,185,84,.06);border:1px solid rgba(29,185,84,.15);border-radius:12px;padding:10px 12px;margin-bottom:12px;}
+.spot-avatar{width:34px;height:34px;border-radius:50%;background:rgba(29,185,84,.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden;}
+.spot-avatar img{width:100%;height:100%;object-fit:cover;}
+.spot-name{font-size:13px;font-weight:600;flex:1;}
+.spot-logout{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:11px;padding:4px 8px;cursor:pointer;transition:background .15s;}
+.spot-logout:hover{background:var(--border);}
+
+/* now playing */
 .music-now-playing{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.03);border-radius:12px;padding:10px 12px;margin-bottom:10px;}
-.music-art{width:38px;height:38px;border-radius:8px;background:linear-gradient(135deg,#2a1f3d,#1a2a3d);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:background .6s ease;}
+.music-art{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,#0d2b1a,#0a2010);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden;transition:background .6s ease;}
+.music-art img{width:100%;height:100%;object-fit:cover;border-radius:8px;}
 .music-info{flex:1;min-width:0;}
 .music-track{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .music-artist{font-size:11px;color:var(--muted);}
 .music-bars{display:flex;align-items:flex-end;gap:2px;height:16px;flex-shrink:0;}
-.music-bar{width:3px;background:var(--purple);border-radius:2px;height:6px;}
+.music-bar{width:3px;background:var(--spot);border-radius:2px;height:6px;}
 .music-bar:nth-child(1){animation:musicPulse .8s .0s ease-in-out infinite;}
 .music-bar:nth-child(2){animation:musicPulse .8s .15s ease-in-out infinite;}
 .music-bar:nth-child(3){animation:musicPulse .8s .3s ease-in-out infinite;}
 .music-bar:nth-child(4){animation:musicPulse .8s .45s ease-in-out infinite;}
+
+/* seek bar */
+.spot-seek{width:100%;margin:6px 0 10px;}
+.spot-seek input{width:100%;-webkit-appearance:none;appearance:none;height:3px;border-radius:3px;background:var(--border2);outline:none;cursor:pointer;}
+.spot-seek input::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--spot);cursor:pointer;}
+.spot-seek-times{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* controls */
 .music-controls{display:flex;align-items:center;gap:8px;}
 .m-btn{height:36px;border-radius:10px;border:1px solid var(--border);background:var(--pill);color:var(--text);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s var(--spring),border-color .15s;flex-shrink:0;width:36px;}
 .m-btn:hover{background:var(--border);border-color:var(--border2);}
 .m-btn:active{transform:scale(.9);}
-.m-play{background:var(--purple);border-color:transparent;color:#fff;width:44px;height:44px;border-radius:12px;font-size:16px;}
-.m-play:hover{background:color-mix(in srgb,var(--purple) 80%,white);}
+.m-play{background:var(--spot);border-color:transparent;color:#000;width:44px;height:44px;border-radius:12px;font-size:16px;font-weight:700;}
+.m-play:hover{background:color-mix(in srgb,var(--spot) 80%,white);}
 .m-vol{flex:1;-webkit-appearance:none;appearance:none;height:3px;border-radius:3px;background:var(--border2);outline:none;cursor:pointer;}
-.m-vol::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--purple);cursor:pointer;}
-.music-playlist{margin-top:10px;display:flex;flex-direction:column;gap:4px;max-height:0;overflow:hidden;transition:max-height .4s var(--ease);}
-.music-playlist.open{max-height:280px;}
+.m-vol::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--spot);cursor:pointer;}
+.m-shuffle,.m-repeat{font-size:12px;opacity:.5;transition:opacity .15s;}
+.m-shuffle.on,.m-repeat.on{opacity:1;color:var(--spot);border-color:rgba(29,185,84,.3);}
+
+/* playlists */
+.spot-playlists{margin-top:10px;}
+.pl-toggle{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px 8px;border-radius:8px;transition:color .15s;margin-top:6px;width:100%;text-align:center;}
+.pl-toggle:hover{color:var(--text);}
+.spot-pl-list{display:flex;flex-direction:column;gap:4px;max-height:0;overflow:hidden;transition:max-height .4s var(--ease);}
+.spot-pl-list.open{max-height:320px;overflow-y:auto;}
 .pl-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;transition:background .15s;border:1px solid transparent;}
 .pl-item:hover{background:rgba(255,255,255,.04);border-color:var(--border);}
-.pl-item.active{background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.2);}
-.pl-num{font-size:11px;color:var(--muted);width:16px;text-align:center;flex-shrink:0;}
+.pl-item.active{background:rgba(29,185,84,.08);border-color:rgba(29,185,84,.2);}
+.pl-art{width:34px;height:34px;border-radius:7px;background:var(--pill);object-fit:cover;flex-shrink:0;}
 .pl-info{flex:1;min-width:0;}
 .pl-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pl-meta{font-size:10px;color:var(--muted);}
-.pl-toggle{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px 8px;border-radius:8px;transition:color .15s;margin-top:6px;width:100%;text-align:center;}
-.pl-toggle:hover{color:var(--text);}
 
-/* ── FLOATING MINI PLAYER ── */
-#mini-player{
-  position:fixed; bottom:96px; right:16px; z-index:500;
-  width:260px;
-  background:rgba(22,22,28,.97); border:1px solid var(--border2);
-  border-radius:18px; padding:12px 14px;
-  box-shadow:0 8px 32px rgba(0,0,0,.6);
-  backdrop-filter:blur(16px);
-  transform:translateY(0); opacity:1;
-  transition:transform .3s var(--spring), opacity .25s ease;
-  display:none;
-}
-#mini-player.visible{ display:block; animation:sheetUp .3s var(--spring); }
-#mini-player.hidden-player{ transform:translateY(20px); opacity:0; pointer-events:none; }
-.mp-row{ display:flex; align-items:center; gap:9px; }
-.mp-art{ width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#2a1f3d,#1a2a3d);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0; }
-.mp-info{ flex:1; min-width:0; }
-.mp-track{ font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-.mp-artist{ font-size:10px;color:var(--muted); }
-.mp-controls{ display:flex;align-items:center;gap:5px; margin-top:9px; }
-.mp-btn{ width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--pill);color:var(--text);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s var(--spring); }
-.mp-btn:active{ transform:scale(.9); }
-.mp-play{ background:var(--purple);border-color:transparent;color:#fff;width:34px;height:34px;border-radius:10px; }
-.mp-vol{ flex:1;-webkit-appearance:none;appearance:none;height:3px;border-radius:3px;background:var(--border2);outline:none;cursor:pointer; }
-.mp-vol::-webkit-slider-thumb{ -webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--purple);cursor:pointer; }
-.mp-close{ width:22px;height:22px;border-radius:6px;border:none;background:rgba(255,255,255,.07);color:var(--muted);font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-.mp-bars{ display:flex;align-items:flex-end;gap:2px;height:12px;flex-shrink:0; }
-.mp-bar{ width:2.5px;background:var(--purple);border-radius:2px; }
+/* ══ FLOATING MINI PLAYER ══ */
+#mini-player{position:fixed;bottom:96px;right:16px;z-index:500;width:270px;background:rgba(18,18,24,.97);border:1px solid var(--border2);border-radius:18px;padding:12px 14px;box-shadow:0 8px 32px rgba(0,0,0,.6);backdrop-filter:blur(16px);display:none;transition:transform .3s var(--spring),opacity .25s ease;}
+#mini-player.visible{display:block;animation:sheetUp .3s var(--spring);}
+#mini-player.hidden-player{transform:translateY(20px);opacity:0;pointer-events:none;}
+.mp-row{display:flex;align-items:center;gap:9px;}
+.mp-art{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,#0d2b1a,#0a2010);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden;}
+.mp-art img{width:100%;height:100%;object-fit:cover;border-radius:9px;}
+.mp-info{flex:1;min-width:0;}
+.mp-track{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mp-artist{font-size:10px;color:var(--muted);}
+.mp-bars{display:flex;align-items:flex-end;gap:2px;height:12px;flex-shrink:0;}
+.mp-bar{width:2.5px;background:var(--spot);border-radius:2px;}
 .mp-bar:nth-child(1){animation:musicPulse .8s .0s ease-in-out infinite;}
 .mp-bar:nth-child(2){animation:musicPulse .8s .18s ease-in-out infinite;}
 .mp-bar:nth-child(3){animation:musicPulse .8s .36s ease-in-out infinite;}
+.mp-close{width:22px;height:22px;border-radius:6px;border:none;background:rgba(255,255,255,.07);color:var(--muted);font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mp-controls{display:flex;align-items:center;gap:5px;margin-top:9px;}
+.mp-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--pill);color:var(--text);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s var(--spring);}
+.mp-btn:active{transform:scale(.9);}
+.mp-play{background:var(--spot);border-color:transparent;color:#000;width:34px;height:34px;border-radius:10px;font-weight:700;}
+.mp-vol{flex:1;-webkit-appearance:none;appearance:none;height:3px;border-radius:3px;background:var(--border2);outline:none;cursor:pointer;}
+.mp-vol::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--spot);cursor:pointer;}
+#mini-player-fab{position:fixed;bottom:96px;right:16px;z-index:499;width:44px;height:44px;border-radius:14px;background:rgba(29,185,84,.15);border:1px solid rgba(29,185,84,.25);color:var(--spot);font-size:18px;cursor:pointer;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:transform .2s var(--spring),background .2s;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+#mini-player-fab.visible{display:flex;}
+#mini-player-fab:hover{transform:scale(1.1);background:rgba(29,185,84,.25);}
+#mini-player-fab:active{transform:scale(.92);}
 
-/* mini player reopen fab */
-#mini-player-fab{
-  position:fixed; bottom:96px; right:16px; z-index:499;
-  width:44px;height:44px;border-radius:14px;
-  background:rgba(167,139,250,.18); border:1px solid rgba(167,139,250,.3);
-  color:var(--purple); font-size:18px;
-  cursor:pointer; display:none; align-items:center; justify-content:center;
-  backdrop-filter:blur(8px);
-  transition:transform .2s var(--spring), background .2s;
-  box-shadow:0 4px 16px rgba(0,0,0,.4);
-}
-#mini-player-fab.visible{ display:flex; }
-#mini-player-fab:hover{ transform:scale(1.1); background:rgba(167,139,250,.28); }
-#mini-player-fab:active{ transform:scale(.92); }
-
-/* ── WEEKLY TIMELINE ── */
+/* WEEKLY */
 .weekly-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px 16px;margin-bottom:22px;opacity:0;}
 .weekly-card.visible{animation:cardSlide .42s var(--ease) .25s forwards;}
 .weekly-header{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
@@ -237,43 +216,27 @@ body{
 .tl-day.optional .tl-activity{color:var(--warm);}
 .tl-emoji{font-size:14px;}
 
-/* ── PHASE SCREEN TOP BAR ── */
-.top-bar{
-  padding:14px 18px 15px; display:flex; align-items:center; gap:12px;
-  border-bottom:1px solid var(--border); flex-shrink:0;
-  background:rgba(22,22,26,.95); backdrop-filter:blur(12px);
-  position:sticky; top:54px; z-index:50;
-}
+/* PHASE SCREEN */
+.top-bar{padding:14px 18px 15px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);flex-shrink:0;background:rgba(22,22,26,.95);backdrop-filter:blur(12px);position:sticky;top:54px;z-index:50;}
 .back-btn{width:38px;height:38px;border-radius:11px;background:var(--pill);border:1px solid var(--border);color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .18s,transform .18s var(--spring),border-color .18s;}
 .back-btn:hover{background:var(--border);border-color:var(--border2);}
 .back-btn:active{transform:scale(.88) translateX(-3px);}
 .top-bar-info{flex:1;overflow:hidden;}
 .top-bar-title{font-family:'Bebas Neue',sans-serif;font-size:23px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .top-bar-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-
-/* ── STICKY PROGRESS BAR — fixed clipping ── */
-.prog-wrap{
-  padding:11px 18px; flex-shrink:0;
-  background:rgba(14,14,17,.98); backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--border);
-  position:sticky;
-  top:117px; /* 54px persist-bar + 63px top-bar */
-  z-index:48;
-  overflow:visible; /* prevent clip */
-}
+.prog-wrap{padding:11px 18px;flex-shrink:0;background:rgba(14,14,17,.98);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);position:sticky;top:117px;z-index:48;overflow:visible;}
 .prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
 .prog-pct{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--accent);transition:color .3s;}
 .prog-steps{font-size:11px;color:var(--muted);}
 .prog-track{height:5px;background:var(--border);border-radius:5px;overflow:hidden;}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 60%,white));border-radius:5px;transition:width .6s var(--ease);position:relative;overflow:hidden;}
 .prog-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);animation:shimmer 1.8s infinite;}
-
 .ex-scroll{flex:1;overflow-y:auto;padding:14px 14px 140px;-webkit-overflow-scrolling:touch;}
 .block-label{display:flex;align-items:center;gap:8px;font-family:'Bebas Neue',sans-serif;font-size:11.5px;letter-spacing:2.5px;color:var(--accent);margin:20px 0 10px 2px;opacity:0;}
 .block-label.visible{animation:fadeUp .3s var(--ease) forwards;}
 .b-line{flex:1;height:1px;background:color-mix(in srgb,var(--accent) 18%,transparent);}
 
-/* ── EXERCISE CARD ── */
+/* EXERCISE CARD */
 .ex-card{background:var(--card);border:1px solid var(--border);border-radius:18px;margin-bottom:12px;overflow:hidden;opacity:0;transition:opacity .4s,border-color .2s;}
 .ex-card.visible{animation:cardSlide .4s var(--ease) forwards;}
 .ex-card.done{opacity:.32;}
@@ -316,10 +279,9 @@ body{
 .done-btn.checked{background:color-mix(in srgb,var(--accent) 20%,transparent);border-color:color-mix(in srgb,var(--accent) 38%,transparent);}
 .done-btn.pulse{animation:donePulse .5s ease;}
 
-/* ── TIMER SHEET ── */
+/* TIMER */
 .timer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(5px);}
 .timer-overlay.open{display:flex;animation:fadeIn .2s ease;}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .timer-sheet{background:var(--card);border-radius:24px 24px 0 0;padding:20px 24px 44px;width:100%;max-width:480px;animation:sheetUp .3s var(--spring);}
 .timer-handle{width:40px;height:4px;background:var(--border2);border-radius:4px;margin:0 auto 20px;}
 .timer-ring{position:relative;width:148px;height:148px;margin:0 auto 12px;}
@@ -328,7 +290,6 @@ body{
 .ring-fg{fill:none;stroke:var(--warm);stroke-width:6;stroke-linecap:round;stroke-dasharray:439.6;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke .3s;}
 .timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:2px;color:var(--warm);transition:color .3s;}
 .timer-label{text-align:center;font-size:13px;color:var(--muted);margin-bottom:14px;transition:color .3s;}
-/* manual input row */
 .timer-manual{display:flex;align-items:center;gap:6px;margin-bottom:12px;}
 .t-manual-input{flex:1;background:var(--pill);border:1px solid var(--border);border-radius:10px;padding:8px 10px;color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:20px;text-align:center;outline:none;transition:border-color .15s;}
 .t-manual-input:focus{border-color:var(--warm);}
@@ -339,7 +300,6 @@ body{
 .t-adj.pos:hover{background:rgba(74,222,128,.1);border-color:var(--main);}
 .t-adj.neg{border-color:rgba(248,113,113,.2);color:#f87171;}
 .t-adj.neg:hover{background:rgba(248,113,113,.1);border-color:#f87171;}
-
 .timer-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
 .preset-btn{background:var(--pill);border:1px solid var(--border);border-radius:10px;padding:10px 4px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:background .15s,border-color .15s,transform .15s var(--spring),color .15s;}
 .preset-btn:hover{background:var(--border);border-color:var(--warm);color:var(--warm);transform:translateY(-2px);}
@@ -352,7 +312,7 @@ body{
 .t-start{background:var(--warm);color:#000;}
 .t-reset{background:var(--pill);border:1px solid var(--border);color:var(--text);}
 
-/* ── DONE SCREEN ── */
+/* DONE */
 #done-screen{align-items:center;justify-content:center;padding:40px 28px;text-align:center;background:radial-gradient(circle at 50% 35%,rgba(74,222,128,.08) 0%,transparent 60%);}
 .done-emoji{font-size:84px;margin-bottom:20px;animation:popIn .55s var(--spring);display:block;}
 .done-title{font-family:'Bebas Neue',sans-serif;font-size:58px;color:var(--main);line-height:1;margin-bottom:10px;animation:fadeUp .5s var(--ease) .15s both;}
@@ -365,22 +325,18 @@ body{
 .home-btn{background:var(--main);color:#000;border:none;border-radius:16px;padding:16px 44px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .2s var(--spring),box-shadow .2s;animation:fadeUp .5s var(--ease) .45s both;box-shadow:0 4px 20px rgba(74,222,128,.3);}
 .home-btn:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(74,222,128,.4);}
 .home-btn:active{transform:scale(.97);}
-
-/* ── TOAST ── */
 .toast{position:fixed;bottom:96px;left:50%;z-index:700;transform:translateX(-50%) translateY(12px);background:rgba(30,30,38,.96);border:1px solid var(--border2);border-radius:30px;padding:9px 18px;font-size:13px;font-weight:500;color:var(--text2);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s var(--spring);backdrop-filter:blur(8px);}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
-
-<!-- ══ AMBIENT BG ══ -->
 <div id="ambient-bg"></div>
 
-<!-- ══ PERSISTENT HEADER ══ -->
+<!-- PERSIST BAR -->
 <div id="persist-bar">
   <div class="pb-date">
     <div class="pb-date-main" id="pb-date-main"></div>
-    <div class="pb-block" id="pb-block">Loading schedule…</div>
+    <div class="pb-block" id="pb-block">Loading…</div>
   </div>
   <div class="pb-timer" id="pb-timer" onclick="openTimer()">
     <span class="pb-timer-icon">⏱</span>
@@ -388,11 +344,10 @@ body{
   </div>
 </div>
 
-<!-- ══ HOME ══ -->
+<!-- HOME -->
 <div id="home" class="screen active">
   <div class="hero">
-    <div class="orb orb1"></div>
-    <div class="orb orb2"></div>
+    <div class="orb orb1"></div><div class="orb orb2"></div>
     <div class="hero-badge">⚡ 45-Minute Plan</div>
     <h1>HOME<br><span class="g">WORK</span><br>OUT</h1>
     <div class="hero-pills">
@@ -404,99 +359,103 @@ body{
   <div class="phase-list">
     <div class="phase-card" style="--c:var(--warm)" onclick="openPhase('warmup')">
       <div class="phase-icon">🔥</div>
-      <div class="phase-info">
-        <div class="phase-title">Warm-Up</div>
-        <div class="phase-sub">Dynamic stretching · 8–10 min</div>
+      <div class="phase-info"><div class="phase-title">Warm-Up</div><div class="phase-sub">Dynamic stretching · 8–10 min</div>
         <div class="phase-prog-wrap"><div class="phase-prog-row"><span class="phase-prog-label">Progress</span><span class="phase-prog-pct" id="home-pct-warmup">0%</span></div><div class="phase-prog-track"><div class="phase-prog-fill" id="home-bar-warmup" style="width:0%"></div></div></div>
-      </div>
-      <div class="phase-badge">7 moves</div><div class="chev">›</div>
+      </div><div class="phase-badge">7 moves</div><div class="chev">›</div>
     </div>
     <div class="phase-card" style="--c:var(--main)" onclick="openPhase('main')">
       <div class="phase-icon">💪</div>
-      <div class="phase-info">
-        <div class="phase-title">Main Workout</div>
-        <div class="phase-sub">3 rounds · 11 exercises · 30 min</div>
+      <div class="phase-info"><div class="phase-title">Main Workout</div><div class="phase-sub">3 rounds · 11 exercises · 30 min</div>
         <div class="phase-prog-wrap"><div class="phase-prog-row"><span class="phase-prog-label">Progress</span><span class="phase-prog-pct" id="home-pct-main">0%</span></div><div class="phase-prog-track"><div class="phase-prog-fill" id="home-bar-main" style="width:0%"></div></div></div>
-      </div>
-      <div class="phase-badge">11 moves</div><div class="chev">›</div>
+      </div><div class="phase-badge">11 moves</div><div class="chev">›</div>
     </div>
     <div class="phase-card" style="--c:var(--cool)" onclick="openPhase('cool')">
       <div class="phase-icon">❄️</div>
-      <div class="phase-info">
-        <div class="phase-title">Cool-Down</div>
-        <div class="phase-sub">Static stretches · 5–7 min</div>
+      <div class="phase-info"><div class="phase-title">Cool-Down</div><div class="phase-sub">Static stretches · 5–7 min</div>
         <div class="phase-prog-wrap"><div class="phase-prog-row"><span class="phase-prog-label">Progress</span><span class="phase-prog-pct" id="home-pct-cool">0%</span></div><div class="phase-prog-track"><div class="phase-prog-fill" id="home-bar-cool" style="width:0%"></div></div></div>
-      </div>
-      <div class="phase-badge">7 stretches</div><div class="chev">›</div>
+      </div><div class="phase-badge">7 stretches</div><div class="chev">›</div>
     </div>
     <div class="phase-card finisher-card" style="--c:var(--warm)" onclick="openPhase('finisher')">
       <div class="phase-icon">⚡</div>
-      <div class="phase-info">
-        <div class="phase-title">Optional Finisher</div>
-        <div class="phase-sub">Only if you're feeling strong</div>
+      <div class="phase-info"><div class="phase-title">Optional Finisher</div><div class="phase-sub">Only if you're feeling strong</div>
         <div class="phase-prog-wrap"><div class="phase-prog-row"><span class="phase-prog-label">Progress</span><span class="phase-prog-pct" id="home-pct-finisher">0%</span></div><div class="phase-prog-track"><div class="phase-prog-fill" id="home-bar-finisher" style="width:0%"></div></div></div>
-      </div>
-      <div class="bonus-badge">BONUS</div>
+      </div><div class="bonus-badge">BONUS</div>
     </div>
 
-    <!-- MUSIC CARD (home) -->
+    <!-- SPOTIFY MUSIC CARD -->
     <div class="music-card">
       <div class="music-header">
         <div class="music-icon">🎵</div>
-        <div><div class="music-title">Workout Music</div><div class="music-sub">Science-backed focus & endurance tracks</div></div>
+        <div><div class="music-title">Spotify Music</div><div class="music-sub" id="spot-sub">Connect to play your music</div></div>
       </div>
-      <div class="music-now-playing">
-        <div class="music-art" id="music-art">🎵</div>
-        <div class="music-info">
-          <div class="music-track" id="music-track">Flow State</div>
-          <div class="music-artist" id="music-artist">Binaural Beats · 120 BPM</div>
+      <!-- Not logged in -->
+      <div id="spot-login-view" class="spot-connect">
+        <div class="spot-logo">🎧</div>
+        <p>Connect Spotify to play your own playlists while you work out. Requires Spotify Premium.</p>
+        <button class="spot-btn" onclick="spotLogin()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+          Connect Spotify
+        </button>
+      </div>
+      <!-- Logged in -->
+      <div id="spot-player-view" style="display:none">
+        <div class="spot-user" id="spot-user-bar">
+          <div class="spot-avatar" id="spot-avatar">👤</div>
+          <div class="spot-name" id="spot-username">Spotify User</div>
+          <button class="spot-logout" onclick="spotLogout()">Disconnect</button>
         </div>
-        <div class="music-bars" id="music-bars" style="display:none">
-          <div class="music-bar"></div><div class="music-bar"></div>
-          <div class="music-bar"></div><div class="music-bar"></div>
+        <div class="music-now-playing">
+          <div class="music-art" id="music-art"><span id="music-art-emoji">🎵</span></div>
+          <div class="music-info">
+            <div class="music-track" id="music-track">Not playing</div>
+            <div class="music-artist" id="music-artist">Start a playlist below</div>
+          </div>
+          <div class="music-bars" id="music-bars" style="display:none">
+            <div class="music-bar"></div><div class="music-bar"></div>
+            <div class="music-bar"></div><div class="music-bar"></div>
+          </div>
+        </div>
+        <div class="spot-seek">
+          <input type="range" id="seek-bar" min="0" max="100" value="0" oninput="seekTo(this.value)">
+          <div class="spot-seek-times"><span id="seek-cur">0:00</span><span id="seek-dur">0:00</span></div>
+        </div>
+        <div class="music-controls">
+          <button class="m-btn m-shuffle" id="m-shuffle" onclick="toggleShuffle()" title="Shuffle">⇄</button>
+          <button class="m-btn" onclick="spotPrev()">⏮</button>
+          <button class="m-btn m-play" id="m-play-btn" onclick="spotTogglePlay()">▶</button>
+          <button class="m-btn" onclick="spotNext()">⏭</button>
+          <button class="m-btn m-repeat" id="m-repeat" onclick="toggleRepeat()" title="Repeat">↺</button>
+          <input class="m-vol" type="range" min="0" max="100" value="50" oninput="setVolume(this.value)">
+        </div>
+        <div class="spot-playlists" id="spot-playlists">
+          <button class="pl-toggle" onclick="togglePlaylists()" id="pl-toggle-btn">▾ Your playlists</button>
+          <div class="spot-pl-list" id="spot-pl-list"></div>
         </div>
       </div>
-      <div class="music-controls">
-        <button class="m-btn" onclick="musicPrev()">⏮</button>
-        <button class="m-btn m-play" id="m-play-btn" onclick="toggleMusic()">▶</button>
-        <button class="m-btn" onclick="musicNext()">⏭</button>
-        <input class="m-vol" type="range" min="0" max="1" step="0.05" value="0.5" id="vol-slider" oninput="setVolume(this.value)">
-      </div>
-      <button class="pl-toggle" onclick="togglePlaylist()" id="pl-toggle-btn">▾ Show playlist (8 tracks)</button>
-      <div class="music-playlist" id="music-playlist"></div>
     </div>
 
     <!-- WEEKLY SCHEDULE -->
     <div class="weekly-card">
-      <div class="weekly-header">
-        <div style="font-size:16px">📅</div>
-        <div><div class="weekly-title">Weekly Schedule</div><div class="weekly-sub">Your 7-day training plan</div></div>
-      </div>
+      <div class="weekly-header"><div style="font-size:16px">📅</div><div><div class="weekly-title">Weekly Schedule</div><div class="weekly-sub">Your 7-day training plan</div></div></div>
       <div class="timeline" id="timeline"></div>
     </div>
   </div>
 </div>
 
-<!-- ══ PHASE SCREEN ══ -->
+<!-- PHASE SCREEN -->
 <div id="phase-screen" class="screen">
   <div class="top-bar">
     <button class="back-btn" onclick="goHome()">‹</button>
-    <div class="top-bar-info">
-      <div class="top-bar-title" id="phase-title"></div>
-      <div class="top-bar-sub" id="phase-sub"></div>
-    </div>
+    <div class="top-bar-info"><div class="top-bar-title" id="phase-title"></div><div class="top-bar-sub" id="phase-sub"></div></div>
   </div>
   <div class="prog-wrap">
-    <div class="prog-row">
-      <span class="prog-pct" id="prog-pct">0%</span>
-      <span class="prog-steps" id="prog-steps">0 / 0 done</span>
-    </div>
+    <div class="prog-row"><span class="prog-pct" id="prog-pct">0%</span><span class="prog-steps" id="prog-steps">0 / 0 done</span></div>
     <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
   </div>
   <div class="ex-scroll" id="ex-list"></div>
 </div>
 
-<!-- ══ DONE SCREEN ══ -->
+<!-- DONE SCREEN -->
 <div id="done-screen" class="screen">
   <span class="done-emoji">🏆</span>
   <div class="done-title">CRUSHED IT</div>
@@ -509,55 +468,41 @@ body{
   <button class="home-btn" onclick="goHome()">Back to Home</button>
 </div>
 
-<!-- ══ FLOATING MINI PLAYER (non-home) ══ -->
+<!-- FLOATING MINI PLAYER -->
 <div id="mini-player">
   <div class="mp-row">
-    <div class="mp-art" id="mp-art">🎵</div>
-    <div class="mp-info">
-      <div class="mp-track" id="mp-track">—</div>
-      <div class="mp-artist" id="mp-artist">Not playing</div>
-    </div>
-    <div class="mp-bars" id="mp-bars" style="display:none">
-      <div class="mp-bar" style="height:4px"></div>
-      <div class="mp-bar" style="height:8px"></div>
-      <div class="mp-bar" style="height:5px"></div>
-    </div>
-    <button class="mp-close" onclick="hideMiniPlayer()" title="Dismiss">✕</button>
+    <div class="mp-art" id="mp-art"><span id="mp-art-emoji">🎵</span></div>
+    <div class="mp-info"><div class="mp-track" id="mp-track">—</div><div class="mp-artist" id="mp-artist">Spotify</div></div>
+    <div class="mp-bars" id="mp-bars" style="display:none"><div class="mp-bar" style="height:4px"></div><div class="mp-bar" style="height:8px"></div><div class="mp-bar" style="height:5px"></div></div>
+    <button class="mp-close" onclick="hideMiniPlayer()">✕</button>
   </div>
   <div class="mp-controls">
-    <button class="mp-btn" onclick="musicPrev()">⏮</button>
-    <button class="mp-btn mp-play" id="mp-play-btn" onclick="toggleMusic()">▶</button>
-    <button class="mp-btn" onclick="musicNext()">⏭</button>
-    <input class="mp-vol" type="range" min="0" max="1" step="0.05" value="0.5" oninput="setVolume(this.value)">
+    <button class="mp-btn" onclick="spotPrev()">⏮</button>
+    <button class="mp-btn mp-play" id="mp-play-btn" onclick="spotTogglePlay()">▶</button>
+    <button class="mp-btn" onclick="spotNext()">⏭</button>
+    <input class="mp-vol" type="range" min="0" max="100" value="50" oninput="setVolume(this.value)">
   </div>
 </div>
-<div id="mini-player-fab" onclick="showMiniPlayer()" title="Show music player">🎵</div>
+<div id="mini-player-fab" onclick="showMiniPlayer()">🎵</div>
 
-<!-- ══ TIMER OVERLAY ══ -->
+<!-- TIMER OVERLAY -->
 <div class="timer-overlay" id="timer-overlay" onclick="closeTimerOutside(event)">
   <div class="timer-sheet" onclick="event.stopPropagation()">
     <div class="timer-handle"></div>
     <div class="timer-ring">
-      <svg viewBox="0 0 148 148">
-        <circle class="ring-bg" cx="74" cy="74" r="66"/>
-        <circle class="ring-fg" id="ring-fg" cx="74" cy="74" r="66"/>
-      </svg>
+      <svg viewBox="0 0 148 148"><circle class="ring-bg" cx="74" cy="74" r="66"/><circle class="ring-fg" id="ring-fg" cx="74" cy="74" r="66"/></svg>
       <div class="timer-num" id="timer-num">00:45</div>
     </div>
     <div class="timer-label" id="timer-label">Pick a duration or type one below</div>
-
-    <!-- Manual input + fine controls -->
     <div class="timer-manual">
       <button class="t-adj neg" onclick="adjTimer(-10)">−10</button>
       <button class="t-adj neg" onclick="adjTimer(-5)">−5</button>
       <button class="t-adj neg" onclick="adjTimer(-1)">−1</button>
-      <input class="t-manual-input" id="t-manual-input" type="text" value="00:45"
-        placeholder="MM:SS" onchange="applyManualInput(this.value)" onkeydown="if(event.key==='Enter')applyManualInput(this.value)">
+      <input class="t-manual-input" id="t-manual-input" type="text" value="00:45" placeholder="MM:SS" onchange="applyManualInput(this.value)" onkeydown="if(event.key==='Enter')applyManualInput(this.value)">
       <button class="t-adj pos" onclick="adjTimer(1)">+1</button>
       <button class="t-adj pos" onclick="adjTimer(5)">+5</button>
       <button class="t-adj pos" onclick="adjTimer(10)">+10</button>
     </div>
-
     <div class="timer-presets">
       <div class="preset-btn" onclick="setTimer(30)">30s</div>
       <div class="preset-btn" onclick="setTimer(45)">45s</div>
@@ -573,10 +518,384 @@ body{
 
 <div class="toast" id="toast"></div>
 
+<!-- Spotify Web Playback SDK -->
+<script src="https://sdk.scdn.co/spotify-player.js"></script>
+
 <script>
-/* ══════════════════════════════════
+/* ══════════════════════════
+   SPOTIFY CONFIG
+══════════════════════════ */
+const SPOTIFY_CLIENT_ID  = '4047ce748d3b40e2806f803086b95456';
+const SPOTIFY_REDIRECT   = 'https://SuchAnAmazingUser.github.io/Workout/';
+const SPOTIFY_SCOPES     = [
+  'streaming',
+  'user-read-email',
+  'user-read-private',
+  'user-modify-playback-state',
+  'user-read-playback-state',
+  'user-read-currently-playing',
+  'playlist-read-private',
+  'playlist-read-collaborative',
+].join(' ');
+
+/* ══════════════════════════
+   TOKEN MANAGEMENT
+══════════════════════════ */
+let spotToken = null;
+let spotPlayer = null;
+let spotDeviceId = null;
+let spotPlaying = false;
+let spotShuffle = false;
+let spotRepeat = 'off'; // off / context / track
+let seekUpdateIv = null;
+let ambientIv = null;
+
+function spotLogin() {
+  const url = 'https://accounts.spotify.com/authorize'
+    + '?response_type=token'
+    + '&client_id=' + encodeURIComponent(SPOTIFY_CLIENT_ID)
+    + '&scope=' + encodeURIComponent(SPOTIFY_SCOPES)
+    + '&redirect_uri=' + encodeURIComponent(SPOTIFY_REDIRECT)
+    + '&show_dialog=false';
+  window.location.href = url;
+}
+
+function spotLogout() {
+  spotToken = null;
+  sessionStorage.removeItem('spot_token');
+  sessionStorage.removeItem('spot_expiry');
+  if (spotPlayer) { spotPlayer.disconnect(); spotPlayer = null; }
+  clearInterval(seekUpdateIv);
+  showLoginView();
+  sfxTap();
+}
+
+function getToken() {
+  // Check URL hash first (redirect back from Spotify)
+  const hash = window.location.hash.substring(1);
+  if (hash) {
+    const params = new URLSearchParams(hash);
+    const token = params.get('access_token');
+    const expiresIn = parseInt(params.get('expires_in') || '3600');
+    if (token) {
+      spotToken = token;
+      sessionStorage.setItem('spot_token', token);
+      sessionStorage.setItem('spot_expiry', Date.now() + expiresIn * 1000);
+      // Clean the URL
+      history.replaceState(null, '', window.location.pathname);
+      return token;
+    }
+  }
+  // Check session storage
+  const stored = sessionStorage.getItem('spot_token');
+  const expiry = parseInt(sessionStorage.getItem('spot_expiry') || '0');
+  if (stored && Date.now() < expiry) {
+    spotToken = stored;
+    return stored;
+  }
+  return null;
+}
+
+/* ══════════════════════════
+   SPOTIFY API CALLS
+══════════════════════════ */
+async function spotAPI(path, method = 'GET', body = null) {
+  if (!spotToken) return null;
+  const opts = {
+    method,
+    headers: { 'Authorization': 'Bearer ' + spotToken, 'Content-Type': 'application/json' }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const r = await fetch('https://api.spotify.com/v1' + path, opts);
+    if (r.status === 401) { spotLogout(); return null; }
+    if (r.status === 204 || r.status === 202) return {};
+    if (!r.ok) return null;
+    return await r.json();
+  } catch(e) { return null; }
+}
+
+async function loadUserProfile() {
+  const data = await spotAPI('/me');
+  if (!data) return;
+  document.getElementById('spot-username').textContent = data.display_name || 'Spotify User';
+  document.getElementById('spot-sub').textContent = 'Playing as ' + (data.display_name || 'you');
+  const avatar = document.getElementById('spot-avatar');
+  if (data.images && data.images.length > 0) {
+    avatar.innerHTML = `<img src="${data.images[0].url}" alt="avatar">`;
+  }
+}
+
+async function loadPlaylists() {
+  const data = await spotAPI('/me/playlists?limit=50');
+  if (!data || !data.items) return;
+  const list = document.getElementById('spot-pl-list');
+  list.innerHTML = '';
+  data.items.forEach(pl => {
+    if (!pl) return;
+    const item = document.createElement('div');
+    item.className = 'pl-item';
+    const img = pl.images && pl.images[0] ? `<img class="pl-art" src="${pl.images[0].url}" alt="">` : `<div class="pl-art" style="display:flex;align-items:center;justify-content:center;font-size:16px">🎵</div>`;
+    item.innerHTML = `${img}<div class="pl-info"><div class="pl-name">${pl.name}</div><div class="pl-meta">${pl.tracks.total} tracks</div></div>`;
+    item.onclick = () => playPlaylist(pl.uri, item);
+    list.appendChild(item);
+  });
+}
+
+async function playPlaylist(uri, itemEl) {
+  if (!spotDeviceId) { showToast('Player loading… try again in a second'); return; }
+  await spotAPI('/me/player/play?device_id=' + spotDeviceId, 'PUT', { context_uri: uri });
+  document.querySelectorAll('.pl-item').forEach(el => el.classList.remove('active'));
+  if (itemEl) itemEl.classList.add('active');
+  setTimeout(updateNowPlaying, 800);
+  sfxTap();
+}
+
+async function updateNowPlaying() {
+  const data = await spotAPI('/me/player/currently-playing');
+  if (!data || !data.item) return;
+  const track = data.item;
+  const isPlaying = data.is_playing;
+  const trackName = track.name;
+  const artistName = track.artists.map(a => a.name).join(', ');
+  const albumArt = track.album.images[0]?.url;
+
+  // Update main player
+  document.getElementById('music-track').textContent = trackName;
+  document.getElementById('music-artist').textContent = artistName;
+  const artEl = document.getElementById('music-art');
+  if (albumArt) artEl.innerHTML = `<img src="${albumArt}" alt="album art">`;
+  else artEl.innerHTML = `<span id="music-art-emoji">🎵</span>`;
+
+  // Update mini player
+  document.getElementById('mp-track').textContent = trackName;
+  document.getElementById('mp-artist').textContent = artistName;
+  const mpArt = document.getElementById('mp-art');
+  if (albumArt) mpArt.innerHTML = `<img src="${albumArt}" alt="">`;
+  else mpArt.innerHTML = `<span id="mp-art-emoji">🎵</span>`;
+
+  // Ambient color from album art
+  if (albumArt) setAmbientFromArt(albumArt);
+
+  // Seek bar
+  const dur = track.duration_ms;
+  const pos = data.progress_ms;
+  const seekBar = document.getElementById('seek-bar');
+  if (seekBar && !seekBar.matches(':active')) {
+    seekBar.value = dur > 0 ? (pos / dur * 100) : 0;
+  }
+  document.getElementById('seek-cur').textContent = msToTime(pos);
+  document.getElementById('seek-dur').textContent = msToTime(dur);
+
+  // Play state
+  spotPlaying = isPlaying;
+  updatePlayUI();
+}
+
+function msToTime(ms) {
+  const s = Math.floor(ms / 1000);
+  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+}
+
+async function spotTogglePlay() {
+  if (!spotDeviceId) { showToast('Player not ready yet'); return; }
+  if (spotPlaying) {
+    await spotAPI('/me/player/pause', 'PUT');
+    spotPlaying = false;
+  } else {
+    await spotAPI('/me/player/play?device_id=' + spotDeviceId, 'PUT');
+    spotPlaying = true;
+    setTimeout(updateNowPlaying, 400);
+  }
+  updatePlayUI(); sfxTap();
+}
+
+function updatePlayUI() {
+  const icon = spotPlaying ? '⏸' : '▶';
+  ['m-play-btn', 'mp-play-btn'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = icon;
+  });
+  ['music-bars', 'mp-bars'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.style.display = spotPlaying ? 'flex' : 'none';
+  });
+  if (spotPlaying) {
+    setAmbient(true);
+    if (!seekUpdateIv) seekUpdateIv = setInterval(updateNowPlaying, 3000);
+  } else {
+    setAmbient(false);
+    clearInterval(seekUpdateIv); seekUpdateIv = null;
+  }
+}
+
+async function spotNext() { await spotAPI('/me/player/next', 'POST'); setTimeout(updateNowPlaying, 600); sfxTap(); }
+async function spotPrev() { await spotAPI('/me/player/previous', 'POST'); setTimeout(updateNowPlaying, 600); sfxTap(); }
+
+async function seekTo(pct) {
+  const data = await spotAPI('/me/player/currently-playing');
+  if (!data || !data.item) return;
+  const pos = Math.floor(data.item.duration_ms * pct / 100);
+  await spotAPI('/me/player/seek?position_ms=' + pos, 'PUT');
+}
+
+async function setVolume(v) {
+  await spotAPI('/me/player/volume?volume_percent=' + Math.round(v), 'PUT');
+}
+
+async function toggleShuffle() {
+  spotShuffle = !spotShuffle;
+  await spotAPI('/me/player/shuffle?state=' + spotShuffle, 'PUT');
+  document.getElementById('m-shuffle').classList.toggle('on', spotShuffle);
+  sfxTap();
+}
+
+async function toggleRepeat() {
+  const states = ['off', 'context', 'track'];
+  const idx = states.indexOf(spotRepeat);
+  spotRepeat = states[(idx + 1) % 3];
+  await spotAPI('/me/player/repeat?state=' + spotRepeat, 'PUT');
+  const btn = document.getElementById('m-repeat');
+  btn.classList.toggle('on', spotRepeat !== 'off');
+  btn.textContent = spotRepeat === 'track' ? '↺¹' : '↺';
+  sfxTap();
+}
+
+/* ══════════════════════════
+   AMBIENT BG FROM ART
+══════════════════════════ */
+const trackColors = [
+  [80,40,180],[40,60,160],[200,80,20],[20,100,120],
+  [60,20,180],[180,60,20],[20,150,80],[20,60,160]
+];
+let _ambientPhase = 0, _ambientColor = [29,185,84];
+
+function setAmbientFromArt(imgUrl) {
+  // Sample a dominant color from the album art via canvas
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    try {
+      const c = document.createElement('canvas');
+      c.width = 8; c.height = 8;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, 8, 8);
+      const d = ctx.getImageData(2, 2, 4, 4).data;
+      let r=0,g=0,b=0;
+      for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];}
+      const n=d.length/4;
+      _ambientColor=[Math.round(r/n),Math.round(g/n),Math.round(b/n)];
+    } catch(e) {}
+  };
+  img.src = imgUrl;
+}
+
+function setAmbient(playing) {
+  clearInterval(ambientIv);
+  if (!playing) {
+    document.getElementById('ambient-bg').style.background =
+      'radial-gradient(ellipse at 50% 100%,rgba(13,13,15,0.08) 0%,transparent 70%)';
+    return;
+  }
+  const [r,g,b] = _ambientColor;
+  ambientIv = setInterval(() => {
+    _ambientPhase += 0.018;
+    const alpha = 0.1 + Math.sin(_ambientPhase) * 0.05;
+    const xPct = 50 + Math.sin(_ambientPhase * 0.7) * 14;
+    document.getElementById('ambient-bg').style.background =
+      `radial-gradient(ellipse at ${xPct}% 90%,rgba(${r},${g},${b},${alpha.toFixed(3)}) 0%,transparent 70%)`;
+  }, 80);
+}
+
+/* ══════════════════════════
+   SPOTIFY PLAYBACK SDK
+══════════════════════════ */
+window.onSpotifyWebPlaybackSDKReady = () => {
+  if (!spotToken) return;
+  spotPlayer = new Spotify.Player({
+    name: 'My Workout App',
+    getOAuthToken: cb => cb(spotToken),
+    volume: 0.5
+  });
+
+  spotPlayer.addListener('ready', ({ device_id }) => {
+    spotDeviceId = device_id;
+    // Transfer playback to this device
+    spotAPI('/me/player', 'PUT', { device_ids: [device_id], play: false });
+    showToast('🎵 Spotify ready!');
+    updateNowPlaying();
+  });
+
+  spotPlayer.addListener('not_ready', () => { spotDeviceId = null; });
+
+  spotPlayer.addListener('player_state_changed', state => {
+    if (!state) return;
+    spotPlaying = !state.paused;
+    const track = state.track_window?.current_track;
+    if (track) {
+      document.getElementById('music-track').textContent = track.name;
+      document.getElementById('music-artist').textContent = track.artists.map(a=>a.name).join(', ');
+      document.getElementById('mp-track').textContent = track.name;
+      document.getElementById('mp-artist').textContent = track.artists.map(a=>a.name).join(', ');
+      const img = track.album?.images[0]?.url;
+      if (img) {
+        document.getElementById('music-art').innerHTML = `<img src="${img}" alt="">`;
+        document.getElementById('mp-art').innerHTML = `<img src="${img}" alt="">`;
+        setAmbientFromArt(img);
+      }
+    }
+    updatePlayUI();
+  });
+
+  spotPlayer.connect();
+};
+
+/* ══════════════════════════
+   UI STATE HELPERS
+══════════════════════════ */
+function showLoginView() {
+  document.getElementById('spot-login-view').style.display = 'flex';
+  document.getElementById('spot-player-view').style.display = 'none';
+  document.getElementById('spot-sub').textContent = 'Connect to play your music';
+}
+function showPlayerView() {
+  document.getElementById('spot-login-view').style.display = 'none';
+  document.getElementById('spot-player-view').style.display = 'block';
+  loadUserProfile();
+  loadPlaylists();
+}
+function togglePlaylists() {
+  const list = document.getElementById('spot-pl-list');
+  const btn = document.getElementById('pl-toggle-btn');
+  list.classList.toggle('open');
+  btn.textContent = list.classList.contains('open') ? '▴ Hide playlists' : '▾ Your playlists';
+}
+
+/* Mini player */
+function showMiniPlayer() {
+  const mp = document.getElementById('mini-player');
+  const fab = document.getElementById('mini-player-fab');
+  mp.classList.remove('hidden-player'); mp.classList.add('visible');
+  fab.classList.remove('visible');
+}
+function hideMiniPlayer() {
+  const mp = document.getElementById('mini-player');
+  const fab = document.getElementById('mini-player-fab');
+  mp.classList.add('hidden-player');
+  setTimeout(() => mp.classList.remove('visible'), 300);
+  fab.classList.add('visible');
+}
+function syncMiniPlayer(screenId) {
+  const mp = document.getElementById('mini-player');
+  const fab = document.getElementById('mini-player-fab');
+  if (screenId === 'home') {
+    mp.classList.remove('visible', 'hidden-player'); fab.classList.remove('visible');
+  } else if (spotToken) {
+    if (!mp.classList.contains('visible') && !fab.classList.contains('visible')) showMiniPlayer();
+  }
+}
+
+/* ══════════════════════════
    AUDIO SFX
-══════════════════════════════════ */
+══════════════════════════ */
 let _ctx;
 function ac(){if(!_ctx)_ctx=new(window.AudioContext||window.webkitAudioContext)();if(_ctx.state==='suspended')_ctx.resume();return _ctx;}
 function tone(f,t='sine',d=.08,v=.13){try{const c=ac(),g=c.createGain(),o=c.createOscillator();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d);}catch(e){}}
@@ -587,209 +906,47 @@ const sfxFinish =()=>[440,554,659,880].forEach((f,i)=>setTimeout(()=>tone(f,'tri
 const sfxTimerEnd=()=>[800,800,1000].forEach((f,i)=>setTimeout(()=>tone(f,'square',.1,.09),i*120));
 const sfxBack   =()=>tone(400,'sine',.05,.09);
 
-/* ══════════════════════════════════
-   DAILY SCHEDULE  — edit this array!
-══════════════════════════════════ */
-const dailySchedule = [
-  {time:'06:00', label:'Morning Routine'},
-  {time:'07:00', label:'Workout Time 🏋️'},
-  {time:'08:00', label:'Breakfast & Recovery'},
-  {time:'09:00', label:'Deep Work'},
-  {time:'12:00', label:'Lunch Break'},
-  {time:'13:00', label:'Afternoon Work'},
-  {time:'17:00', label:'Evening Workout 💪'},
-  {time:'18:30', label:'Dinner & Unwind'},
-  {time:'21:00', label:'Wind Down'},
-  {time:'22:30', label:'Sleep'},
+/* ══════════════════════════
+   DAILY SCHEDULE
+══════════════════════════ */
+const dailySchedule=[
+  {time:'06:00',label:'Morning Routine'},{time:'07:00',label:'Workout Time 🏋️'},
+  {time:'08:00',label:'Breakfast & Recovery'},{time:'09:00',label:'Deep Work'},
+  {time:'12:00',label:'Lunch Break'},{time:'13:00',label:'Afternoon Work'},
+  {time:'17:00',label:'Evening Workout 💪'},{time:'18:30',label:'Dinner & Unwind'},
+  {time:'21:00',label:'Wind Down'},{time:'22:30',label:'Sleep'},
 ];
-
 function getCurrentBlock(){
-  const now=new Date();
-  const mins=now.getHours()*60+now.getMinutes();
+  const now=new Date(),mins=now.getHours()*60+now.getMinutes();
   let active=null;
-  for(let i=0;i<dailySchedule.length;i++){
-    const [h,m]=dailySchedule[i].time.split(':').map(Number);
-    if(mins>=h*60+m) active=dailySchedule[i];
-    else break;
-  }
+  for(const b of dailySchedule){const[h,m]=b.time.split(':').map(Number);if(mins>=h*60+m)active=b;else break;}
   return active;
 }
-
 function updatePersistBar(){
   const now=new Date();
   const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('pb-date-main').textContent=
-    `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
-  const block=getCurrentBlock();
-  const el=document.getElementById('pb-block');
-  if(block){
-    el.textContent='Now: '+block.label;
-    el.className='pb-block active-block';
-  } else {
-    el.textContent='No active block';
-    el.className='pb-block';
-  }
+  document.getElementById('pb-date-main').textContent=`${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+  const block=getCurrentBlock(),el=document.getElementById('pb-block');
+  if(block){el.textContent='Now: '+block.label;el.className='pb-block active-block';}
+  else{el.textContent='No active block';el.className='pb-block';}
 }
 
-/* ══════════════════════════════════
-   MUSIC PLAYER
-══════════════════════════════════ */
-const playlist=[
-  {name:'Flow State Focus',      artist:'Binaural Beats · 120 BPM',  emoji:'🧠', ytId:'WPni755-Krg'},
-  {name:'Deep Focus',            artist:'Lo-Fi Workout · 110 BPM',   emoji:'🎧', ytId:'jfKfPfyJRdk'},
-  {name:'Motivational Drive',    artist:'Epic Workout · 130 BPM',    emoji:'⚡', ytId:'i_VzGWn3f7k'},
-  {name:'Calm Strength',         artist:'Ambient Training · 90 BPM', emoji:'🌊', ytId:'5qap5aO4i9A'},
-  {name:'Alpha Wave Training',   artist:'Neurofeedback · 105 BPM',   emoji:'🔋', ytId:'7nocKeTE7tI'},
-  {name:'Endurance Mode',        artist:'Progressive BPM · 125 BPM', emoji:'🏃', ytId:'hHW1oY26kxQ'},
-  {name:'Zone 2 Cardio Mix',     artist:'Steady State · 115 BPM',    emoji:'💚', ytId:'DWcJFNfaw9c'},
-  {name:'Post-Workout Wind Down',artist:'432Hz Recovery · 60 BPM',   emoji:'🌙', ytId:'77ZozI0rw7w'},
-];
-
-let musicIdx=0,musicPlaying=false,musicIframe=null;
-
-/* Ambient color palettes per track (r,g,b) for visualizer BG */
-const trackColors=[
-  [80,40,180],[40,60,160],[200,80,20],[20,100,120],
-  [60,20,180],[180,60,20],[20,150,80],[20,60,160]
-];
-let ambientIv=null;
-
-function setAmbient(playing,idx){
-  clearInterval(ambientIv);
-  if(!playing){
-    document.getElementById('ambient-bg').style.background=
-      'radial-gradient(ellipse at 50% 100%,rgba(13,13,15,0.1) 0%,transparent 70%)';
-    return;
-  }
-  const [r,g,b]=trackColors[idx%trackColors.length];
-  // gentle slow drift
-  let phase=0;
-  ambientIv=setInterval(()=>{
-    phase+=0.02;
-    const alpha=0.12+Math.sin(phase)*0.05;
-    const xPct=50+Math.sin(phase*.7)*12;
-    document.getElementById('ambient-bg').style.background=
-      `radial-gradient(ellipse at ${xPct}% 90%,rgba(${r},${g},${b},${alpha.toFixed(3)}) 0%,transparent 70%)`;
-  },80);
-}
-
-function buildMusicIframe(ytId){
-  if(musicIframe){musicIframe.remove();musicIframe=null;}
-  const f=document.createElement('iframe');
-  f.id='music-iframe';
-  f.src=`https://www.youtube.com/embed/${ytId}?autoplay=1&loop=1&controls=0&enablejsapi=1&playlist=${ytId}`;
-  f.allow='autoplay;encrypted-media';
-  f.style.cssText='position:fixed;width:1px;height:1px;top:-9999px;left:-9999px;opacity:0;pointer-events:none;border:none;';
-  document.body.appendChild(f);
-  musicIframe=f;
-}
-
-function toggleMusic(){
-  if(!musicPlaying){
-    buildMusicIframe(playlist[musicIdx].ytId);
-    musicPlaying=true;
-    setAmbient(true,musicIdx);
-    ['m-play-btn','mp-play-btn'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='⏸';});
-    ['music-bars','mp-bars'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='flex';});
-  } else {
-    if(musicIframe){musicIframe.remove();musicIframe=null;}
-    musicPlaying=false;
-    setAmbient(false,0);
-    ['m-play-btn','mp-play-btn'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='▶';});
-    ['music-bars','mp-bars'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-  }
-  sfxTap();
-  updateMusicUI();
-}
-
-function musicPrev(){musicIdx=(musicIdx-1+playlist.length)%playlist.length;if(musicPlaying){buildMusicIframe(playlist[musicIdx].ytId);setAmbient(true,musicIdx);}updateMusicUI();sfxTap();}
-function musicNext(){musicIdx=(musicIdx+1)%playlist.length;if(musicPlaying){buildMusicIframe(playlist[musicIdx].ytId);setAmbient(true,musicIdx);}updateMusicUI();sfxTap();}
-function setVolume(v){const f=document.getElementById('music-iframe');if(f)try{f.contentWindow.postMessage(JSON.stringify({event:'command',func:'setVolume',args:[v*100]}),'*');}catch(e){}}
-
-function updateMusicUI(){
-  const t=playlist[musicIdx];
-  ['music-track','mp-track'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t.name;});
-  ['music-artist','mp-artist'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t.artist;});
-  ['music-art','mp-art'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t.emoji;});
-  buildPlaylistUI();
-  // sync play state on mp-play-btn
-  const mpb=document.getElementById('mp-play-btn');
-  if(mpb)mpb.textContent=musicPlaying?'⏸':'▶';
-}
-
-function buildPlaylistUI(){
-  const c=document.getElementById('music-playlist');
-  if(!c)return;
-  c.innerHTML='';
-  playlist.forEach((t,i)=>{
-    const item=document.createElement('div');
-    item.className='pl-item'+(i===musicIdx?' active':'');
-    item.innerHTML=`<div class="pl-num">${i===musicIdx&&musicPlaying?'▶':i+1}</div>
-      <div style="font-size:18px">${t.emoji}</div>
-      <div class="pl-info"><div class="pl-name">${t.name}</div><div class="pl-meta">${t.artist}</div></div>`;
-    item.onclick=()=>{musicIdx=i;if(musicPlaying){buildMusicIframe(playlist[musicIdx].ytId);setAmbient(true,musicIdx);}updateMusicUI();sfxTap();};
-    c.appendChild(item);
-  });
-}
-function togglePlaylist(){
-  const pl=document.getElementById('music-playlist');
-  const btn=document.getElementById('pl-toggle-btn');
-  pl.classList.toggle('open');
-  btn.textContent=pl.classList.contains('open')?'▴ Hide playlist':'▾ Show playlist ('+playlist.length+' tracks)';
-}
-
-/* ── Mini player show/hide ── */
-function showMiniPlayer(){
-  const mp=document.getElementById('mini-player');
-  const fab=document.getElementById('mini-player-fab');
-  mp.classList.remove('hidden-player');
-  mp.classList.add('visible');
-  fab.classList.remove('visible');
-  updateMusicUI();
-}
-function hideMiniPlayer(){
-  const mp=document.getElementById('mini-player');
-  const fab=document.getElementById('mini-player-fab');
-  mp.classList.add('hidden-player');
-  setTimeout(()=>mp.classList.remove('visible'),300);
-  fab.classList.add('visible');
-}
-function syncMiniPlayer(screenId){
-  const mp=document.getElementById('mini-player');
-  const fab=document.getElementById('mini-player-fab');
-  if(screenId==='home'){
-    mp.classList.remove('visible','hidden-player');
-    fab.classList.remove('visible');
-  } else {
-    // show mini player on non-home screens
-    if(!mp.classList.contains('visible')&&!fab.classList.contains('visible')){
-      showMiniPlayer();
-    }
-  }
-}
-
-/* ══════════════════════════════════
+/* ══════════════════════════
    WORKOUT DATA
-══════════════════════════════════ */
+══════════════════════════ */
 const phases={
-  warmup:{title:'Warm-Up',sub:'8–10 min · No rest — keep moving',accent:'var(--warm)',
-    exercises:[
-      {name:'Marching in Place',ids:['sHDn-2COMfU','TwqKJYJcYJ0','lVnCiE-SKkw'],stat:'60 sec',why:'Raises heart rate and activates hip flexors.',desc:'Drive knees up alternately while pumping arms. Stand tall, brace core, land softly.'},
-      {name:'Arm Circles',ids:['GwsZdRpMGMo','7kgZnJCgKAU','I8FnFmJ_BmA'],stat:'30 sec each direction',why:'Mobilises shoulder joints and warms the rotator cuff.',desc:'Arms straight out. Start small then widen. Shoulders stay down. Switch direction halfway.'},
-      {name:'Hip Circles',ids:['N1Ht9mFfLr8','eSdLRIKgahY','hFHuXzJWWjk'],stat:'30 sec each direction',why:'Lubricates hip joints and activates glutes.',desc:'Feet shoulder-width, hands on hips. Draw large slow circles. Upper body stays still.'},
-      {name:'Leg Swings',ids:['uyxYBDAnNNo','AixAlECwbZ0','Eg1KFtmfT6Q'],stat:'10 reps each leg',why:'Dynamically stretches hamstrings and adductors.',desc:'Hold a wall. Swing one leg forward and back in a controlled arc.'},
-      {name:'Inchworms',ids:['CTn4ogOTMvs','LU5KRcAB2Ac','TmaGpcBly8g'],stat:'6 reps',why:'Activates the full posterior chain, core and shoulders.',desc:'Hinge forward, walk hands to a plank. Pause, then walk feet back to hands and stand.'},
-      {name:"World's Greatest Stretch",ids:['H9N3LdLH7eM','N1CPTQB_EHg','nVGHPpJbJLM'],stat:'3 reps per side',why:'Opens hip flexors, thoracic spine and groin in one move.',desc:'Deep lunge, same-side hand beside front foot, rotate top arm toward ceiling. Hold 2 sec.'},
-      {name:'Jumping Jacks',ids:['iSSAk4XCsRA','c4DAnQ6DtF8','Ba8BeY8EoOk'],stat:'60 sec',why:'Full-body cardio activation that raises core temperature.',desc:'Jump feet wide as arms go overhead, then return. Stay light on feet.'},
-    ]},
+  warmup:{title:'Warm-Up',sub:'8–10 min · No rest — keep moving',accent:'var(--warm)',exercises:[
+    {name:'Marching in Place',ids:['sHDn-2COMfU','TwqKJYJcYJ0','lVnCiE-SKkw'],stat:'60 sec',why:'Raises heart rate and activates hip flexors.',desc:'Drive knees up alternately while pumping arms. Stand tall, brace core, land softly.'},
+    {name:'Arm Circles',ids:['GwsZdRpMGMo','7kgZnJCgKAU','I8FnFmJ_BmA'],stat:'30 sec each direction',why:'Mobilises shoulder joints and warms the rotator cuff.',desc:'Arms straight out. Start small then widen. Shoulders stay down. Switch direction halfway.'},
+    {name:'Hip Circles',ids:['N1Ht9mFfLr8','eSdLRIKgahY','hFHuXzJWWjk'],stat:'30 sec each direction',why:'Lubricates hip joints and activates glutes.',desc:'Feet shoulder-width, hands on hips. Draw large slow circles. Upper body stays still.'},
+    {name:'Leg Swings',ids:['uyxYBDAnNNo','AixAlECwbZ0','Eg1KFtmfT6Q'],stat:'10 reps each leg',why:'Dynamically stretches hamstrings and adductors.',desc:'Hold a wall. Swing one leg forward and back in a controlled arc.'},
+    {name:'Inchworms',ids:['CTn4ogOTMvs','LU5KRcAB2Ac','TmaGpcBly8g'],stat:'6 reps',why:'Activates the full posterior chain, core and shoulders.',desc:'Hinge forward, walk hands to a plank. Pause, then walk feet back to hands and stand.'},
+    {name:"World's Greatest Stretch",ids:['H9N3LdLH7eM','N1CPTQB_EHg','nVGHPpJbJLM'],stat:'3 reps per side',why:'Opens hip flexors, thoracic spine and groin in one move.',desc:'Deep lunge, same-side hand beside front foot, rotate top arm toward ceiling. Hold 2 sec.'},
+    {name:'Jumping Jacks',ids:['iSSAk4XCsRA','c4DAnQ6DtF8','Ba8BeY8EoOk'],stat:'60 sec',why:'Full-body cardio activation that raises core temperature.',desc:'Jump feet wide as arms go overhead, then return. Stay light on feet.'},
+  ]},
   main:{title:'Main Workout',sub:'3 rounds · 30–45 sec rest between exercises · 90 sec between rounds',accent:'var(--main)',
-    blocks:[
-      {label:'🔵 BLOCK A — LOWER BODY & GLUTES',start:0,end:2},
-      {label:'🔴 BLOCK B — PUSH & UPPER BODY',start:3,end:5},
-      {label:'🟢 BLOCK C — CORE & STABILITY',start:6,end:8},
-      {label:'🟡 BLOCK D — FULL BODY & CARDIO',start:9,end:10},
-    ],
+    blocks:[{label:'🔵 BLOCK A — LOWER BODY & GLUTES',start:0,end:2},{label:'🔴 BLOCK B — PUSH & UPPER BODY',start:3,end:5},{label:'🟢 BLOCK C — CORE & STABILITY',start:6,end:8},{label:'🟡 BLOCK D — FULL BODY & CARDIO',start:9,end:10}],
     exercises:[
       {name:'Bodyweight Squats',ids:['YaXPRqUwItQ','aclHkVaku9U','BKCqHVMnfOc'],stat:'3 × 15 reps',rest:'30–45 sec',why:'Most efficient lower-body compound.',desc:'Feet shoulder-width, toes slightly out. Hips back and down. Chest up, knees track toes. Squeeze glutes at top.',mod:'Squat to a chair.'},
       {name:'Reverse Lunges',ids:['wrwwXE_x-pQ','fG4e_39AVRY','FTQbiNvZpGQ'],stat:'3 × 10 reps/leg',rest:'30–45 sec',why:'Glute-dominant lunge with less knee stress.',desc:'Step back, lower rear knee toward floor. Front shin vertical. Push through front heel.',mod:'Hold a wall for balance.'},
@@ -803,37 +960,26 @@ const phases={
       {name:'Burpees',ids:['JZQA08SlJnM','auBLPRCVbMU','TU8IBAR7204'],stat:'3 × 8 reps',rest:'30–45 sec',why:'Highest calorie-burn bodyweight move — power and endurance.',desc:'Squat, plant hands, jump back to plank, push-up optional, jump forward, stand and jump overhead.',mod:'Step back one at a time, skip the jump.'},
       {name:'Squat Jumps',ids:['CVaEhXotL7M','U4s4mEQ5VqU','sLEBkHFRuFc'],stat:'3 × 10 reps',rest:'30–45 sec',why:'Plyometric move that recruits fast-twitch fibers.',desc:'Squat then explode upward. Land softly with bent knees. Feet hip-width.',mod:'Slow squat with 3-sec hold.'},
     ]},
-  cool:{title:'Cool-Down',sub:'Hold 30–45 sec per side · Breathe deeply',accent:'var(--cool)',
-    exercises:[
-      {name:'Standing Quad Stretch',ids:['kHSTR4XHBWQ','OR-ulO_JCIg','sqLuuSGVCW0'],stat:'30–45 sec/side',why:'Releases quads and hip flexors.',desc:'Stand on one leg, pull opposite heel toward glute. Push hip slightly forward.'},
-      {name:'Figure-4 Hip Stretch',ids:['VNG_TA7n7lI','BuNH7oknwAU','oC6c2e3IU7s'],stat:'30–45 sec/side',why:'Releases glutes and piriformis.',desc:'Cross ankle over knee forming a figure-4. Pull thigh toward chest.'},
-      {name:'Supine Hamstring Stretch',ids:['UGEPaFmCo44','_2SqBhBOqls','CgXQF0bmGRw'],stat:'30–45 sec/side',why:'Lengthens hamstrings after lower-body loading.',desc:'Extend one leg toward ceiling, hold behind thigh. Flex foot to deepen.'},
-      {name:"Child's Pose",ids:['eqVMAPM00Yw','2MJGg-dUKh0','qNiHFH4UvTQ'],stat:'45 sec',why:'Decompresses lower back and stretches lats.',desc:'Kneel, sit back toward heels, arms reaching long. Breathe into your lower back.'},
-      {name:'Chest Opener Stretch',ids:['P-sjEOzJFxg','J2QXEJ7rALQ','m9RzE5GPRWQ'],stat:'30–45 sec/side',why:'Opens chest and front shoulder after pushing.',desc:'Forearm on a wall at 90°. Slowly rotate body away.'},
-      {name:'Seated Thoracic Twist',ids:['P_VplmUrPCY','M40PQJBkJoE','6_sYIYSFv7E'],stat:'30–45 sec/side',why:'Restores thoracic rotation.',desc:'Sit with legs extended. Bend one knee, rotate torso toward it. Sit tall.'},
-      {name:'90/90 Hip Stretch',ids:['6-9fgYGlEJM','a3HaAFBHFko','NHl-CYeFqUs'],stat:'30–45 sec/side',why:'Opens hip flexors, glutes and adductors.',desc:'Both legs at 90°. Sit tall. Windshield-wiper to switch sides.'},
-    ]},
-  finisher:{title:'⚡ Optional Finisher',sub:'Only add this if you felt great today',accent:'var(--warm)',
-    exercises:[
-      {name:'Tabata Mountain Climbers',ids:['De_Eem7H7SE','nmwgirgXLYM','5GBbMfBMBsg'],stat:'4 × 20 sec on / 10 sec off',why:'Research-backed HIIT — spikes VO₂ max and calorie burn.',desc:'20 sec max-effort mountain climbers, 10 sec rest — 4 rounds. Use the ⏱ timer set to 20 sec.',mod:'Skip if your form dropped during the main workout.'},
-    ]}
+  cool:{title:'Cool-Down',sub:'Hold 30–45 sec per side · Breathe deeply',accent:'var(--cool)',exercises:[
+    {name:'Standing Quad Stretch',ids:['kHSTR4XHBWQ','OR-ulO_JCIg','sqLuuSGVCW0'],stat:'30–45 sec/side',why:'Releases quads and hip flexors.',desc:'Stand on one leg, pull opposite heel toward glute. Push hip slightly forward.'},
+    {name:'Figure-4 Hip Stretch',ids:['VNG_TA7n7lI','BuNH7oknwAU','oC6c2e3IU7s'],stat:'30–45 sec/side',why:'Releases glutes and piriformis.',desc:'Cross ankle over knee forming a figure-4. Pull thigh toward chest.'},
+    {name:'Supine Hamstring Stretch',ids:['UGEPaFmCo44','_2SqBhBOqls','CgXQF0bmGRw'],stat:'30–45 sec/side',why:'Lengthens hamstrings after lower-body loading.',desc:'Extend one leg toward ceiling, hold behind thigh. Flex foot to deepen.'},
+    {name:"Child's Pose",ids:['eqVMAPM00Yw','2MJGg-dUKh0','qNiHFH4UvTQ'],stat:'45 sec',why:'Decompresses lower back and stretches lats.',desc:'Kneel, sit back toward heels, arms reaching long. Breathe into your lower back.'},
+    {name:'Chest Opener Stretch',ids:['P-sjEOzJFxg','J2QXEJ7rALQ','m9RzE5GPRWQ'],stat:'30–45 sec/side',why:'Opens chest and front shoulder after pushing.',desc:'Forearm on a wall at 90°. Slowly rotate body away.'},
+    {name:'Seated Thoracic Twist',ids:['P_VplmUrPCY','M40PQJBkJoE','6_sYIYSFv7E'],stat:'30–45 sec/side',why:'Restores thoracic rotation.',desc:'Sit with legs extended. Bend one knee, rotate torso toward it. Sit tall.'},
+    {name:'90/90 Hip Stretch',ids:['6-9fgYGlEJM','a3HaAFBHFko','NHl-CYeFqUs'],stat:'30–45 sec/side',why:'Opens hip flexors, glutes and adductors.',desc:'Both legs at 90°. Sit tall. Windshield-wiper to switch sides.'},
+  ]},
+  finisher:{title:'⚡ Optional Finisher',sub:'Only add this if you felt great today',accent:'var(--warm)',exercises:[
+    {name:'Tabata Mountain Climbers',ids:['De_Eem7H7SE','nmwgirgXLYM','5GBbMfBMBsg'],stat:'4 × 20 sec on / 10 sec off',why:'Research-backed HIIT — spikes VO₂ max and calorie burn.',desc:'20 sec max-effort mountain climbers, 10 sec rest — 4 rounds. Use the ⏱ timer set to 20 sec.',mod:'Skip if your form dropped during the main workout.'},
+  ]}
 };
 
-/* ══════════════════════════════════
-   PERSISTENT STATE (memory only)
-══════════════════════════════════ */
 const savedProgress={warmup:new Set(),main:new Set(),cool:new Set(),finisher:new Set()};
 
-/* ══════════════════════════════════
-   TIMELINE
-══════════════════════════════════ */
 const weekSchedule=[
-  {day:'MON',type:'workout',emoji:'💪',label:'Workout'},
-  {day:'TUE',type:'rest',emoji:'🚶',label:'Walk / Rest'},
-  {day:'WED',type:'workout',emoji:'💪',label:'Workout'},
-  {day:'THU',type:'rest',emoji:'🧘',label:'Stretch'},
-  {day:'FRI',type:'workout',emoji:'💪',label:'Workout'},
-  {day:'SAT',type:'optional',emoji:'⚡',label:'Optional'},
+  {day:'MON',type:'workout',emoji:'💪',label:'Workout'},{day:'TUE',type:'rest',emoji:'🚶',label:'Walk / Rest'},
+  {day:'WED',type:'workout',emoji:'💪',label:'Workout'},{day:'THU',type:'rest',emoji:'🧘',label:'Stretch'},
+  {day:'FRI',type:'workout',emoji:'💪',label:'Workout'},{day:'SAT',type:'optional',emoji:'⚡',label:'Optional'},
   {day:'SUN',type:'rest',emoji:'😴',label:'Full Rest'},
 ];
 const todayIdx=(new Date().getDay()+6)%7;
@@ -843,133 +989,88 @@ function buildTimeline(){
   weekSchedule.forEach((d,i)=>{
     const el=document.createElement('div');
     el.className='tl-day '+d.type+(i===todayIdx?' today':'');
-    el.innerHTML=`<div class="tl-dot-wrap"><div class="tl-dot"></div></div>
-      <div class="tl-label">${d.day}</div>
-      <div class="tl-emoji">${d.emoji}</div>
-      <div class="tl-activity">${d.label}</div>`;
+    el.innerHTML=`<div class="tl-dot-wrap"><div class="tl-dot"></div></div><div class="tl-label">${d.day}</div><div class="tl-emoji">${d.emoji}</div><div class="tl-activity">${d.label}</div>`;
     tl.appendChild(el);
   });
 }
 
-/* ══════════════════════════════════
-   HOME PROGRESS BARS
-══════════════════════════════════ */
 function updateHomeProgress(){
   ['warmup','main','cool','finisher'].forEach(key=>{
-    const total=phases[key].exercises.length;
-    const done=savedProgress[key].size;
+    const total=phases[key].exercises.length,done=savedProgress[key].size;
     const pct=total>0?Math.round(done/total*100):0;
-    const b=document.getElementById('home-bar-'+key);
-    const p=document.getElementById('home-pct-'+key);
-    if(b)b.style.width=pct+'%';
-    if(p)p.textContent=pct+'%';
+    const b=document.getElementById('home-bar-'+key),p=document.getElementById('home-pct-'+key);
+    if(b)b.style.width=pct+'%';if(p)p.textContent=pct+'%';
   });
 }
 
-/* ══════════════════════════════════
-   INIT
-══════════════════════════════════ */
+/* INIT */
 window.addEventListener('load',()=>{
   buildTimeline();
-  buildPlaylistUI();
   updateHomeProgress();
   updatePersistBar();
-  setInterval(updatePersistBar, 30000); // refresh every 30s
+  setInterval(updatePersistBar, 30000);
   document.querySelectorAll('.phase-card,.weekly-card,.music-card').forEach((el,i)=>{
     setTimeout(()=>el.classList.add('visible'),80+i*70);
   });
+  // Handle Spotify auth
+  const token = getToken();
+  if (token) {
+    showPlayerView();
+  } else {
+    showLoginView();
+  }
 });
 
-/* ══════════════════════════════════
-   NAVIGATION
-══════════════════════════════════ */
+/* NAVIGATION */
 let currentPhase=null,currentExercises=[];
-
 function showScreen(id,direction='forward'){
   const prev=document.querySelector('.screen.active,.screen.back-active');
   const next=document.getElementById(id);
   if(!prev||prev===next)return;
-  prev.style.animation=(direction==='forward')
-    ?'screenOut .28s var(--ease) forwards'
-    :'screenOutBack .28s var(--ease) forwards';
+  prev.style.animation=(direction==='forward')?'screenOut .28s var(--ease) forwards':'screenOutBack .28s var(--ease) forwards';
   prev.classList.remove('active','back-active');
   setTimeout(()=>{prev.style.animation='';},300);
   next.classList.add(direction==='forward'?'active':'back-active');
   next.scrollTop=0;
   syncMiniPlayer(id);
 }
+function goHome(){sfxBack();showScreen('home','back');resetTimer();currentPhase=null;currentExercises=[];updateHomeProgress();}
 
-function goHome(){
-  sfxBack();
-  showScreen('home','back');
-  resetTimer();
-  currentPhase=null;currentExercises=[];
-  updateHomeProgress();
-}
-
-/* ══════════════════════════════════
-   OPEN PHASE
-══════════════════════════════════ */
 function openPhase(key){
-  sfxTap();
-  currentPhase=key;
-  const p=phases[key];
-  currentExercises=p.exercises;
+  sfxTap();currentPhase=key;
+  const p=phases[key];currentExercises=p.exercises;
   document.getElementById('phase-title').textContent=p.title;
   document.getElementById('phase-sub').textContent=p.sub;
   document.documentElement.style.setProperty('--accent',p.accent);
-  const list=document.getElementById('ex-list');
-  list.innerHTML='';
+  const list=document.getElementById('ex-list');list.innerHTML='';
   if(key==='main'&&p.blocks){
     p.blocks.forEach(b=>{
-      const lbl=document.createElement('div');
-      lbl.className='block-label';
-      lbl.innerHTML=`${b.label}<div class="b-line"></div>`;
-      list.appendChild(lbl);
+      const lbl=document.createElement('div');lbl.className='block-label';
+      lbl.innerHTML=`${b.label}<div class="b-line"></div>`;list.appendChild(lbl);
       setTimeout(()=>lbl.classList.add('visible'),50);
-      for(let i=b.start;i<=b.end;i++){
-        const c=makeCard(p.exercises[i],i,key);
-        list.appendChild(c);
-        setTimeout(()=>c.classList.add('visible'),50+i*40);
-      }
+      for(let i=b.start;i<=b.end;i++){const c=makeCard(p.exercises[i],i,key);list.appendChild(c);setTimeout(()=>c.classList.add('visible'),50+i*40);}
     });
   } else {
-    p.exercises.forEach((ex,i)=>{
-      const c=makeCard(ex,i,key);
-      list.appendChild(c);
-      setTimeout(()=>c.classList.add('visible'),40+i*50);
-    });
+    p.exercises.forEach((ex,i)=>{const c=makeCard(ex,i,key);list.appendChild(c);setTimeout(()=>c.classList.add('visible'),40+i*50);});
   }
-  updatePhaseProgress();
-  showScreen('phase-screen','forward');
+  updatePhaseProgress();showScreen('phase-screen','forward');
 }
 
-/* ══════════════════════════════════
-   MAKE CARD
-══════════════════════════════════ */
 function makeCard(ex,idx,phaseKey){
   const card=document.createElement('div');
-  card.className='ex-card'+(savedProgress[phaseKey].has(idx)?' done':'');
-  card.id=`ex-${idx}`;
+  card.className='ex-card'+(savedProgress[phaseKey].has(idx)?' done':'');card.id=`ex-${idx}`;
   const restChip=ex.rest?`<div class="stat-chip">⏸ ${ex.rest} rest</div>`:'';
   const modHTML=ex.mod?`<div class="mod-box"><strong>✏️ Easier mod:</strong> ${ex.mod}</div>`:'';
-  const firstId=ex.ids[0];
   const isChecked=savedProgress[phaseKey].has(idx);
   card.innerHTML=`
-    <div class="video-wrap">
-      <div class="video-thumb loading" id="vt-${idx}">
-        <img src="https://img.youtube.com/vi/${firstId}/hqdefault.jpg" alt="${ex.name}"
-          onload="this.parentElement.classList.remove('loading')"
-          onerror="tryNextThumb(${idx},1)">
-        <div class="play-ring"><div class="play-tri"></div></div>
-        <div class="video-label">${ex.name} · Tap to watch demo</div>
-      </div>
-    </div>
+    <div class="video-wrap"><div class="video-thumb loading" id="vt-${idx}">
+      <img src="https://img.youtube.com/vi/${ex.ids[0]}/hqdefault.jpg" alt="${ex.name}"
+        onload="this.parentElement.classList.remove('loading')" onerror="tryNextThumb(${idx},1)">
+      <div class="play-ring"><div class="play-tri"></div></div>
+      <div class="video-label">${ex.name} · Tap to watch demo</div>
+    </div></div>
     <div class="ex-body">
-      <div class="ex-top">
-        <div class="ex-num">${idx+1}</div>
-        <div><div class="ex-name">${ex.name}</div><div class="ex-why">${ex.why}</div></div>
-      </div>
+      <div class="ex-top"><div class="ex-num">${idx+1}</div><div><div class="ex-name">${ex.name}</div><div class="ex-why">${ex.why}</div></div></div>
       <div class="ex-desc">${ex.desc}</div>
       <div class="ex-stats"><div class="stat-chip">${ex.stat}</div>${restChip}</div>
       ${modHTML}
@@ -977,194 +1078,84 @@ function makeCard(ex,idx,phaseKey){
     </div>`;
   card.querySelector(`#vt-${idx}`).addEventListener('click',()=>loadVideo(idx,0));
   const btn=card.querySelector('.done-btn');
-  btn.addEventListener('mousemove',e=>{
-    const r=btn.getBoundingClientRect();
-    btn.style.setProperty('--rx',((e.clientX-r.left)/r.width*100)+'%');
-    btn.style.setProperty('--ry',((e.clientY-r.top)/r.height*100)+'%');
-  });
+  btn.addEventListener('mousemove',e=>{const r=btn.getBoundingClientRect();btn.style.setProperty('--rx',((e.clientX-r.left)/r.width*100)+'%');btn.style.setProperty('--ry',((e.clientY-r.top)/r.height*100)+'%');});
   return card;
 }
 
 function tryNextThumb(idx,attempt){
-  const ex=currentExercises[idx];
-  if(!ex||attempt>=ex.ids.length){showNoThumb(idx);return;}
+  const ex=currentExercises[idx];if(!ex||attempt>=ex.ids.length){showNoThumb(idx);return;}
   const img=document.querySelector(`#vt-${idx} img`);
   if(img){img.src=`https://img.youtube.com/vi/${ex.ids[attempt]}/hqdefault.jpg`;img.onerror=()=>tryNextThumb(idx,attempt+1);}
   const thumb=document.getElementById(`vt-${idx}`);
   if(thumb){thumb.onclick=null;thumb.addEventListener('click',()=>loadVideo(idx,attempt),{once:true});}
 }
-function showNoThumb(idx){
-  const t=document.getElementById(`vt-${idx}`);
-  if(t)t.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--muted);font-size:13px;"><div style="font-size:32px">🎬</div><div>No preview available</div></div>`;
-}
+function showNoThumb(idx){const t=document.getElementById(`vt-${idx}`);if(t)t.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--muted);font-size:13px;"><div style="font-size:32px">🎬</div><div>No preview available</div></div>`;}
 function loadVideo(idx,idxInList){
-  sfxTap();
-  const ex=currentExercises[idx];if(!ex)return;
+  sfxTap();const ex=currentExercises[idx];if(!ex)return;
   const thumb=document.getElementById(`vt-${idx}`);if(!thumb)return;
   thumb.innerHTML=`<div class="video-loading"><div class="v-spin"></div><span>Loading…</span></div>`;
   const ytId=ex.ids[idxInList]||ex.ids[0];
   setTimeout(()=>{
     const iframe=document.createElement('iframe');
     iframe.src=`https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
-    iframe.allow='autoplay;encrypted-media;picture-in-picture;fullscreen';
-    iframe.allowFullscreen=true;
+    iframe.allow='autoplay;encrypted-media;picture-in-picture;fullscreen';iframe.allowFullscreen=true;
     iframe.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
     iframe.onerror=()=>{if(idxInList+1<ex.ids.length)loadVideo(idx,idxInList+1);else showNoThumb(idx);};
-    const wrap=thumb.closest('.video-wrap');
-    if(wrap)thumb.replaceWith(iframe);
+    const wrap=thumb.closest('.video-wrap');if(wrap)thumb.replaceWith(iframe);
   },150);
 }
 
-/* ══════════════════════════════════
-   MARK DONE
-══════════════════════════════════ */
 function markDone(idx){
-  const card=document.getElementById(`ex-${idx}`);
-  const btn=document.getElementById(`btn-${idx}`);
+  const card=document.getElementById(`ex-${idx}`),btn=document.getElementById(`btn-${idx}`);
   if(!card||!btn||!currentPhase)return;
   if(savedProgress[currentPhase].has(idx)){
-    savedProgress[currentPhase].delete(idx);
-    card.classList.remove('done');
-    btn.textContent='✓ Mark as Done';
-    btn.classList.remove('checked');
-    sfxUndo();showToast('Unmarked');
+    savedProgress[currentPhase].delete(idx);card.classList.remove('done');
+    btn.textContent='✓ Mark as Done';btn.classList.remove('checked');sfxUndo();showToast('Unmarked');
   } else {
-    savedProgress[currentPhase].add(idx);
-    card.classList.add('done');
-    btn.textContent='✅ Done!';
-    btn.classList.add('checked');
-    btn.classList.remove('pulse');void btn.offsetWidth;btn.classList.add('pulse');
-    sfxDone();
+    savedProgress[currentPhase].add(idx);card.classList.add('done');
+    btn.textContent='✅ Done!';btn.classList.add('checked');
+    btn.classList.remove('pulse');void btn.offsetWidth;btn.classList.add('pulse');sfxDone();
     const rem=currentExercises.length-savedProgress[currentPhase].size;
     if(rem>0)showToast(rem===1?'1 left!':`${rem} left`);
     if(savedProgress[currentPhase].size===currentExercises.length){
-      sfxFinish();
-      setTimeout(()=>{
-        document.getElementById('ds-ex').textContent=currentExercises.length;
-        document.getElementById('ds-phase').textContent=phases[currentPhase]?.title.replace('⚡ ','').split(' ')[0]||'Done';
-        showScreen('done-screen','forward');
-      },700);
+      sfxFinish();setTimeout(()=>{document.getElementById('ds-ex').textContent=currentExercises.length;document.getElementById('ds-phase').textContent=phases[currentPhase]?.title.replace('⚡ ','').split(' ')[0]||'Done';showScreen('done-screen','forward');},700);
     }
   }
   updatePhaseProgress();
 }
 function updatePhaseProgress(){
   if(!currentPhase)return;
-  const total=currentExercises.length,done=savedProgress[currentPhase].size;
-  const pct=Math.round(done/total*100);
+  const total=currentExercises.length,done=savedProgress[currentPhase].size,pct=Math.round(done/total*100);
   document.getElementById('prog-fill').style.width=pct+'%';
   document.getElementById('prog-pct').textContent=pct+'%';
   document.getElementById('prog-steps').textContent=`${done} / ${total} done`;
 }
 
-/* ══════════════════════════════════
-   TOAST
-══════════════════════════════════ */
 let _tt;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2200);}
 
-/* ══════════════════════════════════
-   TIMER  — with manual input & adj
-══════════════════════════════════ */
+/* TIMER */
 let timerSecs=45,timerOrig=45,timerRunning=false,timerIv=null;
 const CIRC=2*Math.PI*66;
-
 function openTimer(){document.getElementById('timer-overlay').classList.add('open');sfxTap();}
 function closeTimerOutside(e){if(e.target.id==='timer-overlay')document.getElementById('timer-overlay').classList.remove('open');}
-
-function setTimer(s){
-  const wasRunning=timerRunning;
-  if(!wasRunning)resetTimer();
-  timerSecs=Math.max(1,s);
-  timerOrig=Math.max(1,s);
-  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active-p'));
-  if(event&&event.target)event.target.classList.add('active-p');
-  updateTimerDisplay();
-  sfxTap();
-}
-
-/* fine-tune: works both stopped and running */
-function adjTimer(delta){
-  timerSecs=Math.max(1,timerSecs+delta);
-  if(!timerRunning) timerOrig=timerSecs;
-  updateTimerDisplay();
-  sfxTap();
-}
-
-/* manual MM:SS input */
-function applyManualInput(val){
-  val=val.trim();
-  let secs;
-  if(val.includes(':')){
-    const [m,s]=val.split(':').map(Number);
-    secs=(m||0)*60+(s||0);
-  } else {
-    secs=parseInt(val)||0;
-  }
-  if(secs>0){
-    timerSecs=secs; timerOrig=secs;
-    updateTimerDisplay(); sfxTap();
-  }
-}
-
+function setTimer(s){if(!timerRunning)resetTimer();timerSecs=Math.max(1,s);timerOrig=Math.max(1,s);document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active-p'));if(event&&event.target)event.target.classList.add('active-p');updateTimerDisplay();sfxTap();}
+function adjTimer(delta){timerSecs=Math.max(1,timerSecs+delta);if(!timerRunning)timerOrig=timerSecs;updateTimerDisplay();sfxTap();}
+function applyManualInput(val){val=val.trim();let secs;if(val.includes(':')){const[m,s]=val.split(':').map(Number);secs=(m||0)*60+(s||0);}else{secs=parseInt(val)||0;}if(secs>0){timerSecs=secs;timerOrig=secs;updateTimerDisplay();sfxTap();}}
 function toggleTimer(){
-  if(timerRunning){
-    clearInterval(timerIv);timerRunning=false;
-    document.getElementById('t-start-btn').textContent='Resume';
-    document.getElementById('pb-timer').classList.remove('running');
-    sfxTap();
-  } else {
-    timerRunning=true;
-    document.getElementById('t-start-btn').textContent='Pause';
-    document.getElementById('pb-timer').classList.add('running');
-    document.getElementById('pb-timer').classList.remove('done');
-    sfxTap();
-    timerIv=setInterval(()=>{
-      timerSecs--;
-      updateTimerDisplay();
-      if(timerSecs<=0){
-        clearInterval(timerIv);timerRunning=false;
-        document.getElementById('t-start-btn').textContent='Start';
-        document.getElementById('timer-label').textContent='✅ Rest over — go!';
-        document.getElementById('timer-label').style.color='var(--main)';
-        document.getElementById('timer-num').style.color='var(--main)';
-        document.getElementById('ring-fg').style.stroke='var(--main)';
-        document.getElementById('pb-timer').classList.remove('running');
-        document.getElementById('pb-timer').classList.add('done');
-        document.getElementById('pb-timer-val').style.color='var(--main)';
-        sfxTimerEnd();
-        if(navigator.vibrate)navigator.vibrate([120,60,120]);
-      }
-    },1000);
-  }
+  if(timerRunning){clearInterval(timerIv);timerRunning=false;document.getElementById('t-start-btn').textContent='Resume';document.getElementById('pb-timer').classList.remove('running');sfxTap();}
+  else{timerRunning=true;document.getElementById('t-start-btn').textContent='Pause';document.getElementById('pb-timer').classList.add('running');document.getElementById('pb-timer').classList.remove('done');sfxTap();
+    timerIv=setInterval(()=>{timerSecs--;updateTimerDisplay();
+      if(timerSecs<=0){clearInterval(timerIv);timerRunning=false;document.getElementById('t-start-btn').textContent='Start';document.getElementById('timer-label').textContent='✅ Rest over — go!';document.getElementById('timer-label').style.color='var(--main)';document.getElementById('timer-num').style.color='var(--main)';document.getElementById('ring-fg').style.stroke='var(--main)';document.getElementById('pb-timer').classList.remove('running');document.getElementById('pb-timer').classList.add('done');document.getElementById('pb-timer-val').style.color='var(--main)';sfxTimerEnd();if(navigator.vibrate)navigator.vibrate([120,60,120]);}
+    },1000);}
 }
-
-function resetTimer(){
-  clearInterval(timerIv);timerRunning=false;timerSecs=timerOrig;
-  document.getElementById('t-start-btn').textContent='Start';
-  document.getElementById('timer-label').textContent='Pick a duration or type one below';
-  document.getElementById('timer-label').style.color='';
-  document.getElementById('timer-num').style.color='';
-  document.getElementById('ring-fg').style.stroke='';
-  document.getElementById('pb-timer').classList.remove('running','done');
-  document.getElementById('pb-timer-val').style.color='';
-  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active-p'));
-  updateTimerDisplay();
-}
-
+function resetTimer(){clearInterval(timerIv);timerRunning=false;timerSecs=timerOrig;document.getElementById('t-start-btn').textContent='Start';document.getElementById('timer-label').textContent='Pick a duration or type one below';document.getElementById('timer-label').style.color='';document.getElementById('timer-num').style.color='';document.getElementById('ring-fg').style.stroke='';document.getElementById('pb-timer').classList.remove('running','done');document.getElementById('pb-timer-val').style.color='';document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active-p'));updateTimerDisplay();}
 function updateTimerDisplay(){
-  const m=Math.floor(timerSecs/60),s=timerSecs%60;
-  const str=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-  document.getElementById('timer-num').textContent=str;
-  document.getElementById('pb-timer-val').textContent=str;
-  // sync manual input field
-  const inp=document.getElementById('t-manual-input');
-  if(inp&&document.activeElement!==inp) inp.value=str;
-  // ring
-  const fg=document.getElementById('ring-fg');
-  const pct=timerOrig>0?timerSecs/timerOrig:1;
-  fg.style.transition=timerRunning?'stroke-dashoffset 1s linear':'none';
-  fg.style.strokeDashoffset=CIRC*(1-pct);
+  const m=Math.floor(timerSecs/60),s=timerSecs%60,str=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  document.getElementById('timer-num').textContent=str;document.getElementById('pb-timer-val').textContent=str;
+  const inp=document.getElementById('t-manual-input');if(inp&&document.activeElement!==inp)inp.value=str;
+  const fg=document.getElementById('ring-fg'),pct=timerOrig>0?timerSecs/timerOrig:1;
+  fg.style.transition=timerRunning?'stroke-dashoffset 1s linear':'none';fg.style.strokeDashoffset=CIRC*(1-pct);
 }
 </script>
 </body>
