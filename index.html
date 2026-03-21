@@ -6,7 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Workout">
-<title>45-Min Home Workout</title>
+<title>Workout App</title>
+<link id="fav" rel="icon" type="image/svg+xml" href="">
+<link id="apl" rel="apple-touch-icon" href="">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -156,8 +158,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .spot-playlists{margin-top:10px;}
 .pl-toggle{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px 8px;border-radius:8px;transition:color .15s;margin-top:6px;width:100%;text-align:center;}
 .pl-toggle:hover{color:var(--text);}
-.spot-pl-list{display:flex;flex-direction:column;gap:4px;max-height:0;overflow:hidden;transition:max-height .4s var(--ease);}
-.spot-pl-list.open{max-height:320px;overflow-y:auto;}
+.spot-pl-list{display:flex;flex-direction:column;gap:4px;max-height:0;overflow:hidden;transition:max-height .5s var(--ease);}
+.spot-pl-list.open{max-height:600px;overflow-y:auto;}
 .pl-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;transition:background .15s;border:1px solid transparent;}
 .pl-item:hover{background:rgba(255,255,255,.04);border-color:var(--border);}
 .pl-item.active{background:rgba(29,185,84,.08);border-color:rgba(29,185,84,.2);}
@@ -678,6 +680,9 @@ async function loadPlaylists() {
     item.onclick = () => playPlaylist(pl.uri, item);
     list.appendChild(item);
   });
+  list.dataset.loaded='1';
+  var btn=document.getElementById('pl-toggle-btn');
+  if(btn)btn.textContent='Your playlists ('+data.items.length+')';
 }
 
 /* ── Device resolution ──
@@ -744,6 +749,7 @@ async function updateNowPlaying() {
   }
 
   const dur = track.duration_ms, pos = data.progress_ms || 0;
+  _pMs=pos;_dMs=dur;_lSync=Date.now();
   const seekBar = document.getElementById('seek-bar');
   if (seekBar && !seekBar.matches(':active')) seekBar.value = dur > 0 ? (pos/dur*100) : 0;
   document.getElementById('seek-cur').textContent = msToTime(pos);
@@ -783,16 +789,35 @@ async function spotTogglePlay() {
   }
 }
 
+var _pMs=0,_dMs=1,_lSync=0,_pIv=null;
+function _startInterp(){
+  if(_pIv)return;
+  _pIv=setInterval(function(){
+    if(!spotPlaying)return;
+    var pos=Math.min(_pMs+(Date.now()-_lSync),_dMs);
+    var pct=_dMs>0?pos/_dMs*100:0;
+    var sb=document.getElementById('seek-bar');
+    if(sb&&!sb.matches(':active'))sb.value=pct;
+    var sc=document.getElementById('seek-cur');
+    if(sc)sc.textContent=msToTime(pos);
+  },250);
+}
+function _stopInterp(){clearInterval(_pIv);_pIv=null;}
+
 function updatePlayUI() {
   const icon = spotPlaying ? '⏸' : '▶';
   ['m-play-btn','mp-play-btn'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=icon; });
   ['music-bars','mp-bars'].forEach(id => { const el=document.getElementById(id); if(el) el.style.display=spotPlaying?'flex':'none'; });
   if (spotPlaying) {
     setAmbient(true);
-    if (!seekUpdateIv) seekUpdateIv = setInterval(updateNowPlaying, 1500);
+    _startInterp();
+    if (!seekUpdateIv) seekUpdateIv = setInterval(updateNowPlaying, 2000);
+    syncAppIcon();
   } else {
     setAmbient(false);
+    _stopInterp();
     clearInterval(seekUpdateIv); seekUpdateIv = null;
+    syncAppIcon();
   }
 }
 
@@ -989,15 +1014,13 @@ function togglePlaylists() {
   const btn  = document.getElementById('pl-toggle-btn');
   if (!list) return;
   // Reload if empty (first tap after login)
-  if (list.children.length === 0) {
-    loadPlaylists().then(() => {
-      list.classList.add('open');
-      if (btn) btn.textContent = '▴ Hide playlists';
-    });
+  if (!list.dataset.loaded) {
+    if(btn)btn.textContent='Loading...';
+    loadPlaylists().then(()=>{ list.classList.add('open'); if(btn)btn.textContent='Hide playlists'; });
     return;
   }
   list.classList.toggle('open');
-  if (btn) btn.textContent = list.classList.contains('open') ? '▴ Hide playlists' : '▾ Your playlists';
+  if (btn) btn.textContent = list.classList.contains('open') ? 'Hide playlists' : 'Your playlists (' + list.children.length + ')';
 }
 
 /* Mini player */
@@ -1053,6 +1076,26 @@ function getCurrentBlock(){
   for(const b of dailySchedule){const[h,m]=b.time.split(':').map(Number);if(mins>=h*60+m)active=b;else break;}
   return active;
 }
+function setAppIcon(e){
+  try{
+    var s="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>"+encodeURIComponent(e)+"</text></svg>";
+    var fv=document.getElementById('fav');if(fv)fv.href=s;
+    var ap=document.getElementById('apl');if(ap)ap.href=s;
+  }catch(ex){}
+}
+function syncAppIcon(){
+  try{
+    if(typeof timerRunning!=='undefined'&&timerRunning&&timerSecs>0){setAppIcon('⏱');document.title='⏱ Timer Running';return;}
+    if(typeof timerRunning!=='undefined'&&!timerRunning&&timerOrig>0&&timerSecs<=0){setAppIcon('✅');document.title='✅ Rest Over!';return;}
+    var sc=document.querySelector('.screen.active,.screen.back-active');
+    var sid=sc?sc.id:'home';
+    if(sid==='done-screen'){setAppIcon('🏆');document.title='Crushed It!';return;}
+    if(typeof spotPlaying!=='undefined'&&spotPlaying){setAppIcon('🎵');document.title='Workout App';return;}
+    if(sid==='phase-screen'){setAppIcon('💪');document.title='Workout App';return;}
+    setAppIcon('💪');document.title='Workout App';
+  }catch(ex){}
+}
+
 /* Auto-version from GitHub commits */
 async function fetchVersion() {
   try {
@@ -1163,6 +1206,7 @@ window.addEventListener('load', async () => {
   updatePersistBar();
   setInterval(updatePersistBar, 1000); // tick every second
   fetchVersion();
+  syncAppIcon();
   document.querySelectorAll('.phase-card,.weekly-card,.music-card').forEach((el,i)=>{
     setTimeout(()=>el.classList.add('visible'),80+i*70);
   });
@@ -1188,6 +1232,7 @@ function showScreen(id,direction='forward'){
   next.classList.add(direction==='forward'?'active':'back-active');
   next.scrollTop=0;
   syncMiniPlayer(id);
+  setTimeout(syncAppIcon,50);
 }
 function goHome(){sfxBack();showScreen('home','back');resetTimer();currentPhase=null;currentExercises=[];updateHomeProgress();}
 
@@ -1298,13 +1343,13 @@ function setTimer(s){if(!timerRunning)resetTimer();timerSecs=Math.max(1,s);timer
 function adjTimer(delta){timerSecs=Math.max(1,timerSecs+delta);if(!timerRunning)timerOrig=timerSecs;updateTimerDisplay();sfxTap();}
 function applyManualInput(val){val=val.trim();let secs;if(val.includes(':')){const[m,s]=val.split(':').map(Number);secs=(m||0)*60+(s||0);}else{secs=parseInt(val)||0;}if(secs>0){timerSecs=secs;timerOrig=secs;updateTimerDisplay();sfxTap();}}
 function toggleTimer(){
-  if(timerRunning){clearInterval(timerIv);timerRunning=false;document.getElementById('t-start-btn').textContent='Resume';document.getElementById('pb-timer').classList.remove('running');sfxTap();}
-  else{timerRunning=true;document.getElementById('t-start-btn').textContent='Pause';document.getElementById('pb-timer').classList.add('running');document.getElementById('pb-timer').classList.remove('done');sfxTap();
+  if(timerRunning){clearInterval(timerIv);timerRunning=false;document.getElementById('t-start-btn').textContent='Resume';document.getElementById('pb-timer').classList.remove('running');sfxTap();syncAppIcon();}
+  else{timerRunning=true;document.getElementById('t-start-btn').textContent='Pause';document.getElementById('pb-timer').classList.add('running');document.getElementById('pb-timer').classList.remove('done');sfxTap();syncAppIcon();
     timerIv=setInterval(()=>{timerSecs--;updateTimerDisplay();
-      if(timerSecs<=0){clearInterval(timerIv);timerRunning=false;document.getElementById('t-start-btn').textContent='Start';document.getElementById('timer-label').textContent='✅ Rest over — go!';document.getElementById('timer-label').style.color='var(--main)';document.getElementById('timer-num').style.color='var(--main)';document.getElementById('ring-fg').style.stroke='var(--main)';document.getElementById('pb-timer').classList.remove('running');document.getElementById('pb-timer').classList.add('done');document.getElementById('pb-timer-val').style.color='var(--main)';sfxTimerEnd();if(navigator.vibrate)navigator.vibrate([120,60,120]);}
+      if(timerSecs<=0){clearInterval(timerIv);timerRunning=false;document.getElementById('t-start-btn').textContent='Start';document.getElementById('timer-label').textContent='✅ Rest over — go!';document.getElementById('timer-label').style.color='var(--main)';document.getElementById('timer-num').style.color='var(--main)';document.getElementById('ring-fg').style.stroke='var(--main)';document.getElementById('pb-timer').classList.remove('running');document.getElementById('pb-timer').classList.add('done');document.getElementById('pb-timer-val').style.color='var(--main)';sfxTimerEnd();if(navigator.vibrate)navigator.vibrate([120,60,120]);syncAppIcon();}
     },1000);}
 }
-function resetTimer(){clearInterval(timerIv);timerRunning=false;timerSecs=timerOrig;document.getElementById('t-start-btn').textContent='Start';document.getElementById('timer-label').textContent='Pick a duration or type one below';document.getElementById('timer-label').style.color='';document.getElementById('timer-num').style.color='';document.getElementById('ring-fg').style.stroke='';document.getElementById('pb-timer').classList.remove('running','done');document.getElementById('pb-timer-val').style.color='';document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active-p'));updateTimerDisplay();}
+function resetTimer(){clearInterval(timerIv);timerRunning=false;timerSecs=timerOrig;document.getElementById('t-start-btn').textContent='Start';document.getElementById('timer-label').textContent='Pick a duration or type one below';document.getElementById('timer-label').style.color='';document.getElementById('timer-num').style.color='';document.getElementById('ring-fg').style.stroke='';document.getElementById('pb-timer').classList.remove('running','done');document.getElementById('pb-timer-val').style.color='';document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active-p'));updateTimerDisplay();syncAppIcon();}
 function updateTimerDisplay(){
   const m=Math.floor(timerSecs/60),s=timerSecs%60,str=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
   document.getElementById('timer-num').textContent=str;
