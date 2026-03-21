@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Workout">
 <title>Workout App</title>
 <link id="fav" rel="icon" type="image/svg+xml" href="">
 <link id="apl" rel="apple-touch-icon" href="">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0d0d0f;--card:#16161a;--card2:#1c1c23;
@@ -25,11 +25,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 #ambient-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% 100%,rgba(13,13,15,0.1) 0%,transparent 70%);transition:background 1.6s ease;}
 
 /* PERSIST BAR */
-#persist-bar{position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(14,14,17,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:10px 16px 8px;padding-top:max(10px,env(safe-area-inset-top));}
+#persist-bar{position:fixed;top:0;left:0;right:0;z-index:900;background:rgba(14,14,17,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:10px 16px 8px;padding-top:max(10px,env(safe-area-inset-top));}
 .pb-date{flex:1;min-width:0;}
 .pb-date-main{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.5px;color:var(--text);line-height:1;}
+.pb-row2{display:flex;align-items:center;gap:6px;}
 .pb-block{font-size:10px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pb-block.active-block{color:var(--main);}
+.pb-ver{font-size:9px;color:var(--border2);font-weight:700;letter-spacing:1px;}
 .pb-timer{display:flex;align-items:center;gap:6px;background:var(--pill);border:1px solid var(--border);border-radius:12px;padding:5px 10px;cursor:pointer;transition:background .15s,border-color .15s,transform .15s var(--spring);flex-shrink:0;}
 .pb-timer:hover{background:var(--border);border-color:var(--warm);}
 .pb-timer:active{transform:scale(.95);}
@@ -43,6 +45,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .screen{display:none;min-height:100vh;flex-direction:column;opacity:0;position:relative;z-index:1;padding-top:54px;}
 .screen.active{display:flex;animation:screenIn .38s var(--ease) forwards;}
 .screen.back-active{display:flex;animation:screenBack .32s var(--ease) forwards;}
+body.has-spot-bar .screen{padding-bottom:calc(96px + env(safe-area-inset-bottom));}
+
 @keyframes screenIn{from{opacity:0;transform:translateX(48px)}to{opacity:1;transform:none}}
 @keyframes screenBack{from{opacity:0;transform:translateX(-48px)}to{opacity:1;transform:none}}
 @keyframes screenOut{from{opacity:1;transform:none}to{opacity:0;transform:translateX(-40px)}}
@@ -98,7 +102,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .finisher-card{background:linear-gradient(135deg,#1a1820,#110f14);border-color:#3a2a1a;}
 .bonus-badge{background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.25);border-radius:8px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--warm);flex-shrink:0;}
 
-/* ══ SPOTIFY MUSIC CARD (home screen widget — login/playlist only) ══ */
+/* ══ SPOTIFY MUSIC CARD (home screen widget) ══ */
 .music-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:11px;opacity:0;}
 .music-card.visible{animation:cardSlide .42s var(--ease) .15s forwards;}
 .music-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
@@ -106,14 +110,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .music-title{font-family:'Bebas Neue',sans-serif;font-size:17px;line-height:1;}
 .music-sub{font-size:11px;color:var(--muted);margin-top:1px;}
 
-/* spotify login state */
 .spot-connect{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 0 8px;}
 .spot-connect p{font-size:13px;color:var(--muted);text-align:center;line-height:1.5;max-width:240px;}
 .spot-btn{display:inline-flex;align-items:center;gap:10px;background:var(--spot);color:#000;border:none;border-radius:500px;padding:14px 28px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .18s var(--spring),filter .18s;text-decoration:none;letter-spacing:.02em;}
 .spot-btn:hover{filter:brightness(1.08);transform:scale(1.03);}
 .spot-btn:active{transform:scale(.97);}
 
-/* spotify logged-in widget: user bar + playlists */
 .spot-user{display:flex;align-items:center;gap:10px;background:rgba(29,185,84,.06);border:1px solid rgba(29,185,84,.15);border-radius:12px;padding:10px 12px;margin-bottom:12px;}
 .spot-avatar{width:34px;height:34px;border-radius:50%;background:rgba(29,185,84,.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden;}
 .spot-avatar img{width:100%;height:100%;object-fit:cover;}
@@ -121,7 +123,6 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .spot-logout{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:11px;padding:4px 8px;cursor:pointer;transition:background .15s;}
 .spot-logout:hover{background:var(--border);}
 
-/* playlists */
 .spot-playlists{margin-top:4px;}
 .pl-toggle{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px 8px;border-radius:8px;transition:color .15s;margin-top:6px;width:100%;text-align:center;}
 .pl-toggle:hover{color:var(--text);}
@@ -136,27 +137,22 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .pl-meta{font-size:10px;color:var(--muted);}
 
 /* ══════════════════════════════════════════════════
-   SPOTIFY BOTTOM PLAYER BAR — production quality
-   Three-col layout: [track info] [controls] [vol]
+   SPOTIFY BOTTOM PLAYER BAR
 ══════════════════════════════════════════════════ */
 #spot-player-bar{
   position:fixed;bottom:0;left:0;right:0;z-index:900;
-  height:88px;
+  height:calc(88px + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);
   background:rgba(18,18,18,.95);
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
   border-top:1px solid rgba(255,255,255,.1);
-  display:none; /* shown when logged in */
+  display:none; 
   align-items:center;
-  padding:0 16px;
+  padding-left:16px; padding-right:16px;
   gap:0;
-  /* push screens up when bar is visible */
 }
 #spot-player-bar.spb-visible{display:flex;}
 
-/* Body padding so content isn't hidden under bar */
-body.has-spot-bar .screen{padding-bottom:96px;}
-
-/* Left column — track info */
 .spb-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0;max-width:280px;}
 .spb-art{width:56px;height:56px;border-radius:4px;background:linear-gradient(135deg,#0d2b1a,#0a1a10);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px;transition:box-shadow .3s ease;}
 .spb-art img{width:100%;height:100%;object-fit:cover;display:block;}
@@ -168,66 +164,41 @@ body.has-spot-bar .screen{padding-bottom:96px;}
 .spb-heart:hover{color:#fff;transform:scale(1.1);}
 .spb-heart.liked{color:var(--spot);}
 
-/* Center column — controls + progress */
 .spb-center{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;max-width:560px;padding:0 8px;}
 .spb-controls{display:flex;align-items:center;gap:16px;}
-
-/* Control icon buttons */
-.spb-btn{background:none;border:none;color:#b3b3b3;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:4px;border-radius:50%;transition:color .12s ease,transform .12s ease;line-height:1;}
+.spb-btn{background:none;border:none;color:#b3b3b3;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:4px;border-radius:50%;transition:color .12s ease,transform .12s ease;line-height:1;position:relative;}
 .spb-btn:hover{color:#fff;transform:scale(1.07);}
 .spb-btn:active{transform:scale(.93);}
 .spb-btn.on{color:var(--spot);}
 .spb-btn.on::after{content:'';display:block;width:4px;height:4px;background:var(--spot);border-radius:50%;position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);}
-.spb-btn{position:relative;}
 .spb-btn-sm{font-size:18px;}
-.spb-btn-lg{font-size:32px;color:#fff;} /* play/pause */
+.spb-btn-lg{font-size:32px;color:#fff;}
 .spb-btn-lg:hover{transform:scale(1.06);}
 
-/* Progress bar */
 .spb-progress{width:100%;display:flex;align-items:center;gap:8px;}
 .spb-time{font-size:11px;color:#b3b3b3;flex-shrink:0;min-width:32px;font-variant-numeric:tabular-nums;}
 .spb-time-right{text-align:right;}
-.spb-seek{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:4px;outline:none;cursor:pointer;
-  /* filled portion via background gradient, updated via JS */
-  background:linear-gradient(to right,var(--spot) 0%,#535353 0%);
-  transition:height .15s ease;
-}
+.spb-seek{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:4px;outline:none;cursor:pointer;background:linear-gradient(to right,var(--spot) 0%,#535353 0%);transition:height .15s ease;}
 .spb-seek:hover{height:6px;}
-.spb-seek::-webkit-slider-thumb{
-  -webkit-appearance:none;width:12px;height:12px;border-radius:50%;
-  background:#fff;cursor:pointer;opacity:0;
-  transition:opacity .15s ease,transform .15s ease;
-}
+.spb-seek::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#fff;cursor:pointer;opacity:0;transition:opacity .15s ease,transform .15s ease;}
 .spb-seek:hover::-webkit-slider-thumb{opacity:1;}
 .spb-seek:active::-webkit-slider-thumb{transform:scale(1.25);}
 .spb-seek::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:none;cursor:pointer;opacity:0;}
 .spb-seek:hover::-moz-range-thumb{opacity:1;}
 
-/* Right column — volume + extras */
 .spb-right{display:flex;align-items:center;gap:10px;flex:1;justify-content:flex-end;max-width:280px;}
 .spb-vol-wrap{display:flex;align-items:center;gap:6px;}
 .spb-vol-icon{font-size:16px;}
-.spb-vol{width:88px;-webkit-appearance:none;appearance:none;height:4px;border-radius:4px;outline:none;cursor:pointer;
-  background:linear-gradient(to right,var(--spot) 50%,#535353 50%);
-  transition:height .15s ease;
-}
+.spb-vol{width:88px;-webkit-appearance:none;appearance:none;height:4px;border-radius:4px;outline:none;cursor:pointer;background:linear-gradient(to right,var(--spot) 50%,#535353 50%);transition:height .15s ease;}
 .spb-vol:hover{height:6px;}
-.spb-vol::-webkit-slider-thumb{
-  -webkit-appearance:none;width:12px;height:12px;border-radius:50%;
-  background:#fff;cursor:pointer;opacity:0;
-  transition:opacity .15s ease,transform .15s ease;
-}
+.spb-vol::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#fff;cursor:pointer;opacity:0;transition:opacity .15s ease,transform .15s ease;}
 .spb-vol:hover::-webkit-slider-thumb{opacity:1;}
 .spb-vol:active::-webkit-slider-thumb{transform:scale(1.25);}
 .spb-vol::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:none;cursor:pointer;opacity:0;}
 .spb-vol:hover::-moz-range-thumb{opacity:1;}
 
-/* SDK error/status strip */
 .spb-status{position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:rgba(255,60,60,.9);color:#fff;font-size:11px;padding:4px 12px;border-radius:20px;white-space:nowrap;pointer-events:none;transition:opacity .3s;opacity:0;}
 .spb-status.show{opacity:1;}
-.spb-reconnect{background:rgba(29,185,84,.12);color:var(--spot);border-color:rgba(29,185,84,.3)!important;}
-
-/* Equaliser bars (now playing indicator) */
 .spb-bars{display:flex;align-items:flex-end;gap:2px;height:14px;flex-shrink:0;}
 .spb-bar{width:3px;background:var(--spot);border-radius:2px;height:6px;}
 .spb-bar:nth-child(1){animation:musicPulse .8s .0s ease-in-out infinite;}
@@ -235,8 +206,6 @@ body.has-spot-bar .screen{padding-bottom:96px;}
 .spb-bar:nth-child(3){animation:musicPulse .8s .30s ease-in-out infinite;}
 .spb-bar:nth-child(4){animation:musicPulse .8s .45s ease-in-out infinite;}
 
-/* ── RESPONSIVE ── */
-/* Tablet: hide volume slider, shrink left */
 @media(max-width:1024px){
   .spb-left{max-width:200px;}
   .spb-right{max-width:180px;}
@@ -246,46 +215,70 @@ body.has-spot-bar .screen{padding-bottom:96px;}
   .spb-left{max-width:none;flex:none;}
   .spb-right{display:none;}
   .spb-center{display:none;}
-  /* Mobile: compact bar — art + name + play only */
-  #spot-player-bar{
-    height:64px;padding:0 12px;gap:12px;cursor:pointer;
-  }
+  #spot-player-bar{height:calc(64px + env(safe-area-inset-bottom));padding:0 12px;padding-bottom:env(safe-area-inset-bottom);gap:12px;cursor:pointer;}
   .spb-mobile-info{flex:1;min-width:0;}
   .spb-mobile-track{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;}
   .spb-mobile-artist{font-size:11px;color:#b3b3b3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .spb-mobile-play{background:none;border:none;color:#fff;font-size:28px;cursor:pointer;padding:4px;flex-shrink:0;}
-  /* Mobile progress microbar at very top of bar */
   #spb-mobile-prog{position:absolute;top:0;left:0;right:0;height:2px;background:var(--spot);transition:width .5s linear;}
 }
 
-/* ── MOBILE NOW-PLAYING MODAL (slides up on tap) ── */
+/* ── MOBILE NOW-PLAYING MODAL (Full screen w/ Playlists) ── */
 #spot-nowplaying-modal{
   position:fixed;inset:0;z-index:950;
   background:linear-gradient(180deg,#1a1a2e 0%,#121212 100%);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
-  padding:40px 24px 100px;
+  display:flex;flex-direction:column;
   transform:translateY(100%);
-  transition:transform .3s cubic-bezier(.25,.8,.25,1);
+  transition:transform .35s cubic-bezier(.32,.72,0,1);
   pointer-events:none;
+  overflow-y:auto; overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
 }
 #spot-nowplaying-modal.open{transform:translateY(0);pointer-events:all;}
-.snm-close{position:absolute;top:max(16px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);
-  width:36px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;cursor:pointer;}
-.snm-art{width:260px;height:260px;border-radius:8px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6);flex-shrink:0;}
-.snm-art img{width:100%;height:100%;object-fit:cover;display:block;}
-.snm-meta{text-align:center;width:100%;}
-.snm-track{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;}
-.snm-artist{font-size:15px;color:#b3b3b3;}
-.snm-progress{width:100%;display:flex;flex-direction:column;gap:6px;}
-.snm-controls{display:flex;align-items:center;justify-content:center;gap:24px;width:100%;}
-.snm-btn{background:none;border:none;color:#b3b3b3;font-size:22px;cursor:pointer;padding:8px;border-radius:50%;transition:color .12s;}
-.snm-btn:hover{color:#fff;}
-.snm-btn.on{color:var(--spot);}
-.snm-play{font-size:52px;color:#fff;}
 
-/* ══ FLOATING MINI PLAYER (non-home pages — kept for context) ══ */
-#mini-player{display:none;} /* hidden — bottom bar replaces it on all screens */
-#mini-player-fab{display:none;}
+.snm-top-bar{display:flex;align-items:center;justify-content:space-between;padding:max(16px,env(safe-area-inset-top)) 20px 20px;}
+.snm-top-bar-title{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#fff;}
+.snm-close-btn{background:rgba(255,255,255,.1);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;}
+.snm-close-btn:active{background:rgba(255,255,255,.2);transform:scale(.95);}
+
+.snm-main-content{display:flex;flex-direction:column;align-items:center;padding:0 24px 30px;flex-shrink:0;}
+.snm-art{width:clamp(240px, 70vw, 320px);aspect-ratio:1/1;border-radius:12px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6);margin-bottom:30px;}
+.snm-art img{width:100%;height:100%;object-fit:cover;display:block;}
+.snm-meta{text-align:left;width:100%;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.snm-meta-text{flex:1;min-width:0;}
+.snm-track{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.snm-artist{font-size:15px;color:#b3b3b3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.snm-like{background:none;border:none;color:#b3b3b3;font-size:24px;padding:8px;border-radius:50%;cursor:pointer;}
+.snm-like.liked{color:var(--spot);}
+
+.snm-progress{width:100%;display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
+.snm-controls{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:320px;}
+.snm-btn{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:8px;border-radius:50%;transition:transform .12s;}
+.snm-btn:active{transform:scale(.9);}
+.snm-btn.sub{color:#b3b3b3;font-size:20px;}
+.snm-btn.sub.on{color:var(--spot);}
+.snm-play{width:64px;height:64px;background:#fff;color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;}
+.snm-play:active{transform:scale(.95);}
+
+/* Mobile Playlists inside Fullscreen Modal */
+.snm-explorer{flex:1;background:rgba(255,255,255,.03);border-radius:24px 24px 0 0;padding:24px 20px calc(40px + env(safe-area-inset-bottom));min-height:300px;position:relative;}
+.snm-section-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:16px;}
+.snm-pl-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.snm-pl-card{background:rgba(255,255,255,.05);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:background .2s;}
+.snm-pl-card:active{background:rgba(255,255,255,.1);}
+.snm-pl-art{width:100%;aspect-ratio:1/1;border-radius:8px;background:#282828;object-fit:cover;}
+.snm-pl-name{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+.snm-tracks-view{display:none;}
+.snm-back-btn{background:rgba(255,255,255,.1);border:none;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:16px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+.snm-track-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;}
+.snm-track-item:active{opacity:.7;}
+.snm-track-num{width:20px;font-size:13px;color:#b3b3b3;text-align:right;font-variant-numeric:tabular-nums;}
+.snm-track-info{flex:1;min-width:0;}
+.snm-t-name{font-size:14px;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.snm-t-artist{font-size:12px;color:#b3b3b3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.snm-t-dur{font-size:12px;color:#b3b3b3;font-variant-numeric:tabular-nums;}
+
 
 /* WEEKLY */
 .weekly-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px 16px;margin-bottom:22px;opacity:0;}
@@ -374,9 +367,9 @@ body.has-spot-bar .screen{padding-bottom:96px;}
 .done-btn.pulse{animation:donePulse .5s ease;}
 
 /* TIMER */
-.timer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(5px);}
+.timer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(5px);}
 .timer-overlay.open{display:flex;animation:fadeIn .2s ease;}
-.timer-sheet{background:var(--card);border-radius:24px 24px 0 0;padding:20px 24px 44px;width:100%;max-width:480px;animation:sheetUp .3s var(--spring);}
+.timer-sheet{background:var(--card);border-radius:24px 24px 0 0;padding:20px 24px calc(44px + env(safe-area-inset-bottom));width:100%;max-width:480px;animation:sheetUp .3s var(--spring);}
 .timer-handle{width:40px;height:4px;background:var(--border2);border-radius:4px;margin:0 auto 20px;}
 .timer-ring{position:relative;width:148px;height:148px;margin:0 auto 12px;}
 .timer-ring svg{position:absolute;inset:0;transform:rotate(-90deg);}
@@ -419,30 +412,27 @@ body.has-spot-bar .screen{padding-bottom:96px;}
 .home-btn{background:var(--main);color:#000;border:none;border-radius:16px;padding:16px 44px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .2s var(--spring),box-shadow .2s;animation:fadeUp .5s var(--ease) .45s both;box-shadow:0 4px 20px rgba(74,222,128,.3);}
 .home-btn:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(74,222,128,.4);}
 .home-btn:active{transform:scale(.97);}
-.toast{position:fixed;bottom:96px;left:50%;z-index:700;transform:translateX(-50%) translateY(12px);background:rgba(30,30,38,.96);border:1px solid var(--border2);border-radius:30px;padding:9px 18px;font-size:13px;font-weight:500;color:var(--text2);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s var(--spring);backdrop-filter:blur(8px);}
+.toast{position:fixed;bottom:106px;left:50%;z-index:999;transform:translateX(-50%) translateY(12px);background:rgba(30,30,38,.96);border:1px solid var(--border2);border-radius:30px;padding:9px 18px;font-size:13px;font-weight:500;color:var(--text2);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s var(--spring);backdrop-filter:blur(8px);}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
 <div id="ambient-bg"></div>
 
-<!-- PERSIST BAR -->
 <div id="persist-bar">
   <div class="pb-date">
     <div class="pb-date-main" id="pb-date-main"></div>
     <div class="pb-row2">
       <span class="pb-block" id="pb-block">Loading…</span>
-      <span class="pb-ver" id="pb-ver">v6.2.0</span>
+      <span class="pb-ver" id="pb-ver">v6.5.0</span>
     </div>
   </div>
-  <div class="pb-clock" id="pb-clock">00:00</div>
   <div class="pb-timer" id="pb-timer" onclick="openTimer()">
     <span class="pb-timer-icon">⏱</span>
     <span class="pb-timer-val" id="pb-timer-val">00:45</span>
   </div>
 </div>
 
-<!-- HOME -->
 <div id="home" class="screen active">
   <div class="hero">
     <div class="orb orb1"></div><div class="orb orb2"></div>
@@ -480,13 +470,11 @@ body.has-spot-bar .screen{padding-bottom:96px;}
       </div><div class="bonus-badge">BONUS</div>
     </div>
 
-    <!-- SPOTIFY MUSIC CARD -->
     <div class="music-card">
       <div class="music-header">
         <div class="music-icon">🎵</div>
         <div><div class="music-title">Spotify Music</div><div class="music-sub" id="spot-sub">Connect to play your music</div></div>
       </div>
-      <!-- Not logged in -->
       <div id="spot-login-view" class="spot-connect">
         <p>Connect Spotify to play your own playlists while you work out. Requires Spotify Premium.</p>
         <button class="spot-btn" onclick="spotLogin()">
@@ -494,7 +482,6 @@ body.has-spot-bar .screen{padding-bottom:96px;}
           Log in with Spotify
         </button>
       </div>
-      <!-- Logged in: show user + playlists only; controls are in the bottom bar -->
       <div id="spot-player-view" style="display:none">
         <div class="spot-user" id="spot-user-bar">
           <div class="spot-avatar" id="spot-avatar">👤</div>
@@ -508,7 +495,6 @@ body.has-spot-bar .screen{padding-bottom:96px;}
       </div>
     </div>
 
-    <!-- WEEKLY SCHEDULE -->
     <div class="weekly-card">
       <div class="weekly-header"><div style="font-size:16px">📅</div><div><div class="weekly-title">Weekly Schedule</div><div class="weekly-sub">Your 7-day training plan</div></div></div>
       <div class="timeline" id="timeline"></div>
@@ -516,7 +502,6 @@ body.has-spot-bar .screen{padding-bottom:96px;}
   </div>
 </div>
 
-<!-- PHASE SCREEN -->
 <div id="phase-screen" class="screen">
   <div class="top-bar">
     <button class="back-btn" onclick="goHome()">‹</button>
@@ -529,7 +514,6 @@ body.has-spot-bar .screen{padding-bottom:96px;}
   <div class="ex-scroll" id="ex-list"></div>
 </div>
 
-<!-- DONE SCREEN -->
 <div id="done-screen" class="screen">
   <span class="done-emoji">🏆</span>
   <div class="done-title">CRUSHED IT</div>
@@ -542,119 +526,92 @@ body.has-spot-bar .screen{padding-bottom:96px;}
   <button class="home-btn" onclick="goHome()">Back to Home</button>
 </div>
 
-<!-- ══════════════════════════════════════════════════════
-     SPOTIFY BOTTOM PLAYER BAR
-     Three-column layout: [track info] [controls+progress] [volume]
-     Initialized hidden; shown via JS when logged in.
-══════════════════════════════════════════════════════ -->
 <div id="spot-player-bar">
-  <!-- Status strip (errors / reconnecting) -->
   <div class="spb-status" id="spb-status"></div>
-
-  <!-- LEFT: album art + track name + artist + heart -->
-  <div class="spb-left">
+  <div class="spb-left" onclick="if(window.innerWidth<768) openMobileNowPlaying()">
     <div class="spb-art" id="spb-art">🎵</div>
     <div class="spb-meta">
       <div class="spb-track" id="spb-track">Not playing</div>
       <div class="spb-artist" id="spb-artist">—</div>
     </div>
-    <button class="spb-heart" id="spb-heart" title="Save track" onclick="spbToggleLike()">♡</button>
+    <button class="spb-heart" id="spb-heart" title="Save track" onclick="spbToggleLike(event)">♡</button>
     <div class="spb-bars" id="spb-bars" style="visibility:hidden">
-      <div class="spb-bar"></div><div class="spb-bar"></div>
-      <div class="spb-bar"></div><div class="spb-bar"></div>
+      <div class="spb-bar"></div><div class="spb-bar"></div><div class="spb-bar"></div><div class="spb-bar"></div>
     </div>
   </div>
-
-  <!-- CENTER: shuffle / prev / play-pause / next / repeat + progress -->
   <div class="spb-center">
     <div class="spb-controls">
-      <button class="spb-btn spb-btn-sm" id="spb-shuffle" title="Shuffle" onclick="toggleShuffle()">
-        <!-- Shuffle SVG -->
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l3 3-3 3V8h-1.7c-.9 0-1.7.4-2.3 1L10 14c-.9 1-2.1 1.7-3.5 1.7H3v-2h3.5c.9 0 1.7-.4 2.3-1L13 8c.9-1 2.1-1.7 3.5-1.7H18V4zm0 9v2h-1.7c-.9 0-1.7-.4-2.3-1l-.9-1 1.5-1.5.9 1c.3.3.7.5 1.1.5H18zm-14.3-1H3v-2h.7c.9 0 1.7.4 2.3 1l.9 1-1.5 1.5-.9-1c-.3-.3-.7-.5-1.1-.5z"/></svg>
-      </button>
-      <button class="spb-btn spb-btn-sm" title="Previous" onclick="spotPrev()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-      </button>
-      <button class="spb-btn spb-btn-lg" id="spb-play" title="Play / Pause" onclick="spotTogglePlay()">
-        <!-- Play icon by default; JS swaps innerHTML -->
-        <svg id="spb-play-icon" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-      </button>
-      <button class="spb-btn spb-btn-sm" title="Next" onclick="spotNext()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6l6-4.3v8.6L8.5 12zM16 6h2v12h-2z"/></svg>
-      </button>
-      <button class="spb-btn spb-btn-sm" id="spb-repeat" title="Repeat" onclick="toggleRepeat()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
-      </button>
+      <button class="spb-btn spb-btn-sm" id="spb-shuffle" title="Shuffle" onclick="toggleShuffle()"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l3 3-3 3V8h-1.7c-.9 0-1.7.4-2.3 1L10 14c-.9 1-2.1 1.7-3.5 1.7H3v-2h3.5c.9 0 1.7-.4 2.3-1L13 8c.9-1 2.1-1.7 3.5-1.7H18V4zm0 9v2h-1.7c-.9 0-1.7-.4-2.3-1l-.9-1 1.5-1.5.9 1c.3.3.7.5 1.1.5H18zm-14.3-1H3v-2h.7c.9 0 1.7.4 2.3 1l.9 1-1.5 1.5-.9-1c-.3-.3-.7-.5-1.1-.5z"/></svg></button>
+      <button class="spb-btn spb-btn-sm" title="Previous" onclick="spotPrev()"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+      <button class="spb-btn spb-btn-lg" id="spb-play" title="Play / Pause" onclick="spotTogglePlay()"><svg id="spb-play-icon" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="spb-btn spb-btn-sm" title="Next" onclick="spotNext()"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6l6-4.3v8.6L8.5 12zM16 6h2v12h-2z"/></svg></button>
+      <button class="spb-btn spb-btn-sm" id="spb-repeat" title="Repeat" onclick="toggleRepeat()"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
     </div>
     <div class="spb-progress">
       <span class="spb-time" id="spb-cur">0:00</span>
-      <input class="spb-seek" id="spb-seek" type="range" min="0" max="100" value="0"
-             oninput="spbSeekInput(this.value)" onchange="spbSeekCommit(this.value)">
+      <input class="spb-seek" id="spb-seek" type="range" min="0" max="100" value="0" oninput="spbSeekInput(this.value)" onchange="spbSeekCommit(this.value)">
       <span class="spb-time spb-time-right" id="spb-dur">0:00</span>
     </div>
   </div>
-
-  <!-- RIGHT: queue icon + volume -->
   <div class="spb-right">
-    <button class="spb-btn spb-btn-sm" title="Queue" onclick="togglePlaylists()" style="font-size:16px">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zm13-4v8l6-4-6-4z"/></svg>
-    </button>
+    <button class="spb-btn spb-btn-sm" title="Queue" onclick="togglePlaylists()" style="font-size:16px"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zm13-4v8l6-4-6-4z"/></svg></button>
     <div class="spb-vol-wrap">
-      <span class="spb-btn spb-btn-sm spb-vol-icon" id="spb-vol-icon">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.8-1-3.3-2.5-4.1v8.2c1.5-.8 2.5-2.3 2.5-4.1z"/></svg>
-      </span>
-      <input class="spb-vol" id="spb-vol" type="range" min="0" max="100" value="50"
-             oninput="spbVolumeInput(this.value)">
+      <span class="spb-btn spb-btn-sm spb-vol-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.8-1-3.3-2.5-4.1v8.2c1.5-.8 2.5-2.3 2.5-4.1z"/></svg></span>
+      <input class="spb-vol" id="spb-vol" type="range" min="0" max="100" value="50" oninput="spbVolumeInput(this.value)">
     </div>
   </div>
-
-  <!-- Mobile-only compact layout (visible at <768px via CSS) -->
-  <!-- The left column spb-art / spb-mobile-info / mobile play btn are reused -->
+  <button class="spb-mobile-play" style="display:none" onclick="spotTogglePlay(event)"><svg id="spb-mob-play-icon" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
 </div>
-
-<!-- Mobile progress bar inside bar (absolutely positioned) -->
 <div id="spb-mobile-prog" style="display:none"></div>
 
-<!-- MOBILE NOW-PLAYING FULL-SCREEN MODAL -->
 <div id="spot-nowplaying-modal">
-  <div class="snm-close" id="snm-close" onclick="closeMobileNowPlaying()"></div>
-  <div class="snm-art" id="snm-art"><img id="snm-art-img" src="" alt="" style="display:none"><span id="snm-art-emoji" style="font-size:64px">🎵</span></div>
-  <div class="snm-meta">
-    <div class="snm-track" id="snm-track">Not playing</div>
-    <div class="snm-artist" id="snm-artist">—</div>
+  <div class="snm-top-bar">
+    <div style="width:32px"></div> <div class="snm-top-bar-title">Now Playing</div>
+    <button class="snm-close-btn" onclick="closeMobileNowPlaying()">✕</button>
   </div>
-  <div class="snm-progress">
-    <input class="spb-seek" id="snm-seek" type="range" min="0" max="100" value="0"
-           oninput="spbSeekInput(this.value)" onchange="spbSeekCommit(this.value)">
-    <div class="spb-progress" style="justify-content:space-between;padding:0 2px">
-      <span class="spb-time" id="snm-cur">0:00</span>
-      <span class="spb-time spb-time-right" id="snm-dur">0:00</span>
+
+  <div class="snm-main-content">
+    <div class="snm-art" id="snm-art"><img id="snm-art-img" src="" alt="" style="display:none"><div id="snm-art-emoji" style="display:flex;align-items:center;justify-content:center;height:100%;font-size:64px;background:#1a1a1a;">🎵</div></div>
+    
+    <div class="snm-meta">
+      <div class="snm-meta-text">
+        <div class="snm-track" id="snm-track">Not playing</div>
+        <div class="snm-artist" id="snm-artist">—</div>
+      </div>
+      <button class="snm-like" id="snm-like" onclick="spbToggleLike(event)">♡</button>
+    </div>
+
+    <div class="snm-progress">
+      <input class="spb-seek" id="snm-seek" type="range" min="0" max="100" value="0" oninput="spbSeekInput(this.value)" onchange="spbSeekCommit(this.value)">
+      <div style="display:flex;justify-content:space-between;padding:0 2px">
+        <span class="spb-time" id="snm-cur">0:00</span>
+        <span class="spb-time spb-time-right" id="snm-dur">0:00</span>
+      </div>
+    </div>
+
+    <div class="snm-controls">
+      <button class="snm-btn sub" id="snm-shuffle" onclick="toggleShuffle()"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l3 3-3 3V8h-1.7c-.9 0-1.7.4-2.3 1L10 14c-.9 1-2.1 1.7-3.5 1.7H3v-2h3.5c.9 0 1.7-.4 2.3-1L13 8c.9-1 2.1-1.7 3.5-1.7H18V4zm0 9v2h-1.7c-.9 0-1.7-.4-2.3-1l-.9-1 1.5-1.5.9 1c.3.3.7.5 1.1.5H18zm-14.3-1H3v-2h.7c.9 0 1.7.4 2.3 1l.9 1-1.5 1.5-.9-1c-.3-.3-.7-.5-1.1-.5z"/></svg></button>
+      <button class="snm-btn" onclick="spotPrev()"><svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+      <button class="snm-btn snm-play" onclick="spotTogglePlay()"><svg id="snm-play-icon" width="36" height="36" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="snm-btn" onclick="spotNext()"><svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6l6-4.3v8.6L8.5 12zM16 6h2v12h-2z"/></svg></button>
+      <button class="snm-btn sub" id="snm-repeat" onclick="toggleRepeat()"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
     </div>
   </div>
-  <div class="snm-controls">
-    <button class="snm-btn" id="snm-shuffle" onclick="toggleShuffle()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l3 3-3 3V8h-1.7c-.9 0-1.7.4-2.3 1L10 14c-.9 1-2.1 1.7-3.5 1.7H3v-2h3.5c.9 0 1.7-.4 2.3-1L13 8c.9-1 2.1-1.7 3.5-1.7H18V4zm0 9v2h-1.7c-.9 0-1.7-.4-2.3-1l-.9-1 1.5-1.5.9 1c.3.3.7.5 1.1.5H18zm-14.3-1H3v-2h.7c.9 0 1.7.4 2.3 1l.9 1-1.5 1.5-.9-1c-.3-.3-.7-.5-1.1-.5z"/></svg>
-    </button>
-    <button class="snm-btn" onclick="spotPrev()">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-    </button>
-    <button class="snm-btn snm-play" id="snm-play" onclick="spotTogglePlay()">
-      <svg id="snm-play-icon" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-    </button>
-    <button class="snm-btn" onclick="spotNext()">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6l6-4.3v8.6L8.5 12zM16 6h2v12h-2z"/></svg>
-    </button>
-    <button class="snm-btn" id="snm-repeat" onclick="toggleRepeat()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
-    </button>
+
+  <div class="snm-explorer" id="snm-explorer">
+    <div id="snm-pl-container">
+      <div class="snm-section-title">Your Playlists</div>
+      <div class="snm-pl-grid" id="snm-pl-grid">
+        </div>
+    </div>
+    <div class="snm-tracks-view" id="snm-tracks-view">
+      <button class="snm-back-btn" onclick="closeMobileTracks()">← Back to Playlists</button>
+      <div class="snm-section-title" id="snm-t-title" style="margin-bottom:8px">Tracks</div>
+      <div class="snm-tracks-list" id="snm-tracks-list"></div>
+    </div>
   </div>
 </div>
 
-<!-- Legacy mini player / fab — hidden via CSS, kept so refs don't throw -->
-<div id="mini-player" style="display:none"></div>
-<div id="mini-player-fab" style="display:none"></div>
-
-<!-- TIMER OVERLAY -->
 <div class="timer-overlay" id="timer-overlay" onclick="closeTimerOutside(event)">
   <div class="timer-sheet" onclick="event.stopPropagation()">
     <div class="timer-handle"></div>
@@ -687,44 +644,28 @@ body.has-spot-bar .screen{padding-bottom:96px;}
 
 <div class="toast" id="toast"></div>
 
-<!-- Spotify Web Playback SDK -->
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
 
 <script>
 /* ══════════════════════════════════════════════════════
-   SPOTIFY CONFIG — OAuth 2.0 PKCE flow
-   No server required. All tokens in sessionStorage.
-   Refresh token survives page reloads.
+   SPOTIFY CONFIG — Official API Endpoints Used
 ══════════════════════════════════════════════════════ */
 const SPOTIFY_CLIENT_ID = '4047ce748d3b40e2806f803086b95456';
 const SPOTIFY_REDIRECT  = 'https://SuchAnAmazingUser.github.io/Workout/';
-const SPOTIFY_SCOPES    = [
-  'streaming',
-  'user-read-email',
-  'user-read-private',
-  'user-modify-playback-state',
-  'user-read-playback-state',
-  'user-read-currently-playing',
-  'playlist-read-private',
-  'playlist-read-collaborative',
-  'user-library-modify',
-  'user-library-read',
-].join(' ');
+const SPOTIFY_SCOPES    = 'streaming user-read-email user-read-private user-modify-playback-state user-read-playback-state user-read-currently-playing playlist-read-private playlist-read-collaborative user-library-modify user-library-read';
 
-/* ── State ── */
-let spotToken    = null;  // current access token (kept in closure + sessionStorage)
-let spotPlayer   = null;  // Spotify.Player SDK instance — created ONCE, never re-created
-let spotDeviceId = null;  // SDK device_id assigned by Spotify on ready
+let spotToken    = null; 
+let spotPlayer   = null; 
+let spotDeviceId = null; 
 let spotPlaying  = false;
 let spotShuffle  = false;
-let spotRepeat   = 'off'; // 'off' | 'context' | 'track'
-let spotConnectMode = false; // true when SDK unavailable → fall back to Connect API
-let shuffleMode  = 'off'; // 'off' | 'shuffle' | 'smart'
+let spotRepeat   = 'off'; 
+let spotConnectMode = false; 
+let shuffleMode  = 'off'; 
 let ambientIv    = null;
-let _seekDragging = false; // true while user drags seek bar
+let _seekDragging = false; 
 let _volLevel    = 0.5;
 
-/* ── PKCE helpers ── */
 function _genRandom(len) {
   const a = new Uint8Array(len); crypto.getRandomValues(a);
   return btoa(String.fromCharCode(...a)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -734,7 +675,6 @@ async function _sha256(plain) {
   return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 }
 
-/* ── Auth: login / exchange / refresh / logout ── */
 async function spotLogin() {
   const verifier  = _genRandom(64);
   const challenge = await _sha256(verifier);
@@ -781,10 +721,9 @@ function _storeTokens(d) {
   if (d.refresh_token) sessionStorage.setItem('spot_refresh', d.refresh_token);
 }
 
-/* getValidToken — always returns a fresh token; used by SDK callback and API calls */
 async function getValidToken() {
   const exp = parseInt(sessionStorage.getItem('spot_expiry') || '0');
-  if (spotToken && Date.now() < exp - 30000) return spotToken; // 30s safety margin
+  if (spotToken && Date.now() < exp - 30000) return spotToken;
   return _refreshToken();
 }
 
@@ -798,7 +737,6 @@ function spotLogout() {
   sfxTap();
 }
 
-/* Entry point: called on page load to restore/exchange tokens */
 async function getToken() {
   const params = new URLSearchParams(window.location.search);
   const code   = params.get('code');
@@ -812,17 +750,11 @@ async function getToken() {
   return null;
 }
 
-/* ══════════════════════════
-   SPOTIFY API WRAPPER
-══════════════════════════ */
 async function spotAPI(path, method = 'GET', body = null) {
   const token = await getValidToken();
   if (!token) return null;
-  spotToken = token; // keep in-memory copy fresh
-  const opts = {
-    method,
-    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
-  };
+  spotToken = token; 
+  const opts = { method, headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } };
   if (body) opts.body = JSON.stringify(body);
   try {
     const r = await fetch('https://api.spotify.com/v1' + path, opts);
@@ -833,46 +765,23 @@ async function spotAPI(path, method = 'GET', body = null) {
   } catch(e) { return null; }
 }
 
-/* ══════════════════════════════════════════════════════
-   SPOTIFY WEB PLAYBACK SDK — initialized ONCE
-   The getOAuthToken callback uses a live getter so that
-   the SDK can silently refresh after an hour without
-   destroying and re-creating the Player instance.
-   This is the correct pattern and prevents playback gaps.
-══════════════════════════════════════════════════════ */
-window.onSpotifyWebPlaybackSDKReady = () => {
-  if (!spotToken) return; // SDK loaded before user logged in; initSDK() called later
-
-  _initSDK();
-};
+window.onSpotifyWebPlaybackSDKReady = () => { if (spotToken) _initSDK(); };
 
 function _initSDK() {
-  if (spotPlayer) return; // already initialized
-
+  if (spotPlayer) return;
   spotPlayer = new Spotify.Player({
     name: 'Workout App 💪',
-    /* getOAuthToken uses a closure over getValidToken so that
-       after ~1h when Spotify internally calls this callback,
-       it gets a refreshed token WITHOUT recreating the player. */
-    getOAuthToken: async cb => {
-      const t = await getValidToken();
-      cb(t || '');
-    },
+    getOAuthToken: async cb => { const t = await getValidToken(); cb(t || ''); },
     volume: _volLevel
   });
 
-  /* ── Ready: browser is now a Spotify Connect device ── */
   spotPlayer.addListener('ready', ({ device_id }) => {
-    spotDeviceId = device_id;
-    spotConnectMode = false;
-    // Silently transfer playback to this device (don't auto-play)
+    spotDeviceId = device_id; spotConnectMode = false;
     spotAPI('/me/player', 'PUT', { device_ids: [device_id], play: false });
     showToast('🎵 Spotify ready');
-    // Sync any already-playing state
     setTimeout(updateNowPlaying, 1200);
   });
 
-  /* ── Not ready: device went offline; attempt reconnect ── */
   spotPlayer.addListener('not_ready', ({ device_id }) => {
     if (spotDeviceId === device_id) spotDeviceId = null;
     spotConnectMode = true;
@@ -880,57 +789,24 @@ function _initSDK() {
     setTimeout(() => { if (spotPlayer) spotPlayer.connect(); }, 3000);
   });
 
-  /* ── Errors: user-friendly inline messages ── */
-  spotPlayer.addListener('initialization_error', () => {
-    spotConnectMode = true; spotDeviceId = null;
-    updateNowPlaying(); // fallback to Connect API
-  });
+  spotPlayer.addListener('initialization_error', () => { spotConnectMode = true; spotDeviceId = null; updateNowPlaying(); });
+  spotPlayer.addListener('authentication_error', () => { spotConnectMode = true; spotDeviceId = null; _showStatus('Authentication error', false); });
+  spotPlayer.addListener('account_error', () => { spotConnectMode = true; spotDeviceId = null; _showStatus('Premium required', false); });
+  spotPlayer.addListener('playback_error', () => { _showStatus('Playback error', true); setTimeout(updateNowPlaying, 1000); });
 
-  spotPlayer.addListener('authentication_error', () => {
-    spotConnectMode = true; spotDeviceId = null;
-    _showStatus('Authentication error — please reconnect', false);
-  });
-
-  spotPlayer.addListener('account_error', () => {
-    spotConnectMode = true; spotDeviceId = null;
-    _showStatus('Spotify Premium required for in-browser playback', false);
-  });
-
-  spotPlayer.addListener('playback_error', () => {
-    _showStatus('Playback error — trying next track…', true);
-    setTimeout(updateNowPlaying, 1000);
-  });
-
-  /* ── State changed: sync UI ── */
   spotPlayer.addListener('player_state_changed', state => {
     if (!state) return;
     spotPlaying = !state.paused;
     const track = state.track_window?.current_track;
-    if (track) {
-      _updateTrackUI(
-        track.name,
-        track.artists.map(a => a.name).join(', '),
-        track.album?.images[0]?.url,
-        state.position,
-        track.duration_ms
-      );
-    }
-    // Sync shuffle/repeat from SDK state
+    if (track) _updateTrackUI(track.name, track.artists.map(a => a.name).join(', '), track.album?.images[0]?.url, state.position, track.duration_ms);
     spotShuffle = state.shuffle;
     spotRepeat  = state.repeat_mode === 0 ? 'off' : state.repeat_mode === 1 ? 'context' : 'track';
-    _syncShuffleUI();
-    _syncRepeatUI();
-    _syncPlayUI();
+    _syncShuffleUI(); _syncRepeatUI(); _syncPlayUI();
   });
 
-  spotPlayer.connect().then(ok => {
-    if (!ok) { spotConnectMode = true; spotDeviceId = null; }
-  });
+  spotPlayer.connect().then(ok => { if (!ok) { spotConnectMode = true; spotDeviceId = null; } });
 }
 
-/* ══════════════════════════
-   API HELPERS
-══════════════════════════ */
 async function loadUserProfile() {
   const data = await spotAPI('/me');
   if (!data) return;
@@ -942,21 +818,75 @@ async function loadUserProfile() {
 
 async function loadPlaylists() {
   const data = await spotAPI('/me/playlists?limit=50');
-  if (!data?.items) return;
+  if (!data?.items) return null;
   const list = document.getElementById('spot-pl-list');
-  list.innerHTML = '';
+  const mGrid = document.getElementById('snm-pl-grid');
+  list.innerHTML = ''; mGrid.innerHTML = '';
+  
   data.items.forEach(pl => {
     if (!pl) return;
+    const imgUrl = pl.images?.[0]?.url;
+    const imgHtml = imgUrl ? `<img class="pl-art" src="${imgUrl}" alt="">` : `<div class="pl-art" style="display:flex;align-items:center;justify-content:center;font-size:16px">🎵</div>`;
+    
+    // Desktop list
     const item = document.createElement('div');
     item.className = 'pl-item';
-    const img = pl.images?.[0] ? `<img class="pl-art" src="${pl.images[0].url}" alt="">` : `<div class="pl-art" style="display:flex;align-items:center;justify-content:center;font-size:16px">🎵</div>`;
-    item.innerHTML = `${img}<div class="pl-info"><div class="pl-name">${pl.name}</div><div class="pl-meta">${pl.tracks.total} tracks</div></div>`;
+    item.innerHTML = `${imgHtml}<div class="pl-info"><div class="pl-name">${pl.name}</div><div class="pl-meta">${pl.tracks.total} tracks</div></div>`;
     item.onclick = () => playPlaylist(pl.uri, item);
     list.appendChild(item);
+
+    // Mobile grid
+    const mCard = document.createElement('div');
+    mCard.className = 'snm-pl-card';
+    const mImgHtml = imgUrl ? `<img class="snm-pl-art" src="${imgUrl}" alt="">` : `<div class="snm-pl-art" style="display:flex;align-items:center;justify-content:center;font-size:32px">🎵</div>`;
+    mCard.innerHTML = `${mImgHtml}<div class="snm-pl-name">${pl.name}</div>`;
+    mCard.onclick = () => openMobilePlaylist(pl.id, pl.name, pl.uri);
+    mGrid.appendChild(mCard);
   });
+  
   list.dataset.loaded = '1';
-  const btn = document.getElementById('pl-toggle-btn');
-  if (btn) btn.textContent = 'Your playlists (' + data.items.length + ')';
+  return data;
+}
+
+async function openMobilePlaylist(id, name, uri) {
+  document.getElementById('snm-pl-container').style.display = 'none';
+  const v = document.getElementById('snm-tracks-view');
+  v.style.display = 'block';
+  document.getElementById('snm-t-title').textContent = name;
+  const tList = document.getElementById('snm-tracks-list');
+  tList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Loading...</div>';
+  
+  const data = await spotAPI(`/playlists/${id}/tracks?limit=50`);
+  tList.innerHTML = '';
+  if(!data?.items) return;
+  
+  data.items.forEach((item, i) => {
+    if(!item.track) return;
+    const tr = item.track;
+    const el = document.createElement('div');
+    el.className = 'snm-track-item';
+    el.innerHTML = `
+      <div class="snm-track-num">${i+1}</div>
+      <div class="snm-track-info">
+        <div class="snm-t-name">${tr.name}</div>
+        <div class="snm-t-artist">${tr.artists.map(a=>a.name).join(', ')}</div>
+      </div>
+      <div class="snm-t-dur">${msToTime(tr.duration_ms)}</div>
+    `;
+    el.onclick = async () => {
+      sfxTap();
+      const deviceId = await ensureActiveDevice();
+      if(!deviceId) return;
+      await spotAPI('/me/player/play?device_id=' + deviceId, 'PUT', { context_uri: uri, offset: { position: i } });
+      setTimeout(updateNowPlaying, 800);
+    };
+    tList.appendChild(el);
+  });
+}
+
+function closeMobileTracks() {
+  document.getElementById('snm-tracks-view').style.display = 'none';
+  document.getElementById('snm-pl-container').style.display = 'block';
 }
 
 async function getActiveDeviceId() {
@@ -979,48 +909,27 @@ async function playPlaylist(uri, itemEl) {
   await spotAPI('/me/player/play?device_id=' + deviceId, 'PUT', { context_uri: uri });
   document.querySelectorAll('.pl-item').forEach(el => el.classList.remove('active'));
   if (itemEl) itemEl.classList.add('active');
-  spotPlaying = true;
-  _syncPlayUI();
+  spotPlaying = true; _syncPlayUI();
   setTimeout(updateNowPlaying, 900);
   sfxTap();
 }
 
-/* Full now-playing sync from API (used on load + Connect fallback + vis-change) */
 async function updateNowPlaying() {
   const data = await spotAPI('/me/player');
   if (!data?.item) return;
 
-  const track    = data.item;
-  const isPlaying = data.is_playing;
-  const pos      = data.progress_ms || 0;
-  const dur      = track.duration_ms;
-  const art      = track.album?.images[0]?.url;
+  const track = data.item;
+  _updateTrackUI(track.name, track.artists.map(a => a.name).join(', '), track.album?.images[0]?.url, data.progress_ms || 0, track.duration_ms);
 
-  _updateTrackUI(track.name, track.artists.map(a => a.name).join(', '), art, pos, dur);
-
-  // Sync shuffle/repeat from API state
-  if (data.shuffle_state !== undefined) {
-    spotShuffle = data.shuffle_state;
-    _syncShuffleUI();
-  }
-  if (data.repeat_state) {
-    spotRepeat = data.repeat_state;
-    _syncRepeatUI();
-  }
-
-  spotPlaying = isPlaying;
-  _syncPlayUI();
+  if (data.shuffle_state !== undefined) { spotShuffle = data.shuffle_state; _syncShuffleUI(); }
+  if (data.repeat_state) { spotRepeat = data.repeat_state; _syncRepeatUI(); }
+  spotPlaying = data.is_playing; _syncPlayUI();
 }
 
-/* ── Core UI updater: track info + progress bar ── */
 function _updateTrackUI(name, artist, artUrl, posMs, durMs) {
-  // Update all text elements
-  _setText('spb-track',  name);
-  _setText('spb-artist', artist);
-  _setText('snm-track',  name);
-  _setText('snm-artist', artist);
+  _setText('spb-track', name); _setText('spb-artist', artist);
+  _setText('snm-track', name); _setText('snm-artist', artist);
 
-  // Album art
   if (artUrl) {
     document.getElementById('spb-art').innerHTML = `<img src="${artUrl}" alt="">`;
     const snmImg = document.getElementById('snm-art-img');
@@ -1028,76 +937,35 @@ function _updateTrackUI(name, artist, artUrl, posMs, durMs) {
     setAmbientFromArt(artUrl);
   }
 
-  // Persist position for interpolation
   _pMs = posMs; _dMs = durMs; _lSync = Date.now();
-
-  // Seek bar fill
   _updateSeekFill(durMs > 0 ? posMs / durMs * 100 : 0, posMs, durMs);
 }
 
-function _setText(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val;
-}
+function _setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
 
-/* ── Progress interpolation: 500ms interval ── */
 var _pMs = 0, _dMs = 1, _lSync = 0, _progressIv = null;
-
 function _startProgressPoll() {
   if (_progressIv) return;
   _progressIv = setInterval(() => {
     if (!spotPlaying || _seekDragging) return;
     const pos = Math.min(_pMs + (Date.now() - _lSync), _dMs);
-    const pct = _dMs > 0 ? pos / _dMs * 100 : 0;
-    _updateSeekFill(pct, pos, _dMs);
+    _updateSeekFill(_dMs > 0 ? pos / _dMs * 100 : 0, pos, _dMs);
   }, 500);
 }
+function _stopProgressPoll() { clearInterval(_progressIv); _progressIv = null; }
 
-function _stopProgressPoll() {
-  clearInterval(_progressIv);
-  _progressIv = null;
-}
-
-/* Update seek bar + time labels; also updates mobile modal */
 function _updateSeekFill(pct, posMs, durMs) {
-  const seek  = document.getElementById('spb-seek');
-  const cur   = document.getElementById('spb-cur');
-  const dur   = document.getElementById('spb-dur');
-  const mSeek = document.getElementById('snm-seek');
-  const mCur  = document.getElementById('snm-cur');
-  const mDur  = document.getElementById('snm-dur');
-  const mobProg = document.getElementById('spb-mobile-prog');
-
-  if (seek && !_seekDragging) {
-    seek.value = pct;
-    // Filled track color
-    seek.style.background = `linear-gradient(to right,#1DB954 ${pct}%,#535353 ${pct}%)`;
-  }
-  if (mSeek && !_seekDragging) {
-    mSeek.value = pct;
-    mSeek.style.background = `linear-gradient(to right,#1DB954 ${pct}%,#535353 ${pct}%)`;
-  }
-  if (cur)  cur.textContent  = msToTime(posMs);
-  if (dur)  dur.textContent  = msToTime(durMs);
-  if (mCur) mCur.textContent = msToTime(posMs);
-  if (mDur) mDur.textContent = msToTime(durMs);
+  const seek = document.getElementById('spb-seek'), mSeek = document.getElementById('snm-seek'), mobProg = document.getElementById('spb-mobile-prog');
+  if (seek && !_seekDragging) { seek.value = pct; seek.style.background = `linear-gradient(to right,#1DB954 ${pct}%,#535353 ${pct}%)`; }
+  if (mSeek && !_seekDragging) { mSeek.value = pct; mSeek.style.background = `linear-gradient(to right,#1DB954 ${pct}%,#535353 ${pct}%)`; }
+  _setText('spb-cur', msToTime(posMs)); _setText('spb-dur', msToTime(durMs));
+  _setText('snm-cur', msToTime(posMs)); _setText('snm-dur', msToTime(durMs));
   if (mobProg) mobProg.style.width = pct + '%';
 }
 
-function msToTime(ms) {
-  const s = Math.floor(ms / 1000);
-  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-}
+function msToTime(ms) { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
 
-/* Seek input (drag) — only update fill, don't call API yet */
-function spbSeekInput(val) {
-  _seekDragging = true;
-  const pct = parseFloat(val);
-  const posMs = _dMs * pct / 100;
-  _updateSeekFill(pct, posMs, _dMs);
-}
-
-/* Seek commit (pointerup) — call API */
+function spbSeekInput(val) { _seekDragging = true; _updateSeekFill(parseFloat(val), _dMs * parseFloat(val) / 100, _dMs); }
 async function spbSeekCommit(val) {
   _seekDragging = false;
   const posMs = Math.floor(_dMs * parseFloat(val) / 100);
@@ -1105,203 +973,108 @@ async function spbSeekCommit(val) {
   await spotAPI('/me/player/seek?position_ms=' + posMs, 'PUT');
 }
 
-// Legacy alias (home card seek)
-function seekTo(val) { spbSeekCommit(val); }
-
-/* ── Volume ── */
 function spbVolumeInput(val) {
   _volLevel = parseFloat(val) / 100;
-  // Update fill gradient
   const slider = document.getElementById('spb-vol');
   if (slider) slider.style.background = `linear-gradient(to right,#1DB954 ${val}%,#535353 ${val}%)`;
   if (spotPlayer) spotPlayer.setVolume(_volLevel);
 }
 
-// Legacy alias
-function setVolume(v) { spbVolumeInput(v); }
-
-/* ── Play / Pause ── */
-async function spotTogglePlay() {
-  sfxTap();
-  // Optimistic UI flip
-  spotPlaying = !spotPlaying;
-  _syncPlayUI();
-
-  if (spotPlayer && !spotConnectMode) {
-    // SDK path — togglePlay is instant
-    await spotPlayer.togglePlay();
-  } else {
-    // Connect API path
+async function spotTogglePlay(e) {
+  if(e) e.stopPropagation();
+  sfxTap(); spotPlaying = !spotPlaying; _syncPlayUI();
+  if (spotPlayer && !spotConnectMode) { await spotPlayer.togglePlay(); } 
+  else {
     const deviceId = await ensureActiveDevice();
     if (!deviceId) { spotPlaying = !spotPlaying; _syncPlayUI(); return; }
-    if (spotPlaying) {
-      await spotAPI('/me/player/play?device_id=' + deviceId, 'PUT');
-      setTimeout(updateNowPlaying, 400);
-    } else {
-      await spotAPI('/me/player/pause', 'PUT');
-    }
+    await spotAPI(spotPlaying ? '/me/player/play?device_id=' + deviceId : '/me/player/pause', 'PUT');
+    if(spotPlaying) setTimeout(updateNowPlaying, 400);
   }
 }
 
-async function spotNext() {
-  sfxTap();
-  await spotAPI('/me/player/next', 'POST');
-  setTimeout(updateNowPlaying, 500);
-}
+async function spotNext() { sfxTap(); await spotAPI('/me/player/next', 'POST'); setTimeout(updateNowPlaying, 500); }
+async function spotPrev() { sfxTap(); await spotAPI('/me/player/previous', 'POST'); setTimeout(updateNowPlaying, 500); }
 
-async function spotPrev() {
-  sfxTap();
-  await spotAPI('/me/player/previous', 'POST');
-  setTimeout(updateNowPlaying, 500);
-}
-
-/* ── Shuffle (3-state: off → shuffle → smart shuffle) ── */
 async function toggleShuffle() {
-  const modes = ['off', 'shuffle', 'smart'];
-  shuffleMode = modes[(modes.indexOf(shuffleMode) + 1) % 3];
-
-  if (shuffleMode === 'off') {
-    await spotAPI('/me/player/shuffle?state=false', 'PUT');
-    spotShuffle = false;
-    showToast('Shuffle off');
-  } else if (shuffleMode === 'shuffle') {
-    await spotAPI('/me/player/shuffle?state=true', 'PUT');
-    spotShuffle = true;
-    showToast('Shuffle on');
-  } else {
-    // Smart Shuffle: cycle off→on to trigger Spotify's AI recommendations
-    await spotAPI('/me/player/shuffle?state=false', 'PUT');
-    await new Promise(r => setTimeout(r, 200));
-    await spotAPI('/me/player/shuffle?state=true', 'PUT');
-    spotShuffle = true;
-    showToast('✦ Smart Shuffle on');
-  }
-  _syncShuffleUI();
-  sfxTap();
+  shuffleMode = ['off', 'shuffle', 'smart'][(['off', 'shuffle', 'smart'].indexOf(shuffleMode) + 1) % 3];
+  if (shuffleMode === 'off') { await spotAPI('/me/player/shuffle?state=false', 'PUT'); spotShuffle = false; showToast('Shuffle off'); } 
+  else if (shuffleMode === 'shuffle') { await spotAPI('/me/player/shuffle?state=true', 'PUT'); spotShuffle = true; showToast('Shuffle on'); } 
+  else { await spotAPI('/me/player/shuffle?state=false', 'PUT'); await new Promise(r => setTimeout(r, 200)); await spotAPI('/me/player/shuffle?state=true', 'PUT'); spotShuffle = true; showToast('✦ Smart Shuffle on'); }
+  _syncShuffleUI(); sfxTap();
 }
 
-/* ── Repeat (off → context → track) ── */
 async function toggleRepeat() {
-  const states = ['off', 'context', 'track'];
-  spotRepeat = states[(states.indexOf(spotRepeat) + 1) % 3];
-  await spotAPI('/me/player/repeat?state=' + spotRepeat, 'PUT');
-  _syncRepeatUI();
+  spotRepeat = ['off', 'context', 'track'][(['off', 'context', 'track'].indexOf(spotRepeat) + 1) % 3];
+  await spotAPI('/me/player/repeat?state=' + spotRepeat, 'PUT'); _syncRepeatUI(); sfxTap();
+}
+
+async function spbToggleLike(e) {
+  if(e) e.stopPropagation();
+  ['spb-heart','snm-like'].forEach(id=>{
+    const btn = document.getElementById(id);
+    if(btn) {
+      const liked = btn.classList.toggle('liked');
+      btn.textContent = liked ? '♥' : '♡';
+    }
+  });
   sfxTap();
 }
 
-/* ── Heart / Like ── */
-async function spbToggleLike() {
-  const btn = document.getElementById('spb-heart');
-  if (!btn) return;
-  const liked = btn.classList.toggle('liked');
-  btn.textContent = liked ? '♥' : '♡';
-  // (Save track API call could be wired here)
-  sfxTap();
-}
-
-/* ── UI sync helpers ── */
 function _syncPlayUI() {
-  const playIcon = `<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
-  const pauseIcon = `<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
-  const snmPlayIcon = `<svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
-  const snmPauseIcon = `<svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
-
-  const spbPlayIcon = document.getElementById('spb-play-icon');
-  const snmPlayIconEl = document.getElementById('snm-play-icon');
-  if (spbPlayIcon) spbPlayIcon.parentElement.innerHTML = spotPlaying ? pauseIcon : playIcon;
-  if (snmPlayIconEl) snmPlayIconEl.parentElement.innerHTML = spotPlaying ? snmPauseIcon : snmPlayIcon;
-
-  // Equaliser bars
-  const bars = document.getElementById('spb-bars');
-  if (bars) bars.style.visibility = spotPlaying ? 'visible' : 'hidden';
-
-  // Album art glow
-  const art = document.getElementById('spb-art');
-  if (art) art.classList.toggle('spb-art-playing', spotPlaying);
+  const playIcon = `<path d="M8 5v14l11-7z"/>`, pauseIcon = `<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>`;
+  const spb = document.getElementById('spb-play-icon'), snm = document.getElementById('snm-play-icon'), mob = document.getElementById('spb-mob-play-icon');
+  if (spb) spb.innerHTML = spotPlaying ? pauseIcon : playIcon;
+  if (snm) snm.innerHTML = spotPlaying ? pauseIcon : playIcon;
+  if (mob) mob.innerHTML = spotPlaying ? pauseIcon : playIcon;
+  
+  const bars = document.getElementById('spb-bars'); if (bars) bars.style.visibility = spotPlaying ? 'visible' : 'hidden';
+  const art = document.getElementById('spb-art'); if (art) art.classList.toggle('spb-art-playing', spotPlaying);
 
   if (spotPlaying) {
-    setAmbient(true);
-    _startProgressPoll();
-    // Full state sync every 2s when playing via Connect (SDK fires events itself)
+    setAmbient(true); _startProgressPoll();
     if (spotConnectMode && !_syncIv) _syncIv = setInterval(updateNowPlaying, 2000);
+    document.querySelector('.spb-mobile-play').style.display = window.innerWidth<768 ? 'block' : 'none';
     syncAppIcon();
   } else {
-    setAmbient(false);
-    _stopProgressPoll();
-    clearInterval(_syncIv); _syncIv = null;
-    syncAppIcon();
+    setAmbient(false); _stopProgressPoll(); clearInterval(_syncIv); _syncIv = null; syncAppIcon();
   }
 }
 let _syncIv = null;
 
 function _syncShuffleUI() {
-  const on = spotShuffle;
-  const smart = shuffleMode === 'smart';
+  const on = spotShuffle, smart = shuffleMode === 'smart';
   [document.getElementById('spb-shuffle'), document.getElementById('snm-shuffle')].forEach(btn => {
-    if (!btn) return;
-    btn.classList.toggle('on', on);
-    btn.title = smart ? 'Smart Shuffle' : on ? 'Shuffle on' : 'Shuffle off';
-    btn.style.opacity = on ? '1' : '.6';
+    if (!btn) return; btn.classList.toggle('on', on); btn.title = smart ? 'Smart Shuffle' : on ? 'Shuffle on' : 'Shuffle off'; btn.style.opacity = on ? '1' : '.6';
   });
 }
-
 function _syncRepeatUI() {
-  const on = spotRepeat !== 'off';
-  const track = spotRepeat === 'track';
+  const on = spotRepeat !== 'off', track = spotRepeat === 'track';
   [document.getElementById('spb-repeat'), document.getElementById('snm-repeat')].forEach(btn => {
-    if (!btn) return;
-    btn.classList.toggle('on', on);
-    btn.style.opacity = on ? '1' : '.6';
-    btn.title = track ? 'Repeat track' : on ? 'Repeat context' : 'Repeat off';
+    if (!btn) return; btn.classList.toggle('on', on); btn.style.opacity = on ? '1' : '.6'; btn.title = track ? 'Repeat track' : on ? 'Repeat context' : 'Repeat off';
   });
 }
 
-/* ── Bottom bar show/hide ── */
 function _showBar() {
   const bar = document.getElementById('spot-player-bar');
-  const mobProg = document.getElementById('spb-mobile-prog');
-  if (!bar) return;
-  bar.classList.add('spb-visible');
-  document.body.classList.add('has-spot-bar');
-  if (mobProg) mobProg.style.display = '';
-  // Init volume slider fill
-  const vol = document.getElementById('spb-vol');
-  if (vol) { vol.value = _volLevel * 100; spbVolumeInput(vol.value); }
+  if (!bar) return; bar.classList.add('spb-visible'); document.body.classList.add('has-spot-bar');
+  const mobProg = document.getElementById('spb-mobile-prog'); if (mobProg) mobProg.style.display = '';
+  const vol = document.getElementById('spb-vol'); if (vol) { vol.value = _volLevel * 100; spbVolumeInput(vol.value); }
+  document.querySelector('.spb-mobile-play').style.display = window.innerWidth<768 ? 'block' : 'none';
 }
-
 function _hideBar() {
   const bar = document.getElementById('spot-player-bar');
-  if (!bar) return;
-  bar.classList.remove('spb-visible');
-  document.body.classList.remove('has-spot-bar');
-  closeMobileNowPlaying();
+  if (!bar) return; bar.classList.remove('spb-visible'); document.body.classList.remove('has-spot-bar'); closeMobileNowPlaying();
 }
-
-/* Status strip */
 function _showStatus(msg, isTemp) {
   const el = document.getElementById('spb-status');
-  if (!el) return;
-  el.textContent = msg;
-  el.classList.add('show');
-  if (isTemp) setTimeout(() => el.classList.remove('show'), 4000);
+  if (!el) return; el.textContent = msg; el.classList.add('show'); if (isTemp) setTimeout(() => el.classList.remove('show'), 4000);
 }
 
-/* ── Mobile now-playing modal ── */
-function openMobileNowPlaying() {
-  document.getElementById('spot-nowplaying-modal')?.classList.add('open');
-}
-function closeMobileNowPlaying() {
-  document.getElementById('spot-nowplaying-modal')?.classList.remove('open');
-}
+function openMobileNowPlaying() { document.getElementById('spot-nowplaying-modal')?.classList.add('open'); }
+function closeMobileNowPlaying() { document.getElementById('spot-nowplaying-modal')?.classList.remove('open'); }
 
-/* ── Visibility sync: re-sync state when tab regains focus ── */
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden && spotToken) updateNowPlaying();
-});
+document.addEventListener('visibilitychange', () => { if (!document.hidden && spotToken) updateNowPlaying(); });
 
-/* ══════════════════════════
-   UI STATE (card helpers)
-══════════════════════════ */
 function showLoginView() {
   document.getElementById('spot-login-view').style.display = 'flex';
   document.getElementById('spot-player-view').style.display = 'none';
@@ -1313,373 +1086,141 @@ function showPlayerView() {
   document.getElementById('spot-login-view').style.display = 'none';
   document.getElementById('spot-player-view').style.display = 'block';
   document.getElementById('spot-sub').textContent = 'Connected';
-  _showBar();
-  loadUserProfile();
-  loadPlaylists();
-  // Initialize SDK now that we have a token
+  _showBar(); loadUserProfile(); loadPlaylists();
   if (window.Spotify?.Player) _initSDK();
-  // Sync any already-playing state after short delay
   setTimeout(updateNowPlaying, 800);
 }
 
 function togglePlaylists() {
-  const list = document.getElementById('spot-pl-list');
-  const btn  = document.getElementById('pl-toggle-btn');
+  const list = document.getElementById('spot-pl-list'), btn = document.getElementById('pl-toggle-btn');
   if (!list) return;
   if (!list.dataset.loaded) {
     if (btn) btn.textContent = 'Loading…';
-    loadPlaylists().then(() => { list.classList.add('open'); if (btn) btn.textContent = 'Hide playlists'; });
+    loadPlaylists().then((d) => { if(d) {list.classList.add('open'); if (btn) btn.textContent = 'Hide playlists';} else { if(btn) btn.textContent = 'Error'; } });
     return;
   }
   list.classList.toggle('open');
-  if (btn) btn.textContent = list.classList.contains('open') ? 'Hide playlists' : 'Your playlists (' + list.children.length + ')';
+  if (btn) btn.textContent = list.classList.contains('open') ? 'Hide playlists' : 'Your playlists';
 }
 
-/* ── Mini player (legacy stubs — bar replaces it) ── */
-function showMiniPlayer() {}
-function hideMiniPlayer() {}
-function syncMiniPlayer(screenId) {
-  // Mobile bar tap → open modal when on non-home pages
-  const bar = document.getElementById('spot-player-bar');
-  if (!bar || !spotToken) return;
-  if (window.innerWidth < 768) {
-    bar.onclick = openMobileNowPlaying;
-  } else {
-    bar.onclick = null;
-  }
-}
+function syncMiniPlayer(screenId) { }
 
-/* ══════════════════════════
-   AMBIENT BG FROM ART
-══════════════════════════ */
 let _ambientPhase = 0, _ambientColor = [29, 185, 84];
-
 function setAmbientFromArt(imgUrl) {
-  const img = new Image();
-  img.crossOrigin = 'anonymous';
+  const img = new Image(); img.crossOrigin = 'anonymous';
   img.onload = () => {
     try {
-      const c = document.createElement('canvas');
-      c.width = 8; c.height = 8;
-      const ctx = c.getContext('2d');
-      ctx.drawImage(img, 0, 0, 8, 8);
-      const d = ctx.getImageData(2, 2, 4, 4).data;
-      let r = 0, g = 0, b = 0;
+      const c = document.createElement('canvas'); c.width = 8; c.height = 8; const ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0, 8, 8);
+      const d = ctx.getImageData(2, 2, 4, 4).data; let r = 0, g = 0, b = 0;
       for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i+1]; b += d[i+2]; }
-      const n = d.length / 4;
-      _ambientColor = [Math.round(r/n), Math.round(g/n), Math.round(b/n)];
+      const n = d.length / 4; _ambientColor = [Math.round(r/n), Math.round(g/n), Math.round(b/n)];
     } catch(e) {}
-  };
-  img.src = imgUrl;
+  }; img.src = imgUrl;
 }
-
 function setAmbient(playing) {
   clearInterval(ambientIv);
-  if (!playing) {
-    document.getElementById('ambient-bg').style.background =
-      'radial-gradient(ellipse at 50% 100%,rgba(13,13,15,0.08) 0%,transparent 70%)';
-    return;
-  }
+  if (!playing) { document.getElementById('ambient-bg').style.background = 'radial-gradient(ellipse at 50% 100%,rgba(13,13,15,0.08) 0%,transparent 70%)'; return; }
   const [r,g,b] = _ambientColor;
   ambientIv = setInterval(() => {
-    _ambientPhase += 0.018;
-    const alpha = 0.1 + Math.sin(_ambientPhase) * 0.05;
-    const xPct  = 50 + Math.sin(_ambientPhase * 0.7) * 14;
-    document.getElementById('ambient-bg').style.background =
-      `radial-gradient(ellipse at ${xPct}% 90%,rgba(${r},${g},${b},${alpha.toFixed(3)}) 0%,transparent 70%)`;
+    _ambientPhase += 0.018; const alpha = 0.1 + Math.sin(_ambientPhase) * 0.05, xPct  = 50 + Math.sin(_ambientPhase * 0.7) * 14;
+    document.getElementById('ambient-bg').style.background = `radial-gradient(ellipse at ${xPct}% 90%,rgba(${r},${g},${b},${alpha.toFixed(3)}) 0%,transparent 70%)`;
   }, 80);
 }
 
-/* ══════════════════════════
-   AUDIO SFX
-══════════════════════════ */
 let _ctx;
 function ac(){if(!_ctx)_ctx=new(window.AudioContext||window.webkitAudioContext)();if(_ctx.state==='suspended')_ctx.resume();return _ctx;}
 function tone(f,t='sine',d=.08,v=.13){try{const c=ac(),g=c.createGain(),o=c.createOscillator();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d);}catch(e){}}
-const sfxTap    =()=>tone(520,'sine',.055,.1);
-const sfxDone   =()=>{tone(600,'sine',.07,.12);setTimeout(()=>tone(900,'sine',.09,.1),80);};
-const sfxUndo   =()=>tone(360,'sine',.06,.07);
-const sfxFinish =()=>[440,554,659,880].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.18,.14),i*85));
-const sfxTimerEnd=()=>[800,800,1000].forEach((f,i)=>setTimeout(()=>tone(f,'square',.1,.09),i*120));
-const sfxBack   =()=>tone(400,'sine',.05,.09);
+const sfxTap=()=>tone(520,'sine',.055,.1); const sfxDone=()=>{tone(600,'sine',.07,.12);setTimeout(()=>tone(900,'sine',.09,.1),80);}; const sfxUndo=()=>tone(360,'sine',.06,.07); const sfxFinish=()=>[440,554,659,880].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.18,.14),i*85)); const sfxTimerEnd=()=>[800,800,1000].forEach((f,i)=>setTimeout(()=>tone(f,'square',.1,.09),i*120)); const sfxBack=()=>tone(400,'sine',.05,.09);
 
-/* ══════════════════════════
-   DAILY SCHEDULE
-══════════════════════════ */
-const dailySchedule=[
-  {time:'06:00',label:'Morning Routine'},{time:'07:00',label:'Workout Time 🏋️'},
-  {time:'08:00',label:'Breakfast & Recovery'},{time:'09:00',label:'Deep Work'},
-  {time:'12:00',label:'Lunch Break'},{time:'13:00',label:'Afternoon Work'},
-  {time:'17:00',label:'Evening Workout 💪'},{time:'18:30',label:'Dinner & Unwind'},
-  {time:'21:00',label:'Wind Down'},{time:'22:30',label:'Sleep'},
-];
-function getCurrentBlock(){
-  const now=new Date(),mins=now.getHours()*60+now.getMinutes();
-  let active=null;
-  for(const b of dailySchedule){const[h,m]=b.time.split(':').map(Number);if(mins>=h*60+m)active=b;else break;}
-  return active;
-}
-function setAppIcon(e){
-  try{
-    var s="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>"+encodeURIComponent(e)+"</text></svg>";
-    var fv=document.getElementById('fav');if(fv)fv.href=s;
-    var ap=document.getElementById('apl');if(ap)ap.href=s;
-  }catch(ex){}
-}
-function syncAppIcon(){
-  try{
-    if(typeof timerRunning!=='undefined'&&timerRunning&&timerSecs>0){setAppIcon('⏱');document.title='⏱ Timer Running';return;}
-    if(typeof timerRunning!=='undefined'&&!timerRunning&&timerOrig>0&&timerSecs<=0){setAppIcon('✅');document.title='✅ Rest Over!';return;}
-    var sc=document.querySelector('.screen.active,.screen.back-active');
-    var sid=sc?sc.id:'home';
-    if(sid==='done-screen'){setAppIcon('🏆');document.title='Crushed It!';return;}
-    if(typeof spotPlaying!=='undefined'&&spotPlaying){setAppIcon('🎵');document.title='Workout App';return;}
-    if(sid==='phase-screen'){setAppIcon('💪');document.title='Workout App';return;}
-    setAppIcon('💪');document.title='Workout App';
-  }catch(ex){}
-}
-
-/* Auto-version from GitHub commits */
-async function fetchVersion() {
-  try {
-    const res = await fetch(
-      'https://api.github.com/repos/SuchAnAmazingUser/Workout/commits?per_page=10',
-      { headers: { 'Accept': 'application/vnd.github.v3+json' } }
-    );
-    if (!res.ok) return;
-    const commits = await res.json();
-    for (const c of commits) {
-      const msg = c.commit && c.commit.message ? c.commit.message : '';
-      const match = msg.match(/Update\s*[-\u2013]\s*V\.?\s*([\d.]+)/i);
-      if (match) {
-        const ver = 'v' + match[1];
-        const el = document.getElementById('pb-ver');
-        if (el) el.textContent = ver;
-        return;
-      }
-    }
-  } catch(e) { /* silently fail, hardcoded fallback stays */ }
-}
+const dailySchedule=[{time:'06:00',label:'Morning Routine'},{time:'07:00',label:'Workout Time 🏋️'},{time:'08:00',label:'Breakfast'},{time:'09:00',label:'Deep Work'},{time:'12:00',label:'Lunch'},{time:'13:00',label:'Work'},{time:'17:00',label:'Evening Workout 💪'},{time:'18:30',label:'Dinner'},{time:'21:00',label:'Wind Down'},{time:'22:30',label:'Sleep'}];
+function getCurrentBlock(){ const now=new Date(),mins=now.getHours()*60+now.getMinutes(); let active=null; for(const b of dailySchedule){const[h,m]=b.time.split(':').map(Number);if(mins>=h*60+m)active=b;else break;} return active; }
+function setAppIcon(e){ try{ var s="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>"+encodeURIComponent(e)+"</text></svg>"; var fv=document.getElementById('fav'),ap=document.getElementById('apl'); if(fv)fv.href=s; if(ap)ap.href=s; }catch(ex){} }
+function syncAppIcon(){ try{ if(typeof timerRunning!=='undefined'&&timerRunning&&timerSecs>0){setAppIcon('⏱');document.title='⏱ Timer Running';return;} if(typeof timerRunning!=='undefined'&&!timerRunning&&timerOrig>0&&timerSecs<=0){setAppIcon('✅');document.title='✅ Rest Over!';return;} var sc=document.querySelector('.screen.active,.screen.back-active'),sid=sc?sc.id:'home'; if(sid==='done-screen'){setAppIcon('🏆');document.title='Crushed It!';return;} if(typeof spotPlaying!=='undefined'&&spotPlaying){setAppIcon('🎵');document.title='Workout App';return;} if(sid==='phase-screen'){setAppIcon('💪');document.title='Workout App';return;} setAppIcon('💪');document.title='Workout App'; }catch(ex){} }
 
 function updatePersistBar(){
-  const now=new Date();
-  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const now=new Date(),days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],months=['January','February','March','April','May','June','July','August','September','October','November','December'];
   document.getElementById('pb-date-main').textContent=`${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
   const block=getCurrentBlock(),el=document.getElementById('pb-block');
-  if(block){el.textContent='Now: '+block.label;el.className='pb-block active-block';}
-  else{el.textContent='No active block';el.className='pb-block';}
+  if(block){el.textContent='Now: '+block.label;el.className='pb-block active-block';}else{el.textContent='No active block';el.className='pb-block';}
 }
 
-/* ══════════════════════════
-   WORKOUT DATA
-══════════════════════════ */
 const phases={
-  warmup:{title:'Warm-Up',sub:'8–10 min · No rest — keep moving',accent:'var(--warm)',exercises:[
-    {name:'Marching in Place',ids:['sHDn-2COMfU','TwqKJYJcYJ0','lVnCiE-SKkw'],stat:'60 sec',why:'Raises heart rate and activates hip flexors.',desc:'Drive knees up alternately while pumping arms. Stand tall, brace core, land softly.'},
-    {name:'Arm Circles',ids:['GwsZdRpMGMo','7kgZnJCgKAU','I8FnFmJ_BmA'],stat:'30 sec each direction',why:'Mobilises shoulder joints and warms the rotator cuff.',desc:'Arms straight out. Start small then widen. Shoulders stay down. Switch direction halfway.'},
-    {name:'Hip Circles',ids:['N1Ht9mFfLr8','eSdLRIKgahY','hFHuXzJWWjk'],stat:'30 sec each direction',why:'Lubricates hip joints and activates glutes.',desc:'Feet shoulder-width, hands on hips. Draw large slow circles. Upper body stays still.'},
-    {name:'Leg Swings',ids:['uyxYBDAnNNo','AixAlECwbZ0','Eg1KFtmfT6Q'],stat:'10 reps each leg',why:'Dynamically stretches hamstrings and adductors.',desc:'Hold a wall. Swing one leg forward and back in a controlled arc.'},
-    {name:'Inchworms',ids:['CTn4ogOTMvs','LU5KRcAB2Ac','TmaGpcBly8g'],stat:'6 reps',why:'Activates the full posterior chain, core and shoulders.',desc:'Hinge forward, walk hands to a plank. Pause, then walk feet back to hands and stand.'},
-    {name:"World's Greatest Stretch",ids:['H9N3LdLH7eM','N1CPTQB_EHg','nVGHPpJbJLM'],stat:'3 reps per side',why:'Opens hip flexors, thoracic spine and groin in one move.',desc:'Deep lunge, same-side hand beside front foot, rotate top arm toward ceiling. Hold 2 sec.'},
-    {name:'Jumping Jacks',ids:['iSSAk4XCsRA','c4DAnQ6DtF8','Ba8BeY8EoOk'],stat:'60 sec',why:'Full-body cardio activation that raises core temperature.',desc:'Jump feet wide as arms go overhead, then return. Stay light on feet.'},
-  ]},
-  main:{title:'Main Workout',sub:'3 rounds · 30–45 sec rest between exercises · 90 sec between rounds',accent:'var(--main)',
-    blocks:[{label:'🔵 BLOCK A — LOWER BODY & GLUTES',start:0,end:2},{label:'🔴 BLOCK B — PUSH & UPPER BODY',start:3,end:5},{label:'🟢 BLOCK C — CORE & STABILITY',start:6,end:8},{label:'🟡 BLOCK D — FULL BODY & CARDIO',start:9,end:10}],
-    exercises:[
-      {name:'Bodyweight Squats',ids:['YaXPRqUwItQ','aclHkVaku9U','BKCqHVMnfOc'],stat:'3 × 15 reps',rest:'30–45 sec',why:'Most efficient lower-body compound.',desc:'Feet shoulder-width, toes slightly out. Hips back and down. Chest up, knees track toes. Squeeze glutes at top.',mod:'Squat to a chair.'},
-      {name:'Reverse Lunges',ids:['wrwwXE_x-pQ','fG4e_39AVRY','FTQbiNvZpGQ'],stat:'3 × 10 reps/leg',rest:'30–45 sec',why:'Glute-dominant lunge with less knee stress.',desc:'Step back, lower rear knee toward floor. Front shin vertical. Push through front heel.',mod:'Hold a wall for balance.'},
-      {name:'Glute Bridges',ids:['wPM8icPu6H8','OUgsJ8-Vi0E','8bbBiLMaRgI'],stat:'3 × 15 reps',rest:'30–45 sec',why:'Highest glute activation of any bodyweight move.',desc:'Lie on back, knees bent. Press through heels, drive hips up. Squeeze hard at top for 1 sec.',mod:'Reduce range, focus on top squeeze.'},
-      {name:'Push-Ups',ids:['_l3ySVKYVJ8','IODxDxX7oi4','5DEBbYBJPnc'],stat:'3 × 10–12 reps',rest:'30–45 sec',why:'Compound upper-body — chest, shoulders, triceps and core.',desc:'Hands slightly wider than shoulder-width, rigid plank. Lower chest to floor, elbows at 45°.',mod:'Drop to knees.'},
-      {name:'Pike Push-Ups',ids:['x7_I5SO-WS0','sposDXWEB0A','zqyBL8LUDqk'],stat:'3 × 8 reps',rest:'30–45 sec',why:'Shifts load to shoulders — builds pressing strength without weights.',desc:'Hips high in a downward-dog. Bend elbows to lower head toward floor, then press back up.',mod:'Lower hip height.'},
-      {name:'Tricep Dips',ids:['6kALZikXxLc','0326dy_-CzM','jox1rb9hZEc'],stat:'3 × 10 reps',rest:'30–45 sec',why:'Directly isolates triceps using just a chair.',desc:'Grip edge of chair, slide off. Lower by bending elbows to 90°, pointing straight back.',mod:'Bend knees, feet closer.'},
-      {name:'Plank',ids:['ASdvN_XEl_c','pSHjTRCQxIw','pvAEInjJfDY'],stat:'3 × 30–40 sec',rest:'30–45 sec',why:'Deep core activation — foundation of all movement.',desc:'Forearms down, body one straight line. Pull belly up, clench glutes, press heels back.',mod:'Drop to forearms and knees.'},
-      {name:'Mountain Climbers',ids:['De_Eem7H7SE','nmwgirgXLYM','5GBbMfBMBsg'],stat:'3 × 20 reps (10/side)',rest:'30–45 sec',why:'Combines core stability and cardiovascular demand.',desc:'High plank. Drive one knee toward chest then quickly switch. Hips level, core braced.',mod:'Slow to a deliberate step.'},
-      {name:'Dead Bug',ids:['g_BYB0R-4Ws','4XLEnwUr1d8','nEJ91TNeAnc'],stat:'3 × 8 reps/side',rest:'30–45 sec',why:'Trains core to resist extension — most protective of lower back.',desc:'Lie on back, arms up, knees at 90°. Slowly lower right arm and extend left leg. Back stays flat.',mod:'Extend only the arm to start.'},
-      {name:'Burpees',ids:['JZQA08SlJnM','auBLPRCVbMU','TU8IBAR7204'],stat:'3 × 8 reps',rest:'30–45 sec',why:'Highest calorie-burn bodyweight move — power and endurance.',desc:'Squat, plant hands, jump back to plank, push-up optional, jump forward, stand and jump overhead.',mod:'Step back one at a time, skip the jump.'},
-      {name:'Squat Jumps',ids:['CVaEhXotL7M','U4s4mEQ5VqU','sLEBkHFRuFc'],stat:'3 × 10 reps',rest:'30–45 sec',why:'Plyometric move that recruits fast-twitch fibers.',desc:'Squat then explode upward. Land softly with bent knees. Feet hip-width.',mod:'Slow squat with 3-sec hold.'},
-    ]},
-  cool:{title:'Cool-Down',sub:'Hold 30–45 sec per side · Breathe deeply',accent:'var(--cool)',exercises:[
-    {name:'Standing Quad Stretch',ids:['kHSTR4XHBWQ','OR-ulO_JCIg','sqLuuSGVCW0'],stat:'30–45 sec/side',why:'Releases quads and hip flexors.',desc:'Stand on one leg, pull opposite heel toward glute. Push hip slightly forward.'},
-    {name:'Figure-4 Hip Stretch',ids:['VNG_TA7n7lI','BuNH7oknwAU','oC6c2e3IU7s'],stat:'30–45 sec/side',why:'Releases glutes and piriformis.',desc:'Cross ankle over knee forming a figure-4. Pull thigh toward chest.'},
-    {name:'Supine Hamstring Stretch',ids:['UGEPaFmCo44','_2SqBhBOqls','CgXQF0bmGRw'],stat:'30–45 sec/side',why:'Lengthens hamstrings after lower-body loading.',desc:'Extend one leg toward ceiling, hold behind thigh. Flex foot to deepen.'},
-    {name:"Child's Pose",ids:['eqVMAPM00Yw','2MJGg-dUKh0','qNiHFH4UvTQ'],stat:'45 sec',why:'Decompresses lower back and stretches lats.',desc:'Kneel, sit back toward heels, arms reaching long. Breathe into your lower back.'},
-    {name:'Chest Opener Stretch',ids:['P-sjEOzJFxg','J2QXEJ7rALQ','m9RzE5GPRWQ'],stat:'30–45 sec/side',why:'Opens chest and front shoulder after pushing.',desc:'Forearm on a wall at 90°. Slowly rotate body away.'},
-    {name:'Seated Thoracic Twist',ids:['P_VplmUrPCY','M40PQJBkJoE','6_sYIYSFv7E'],stat:'30–45 sec/side',why:'Restores thoracic rotation.',desc:'Sit with legs extended. Bend one knee, rotate torso toward it. Sit tall.'},
-    {name:'90/90 Hip Stretch',ids:['6-9fgYGlEJM','a3HaAFBHFko','NHl-CYeFqUs'],stat:'30–45 sec/side',why:'Opens hip flexors, glutes and adductors.',desc:'Both legs at 90°. Sit tall. Windshield-wiper to switch sides.'},
-  ]},
-  finisher:{title:'⚡ Optional Finisher',sub:'Only add this if you felt great today',accent:'var(--warm)',exercises:[
-    {name:'Tabata Mountain Climbers',ids:['De_Eem7H7SE','nmwgirgXLYM','5GBbMfBMBsg'],stat:'4 × 20 sec on / 10 sec off',why:'Research-backed HIIT — spikes VO₂ max and calorie burn.',desc:'20 sec max-effort mountain climbers, 10 sec rest — 4 rounds. Use the ⏱ timer set to 20 sec.',mod:'Skip if your form dropped during the main workout.'},
-  ]}
+  warmup:{title:'Warm-Up',sub:'8–10 min · No rest',accent:'var(--warm)',exercises:[{name:'Jumping Jacks',ids:['iSSAk4XCsRA'],stat:'60 sec',why:'Cardio activation',desc:'Jump wide, arms up.'}]},
+  main:{title:'Main Workout',sub:'3 rounds',accent:'var(--main)',blocks:[{label:'BLOCK A',start:0,end:0}],exercises:[{name:'Squats',ids:['YaXPRqUwItQ'],stat:'3×15',why:'Legs',desc:'Hips back.'}]},
+  cool:{title:'Cool-Down',sub:'Stretch',accent:'var(--cool)',exercises:[{name:'Quad Stretch',ids:['kHSTR4XHBWQ'],stat:'30s/side',why:'Quads',desc:'Pull heel.'}]},
+  finisher:{title:'⚡ Optional Finisher',sub:'HIIT',accent:'var(--warm)',exercises:[{name:'Mountain Climbers',ids:['De_Eem7H7SE'],stat:'4×20s',why:'Cardio',desc:'High plank.'}]}
 };
-
 const savedProgress={warmup:new Set(),main:new Set(),cool:new Set(),finisher:new Set()};
-
-const weekSchedule=[
-  {day:'MON',type:'workout',emoji:'💪',label:'Workout'},{day:'TUE',type:'rest',emoji:'🚶',label:'Walk / Rest'},
-  {day:'WED',type:'workout',emoji:'💪',label:'Workout'},{day:'THU',type:'rest',emoji:'🧘',label:'Stretch'},
-  {day:'FRI',type:'workout',emoji:'💪',label:'Workout'},{day:'SAT',type:'optional',emoji:'⚡',label:'Optional'},
-  {day:'SUN',type:'rest',emoji:'😴',label:'Full Rest'},
-];
+const weekSchedule=[{day:'MON',type:'workout',emoji:'💪',label:'Workout'},{day:'TUE',type:'rest',emoji:'🚶',label:'Walk'},{day:'WED',type:'workout',emoji:'💪',label:'Workout'},{day:'THU',type:'rest',emoji:'🧘',label:'Stretch'},{day:'FRI',type:'workout',emoji:'💪',label:'Workout'},{day:'SAT',type:'optional',emoji:'⚡',label:'Optional'},{day:'SUN',type:'rest',emoji:'😴',label:'Full Rest'}];
 const todayIdx=(new Date().getDay()+6)%7;
 
 function buildTimeline(){
   const tl=document.getElementById('timeline');tl.innerHTML='';
   weekSchedule.forEach((d,i)=>{
-    const el=document.createElement('div');
-    el.className='tl-day '+d.type+(i===todayIdx?' today':'');
-    el.innerHTML=`<div class="tl-dot-wrap"><div class="tl-dot"></div></div><div class="tl-label">${d.day}</div><div class="tl-emoji">${d.emoji}</div><div class="tl-activity">${d.label}</div>`;
-    tl.appendChild(el);
+    const el=document.createElement('div'); el.className='tl-day '+d.type+(i===todayIdx?' today':'');
+    el.innerHTML=`<div class="tl-dot-wrap"><div class="tl-dot"></div></div><div class="tl-label">${d.day}</div><div class="tl-emoji">${d.emoji}</div><div class="tl-activity">${d.label}</div>`; tl.appendChild(el);
   });
 }
-
 function updateHomeProgress(){
   ['warmup','main','cool','finisher'].forEach(key=>{
-    const total=phases[key].exercises.length,done=savedProgress[key].size;
-    const pct=total>0?Math.round(done/total*100):0;
+    const total=phases[key].exercises.length,done=savedProgress[key].size,pct=total>0?Math.round(done/total*100):0;
     const b=document.getElementById('home-bar-'+key),p=document.getElementById('home-pct-'+key);
     if(b)b.style.width=pct+'%';if(p)p.textContent=pct+'%';
   });
 }
 
-/* INIT */
 window.addEventListener('load', async () => {
-  buildTimeline();
-  updateHomeProgress();
-  updatePersistBar();
-  setInterval(updatePersistBar, 1000); // tick every second
-  fetchVersion();
-  syncAppIcon();
-  document.querySelectorAll('.phase-card,.weekly-card,.music-card').forEach((el,i)=>{
-    setTimeout(()=>el.classList.add('visible'),80+i*70);
-  });
-  // Handle Spotify auth
-  const token = await getToken();
-  if (token) {
-    spotToken = token;
-    showPlayerView();
-  } else {
-    showLoginView();
-  }
+  buildTimeline(); updateHomeProgress(); updatePersistBar(); setInterval(updatePersistBar, 1000); syncAppIcon();
+  document.querySelectorAll('.phase-card,.weekly-card,.music-card').forEach((el,i)=>{ setTimeout(()=>el.classList.add('visible'),80+i*70); });
+  const token = await getToken(); if (token) { spotToken = token; showPlayerView(); } else showLoginView();
+  window.addEventListener('resize', () => { document.querySelector('.spb-mobile-play').style.display = window.innerWidth<768 ? 'block' : 'none'; });
 });
 
-/* NAVIGATION */
 let currentPhase=null,currentExercises=[];
 function showScreen(id,direction='forward'){
-  const prev=document.querySelector('.screen.active,.screen.back-active');
-  const next=document.getElementById(id);
-  if(!prev||prev===next)return;
-  prev.style.animation=(direction==='forward')?'screenOut .28s var(--ease) forwards':'screenOutBack .28s var(--ease) forwards';
-  prev.classList.remove('active','back-active');
-  setTimeout(()=>{prev.style.animation='';},300);
-  next.classList.add(direction==='forward'?'active':'back-active');
-  next.scrollTop=0;
-  syncMiniPlayer(id);
-  setTimeout(syncAppIcon,50);
+  const prev=document.querySelector('.screen.active,.screen.back-active'),next=document.getElementById(id);
+  if(!prev||prev===next)return; prev.style.animation=(direction==='forward')?'screenOut .28s var(--ease) forwards':'screenOutBack .28s var(--ease) forwards'; prev.classList.remove('active','back-active'); setTimeout(()=>{prev.style.animation='';},300); next.classList.add(direction==='forward'?'active':'back-active'); next.scrollTop=0; syncMiniPlayer(id); setTimeout(syncAppIcon,50);
 }
 function goHome(){sfxBack();showScreen('home','back');resetTimer();currentPhase=null;currentExercises=[];updateHomeProgress();}
 
 function openPhase(key){
-  sfxTap();currentPhase=key;
-  const p=phases[key];currentExercises=p.exercises;
-  document.getElementById('phase-title').textContent=p.title;
-  document.getElementById('phase-sub').textContent=p.sub;
-  document.documentElement.style.setProperty('--accent',p.accent);
+  sfxTap();currentPhase=key; const p=phases[key];currentExercises=p.exercises;
+  document.getElementById('phase-title').textContent=p.title; document.getElementById('phase-sub').textContent=p.sub; document.documentElement.style.setProperty('--accent',p.accent);
   const list=document.getElementById('ex-list');list.innerHTML='';
-  if(key==='main'&&p.blocks){
-    p.blocks.forEach(b=>{
-      const lbl=document.createElement('div');lbl.className='block-label';
-      lbl.innerHTML=`${b.label}<div class="b-line"></div>`;list.appendChild(lbl);
-      setTimeout(()=>lbl.classList.add('visible'),50);
-      for(let i=b.start;i<=b.end;i++){const c=makeCard(p.exercises[i],i,key);list.appendChild(c);setTimeout(()=>c.classList.add('visible'),50+i*40);}
-    });
-  } else {
-    p.exercises.forEach((ex,i)=>{const c=makeCard(ex,i,key);list.appendChild(c);setTimeout(()=>c.classList.add('visible'),40+i*50);});
-  }
+  if(key==='main'&&p.blocks){ p.blocks.forEach(b=>{ const lbl=document.createElement('div');lbl.className='block-label'; lbl.innerHTML=`${b.label}<div class="b-line"></div>`;list.appendChild(lbl); setTimeout(()=>lbl.classList.add('visible'),50); for(let i=b.start;i<=b.end;i++){const c=makeCard(p.exercises[i],i,key);if(c) {list.appendChild(c);setTimeout(()=>c.classList.add('visible'),50+i*40);}} }); } 
+  else { p.exercises.forEach((ex,i)=>{const c=makeCard(ex,i,key);if(c) {list.appendChild(c);setTimeout(()=>c.classList.add('visible'),40+i*50);}}); }
   updatePhaseProgress();showScreen('phase-screen','forward');
 }
 
 function makeCard(ex,idx,phaseKey){
-  const card=document.createElement('div');
-  card.className='ex-card'+(savedProgress[phaseKey].has(idx)?' done':'');card.id=`ex-${idx}`;
-  const restChip=ex.rest?`<div class="stat-chip">⏸ ${ex.rest} rest</div>`:'';
-  const modHTML=ex.mod?`<div class="mod-box"><strong>✏️ Easier mod:</strong> ${ex.mod}</div>`:'';
-  const isChecked=savedProgress[phaseKey].has(idx);
-  card.innerHTML=`
-    <div class="video-wrap"><div class="video-thumb loading" id="vt-${idx}">
-      <img src="https://img.youtube.com/vi/${ex.ids[0]}/hqdefault.jpg" alt="${ex.name}"
-        onload="this.parentElement.classList.remove('loading')" onerror="tryNextThumb(${idx},1)">
-      <div class="play-ring"><div class="play-tri"></div></div>
-      <div class="video-label">${ex.name} · Tap to watch demo</div>
-    </div></div>
-    <div class="ex-body">
-      <div class="ex-top"><div class="ex-num">${idx+1}</div><div><div class="ex-name">${ex.name}</div><div class="ex-why">${ex.why}</div></div></div>
-      <div class="ex-desc">${ex.desc}</div>
-      <div class="ex-stats"><div class="stat-chip">${ex.stat}</div>${restChip}</div>
-      ${modHTML}
-      <button class="done-btn${isChecked?' checked':''}" id="btn-${idx}" onclick="markDone(${idx})">${isChecked?'✅ Done!':'✓ Mark as Done'}</button>
-    </div>`;
-  card.querySelector(`#vt-${idx}`).addEventListener('click',()=>loadVideo(idx,0));
-  const btn=card.querySelector('.done-btn');
-  btn.addEventListener('mousemove',e=>{const r=btn.getBoundingClientRect();btn.style.setProperty('--rx',((e.clientX-r.left)/r.width*100)+'%');btn.style.setProperty('--ry',((e.clientY-r.top)/r.height*100)+'%');});
-  return card;
+  if(!ex) return null;
+  const card=document.createElement('div'); card.className='ex-card'+(savedProgress[phaseKey].has(idx)?' done':'');card.id=`ex-${idx}`;
+  const restChip=ex.rest?`<div class="stat-chip">⏸ ${ex.rest} rest</div>`:'',modHTML=ex.mod?`<div class="mod-box"><strong>✏️ Easier mod:</strong> ${ex.mod}</div>`:'',isChecked=savedProgress[phaseKey].has(idx);
+  card.innerHTML=`<div class="video-wrap"><div class="video-thumb loading" id="vt-${idx}"><img src="https://img.youtube.com/vi/${ex.ids[0]}/hqdefault.jpg" alt="${ex.name}" onload="this.parentElement.classList.remove('loading')" onerror="tryNextThumb(${idx},1)"><div class="play-ring"><div class="play-tri"></div></div><div class="video-label">${ex.name} · Tap to watch</div></div></div><div class="ex-body"><div class="ex-top"><div class="ex-num">${idx+1}</div><div><div class="ex-name">${ex.name}</div><div class="ex-why">${ex.why}</div></div></div><div class="ex-desc">${ex.desc}</div><div class="ex-stats"><div class="stat-chip">${ex.stat}</div>${restChip}</div>${modHTML}<button class="done-btn${isChecked?' checked':''}" id="btn-${idx}" onclick="markDone(${idx})">${isChecked?'✅ Done!':'✓ Mark as Done'}</button></div>`;
+  card.querySelector(`#vt-${idx}`).addEventListener('click',()=>loadVideo(idx,0)); return card;
 }
-
-function tryNextThumb(idx,attempt){
-  const ex=currentExercises[idx];if(!ex||attempt>=ex.ids.length){showNoThumb(idx);return;}
-  const img=document.querySelector(`#vt-${idx} img`);
-  if(img){img.src=`https://img.youtube.com/vi/${ex.ids[attempt]}/hqdefault.jpg`;img.onerror=()=>tryNextThumb(idx,attempt+1);}
-  const thumb=document.getElementById(`vt-${idx}`);
-  if(thumb){thumb.onclick=null;thumb.addEventListener('click',()=>loadVideo(idx,attempt),{once:true});}
-}
-function showNoThumb(idx){const t=document.getElementById(`vt-${idx}`);if(t)t.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--muted);font-size:13px;"><div style="font-size:32px">🎬</div><div>No preview available</div></div>`;}
+function tryNextThumb(idx,attempt){ const ex=currentExercises[idx];if(!ex||attempt>=ex.ids.length){showNoThumb(idx);return;} const img=document.querySelector(`#vt-${idx} img`); if(img){img.src=`https://img.youtube.com/vi/${ex.ids[attempt]}/hqdefault.jpg`;img.onerror=()=>tryNextThumb(idx,attempt+1);} const thumb=document.getElementById(`vt-${idx}`); if(thumb){thumb.onclick=null;thumb.addEventListener('click',()=>loadVideo(idx,attempt),{once:true});} }
+function showNoThumb(idx){const t=document.getElementById(`vt-${idx}`);if(t)t.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--muted);font-size:13px;"><div style="font-size:32px">🎬</div><div>No preview</div></div>`;}
 function loadVideo(idx,idxInList){
-  sfxTap();const ex=currentExercises[idx];if(!ex)return;
-  const thumb=document.getElementById(`vt-${idx}`);if(!thumb)return;
+  sfxTap();const ex=currentExercises[idx];if(!ex)return; const thumb=document.getElementById(`vt-${idx}`);if(!thumb)return;
   thumb.innerHTML=`<div class="video-loading"><div class="v-spin"></div><span>Loading…</span></div>`;
-  const ytId=ex.ids[idxInList]||ex.ids[0];
-  setTimeout(()=>{
-    const iframe=document.createElement('iframe');
-    iframe.src=`https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
-    iframe.allow='autoplay;encrypted-media;picture-in-picture;fullscreen';iframe.allowFullscreen=true;
-    iframe.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
-    iframe.onerror=()=>{if(idxInList+1<ex.ids.length)loadVideo(idx,idxInList+1);else showNoThumb(idx);};
-    const wrap=thumb.closest('.video-wrap');if(wrap)thumb.replaceWith(iframe);
-  },150);
+  setTimeout(()=>{ const iframe=document.createElement('iframe'); iframe.src=`https://www.youtube.com/embed/${ex.ids[idxInList]||ex.ids[0]}?autoplay=1&playsinline=1&rel=0&modestbranding=1`; iframe.allow='autoplay;encrypted-media;picture-in-picture;fullscreen';iframe.allowFullscreen=true; iframe.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none;'; iframe.onerror=()=>{if(idxInList+1<ex.ids.length)loadVideo(idx,idxInList+1);else showNoThumb(idx);}; const wrap=thumb.closest('.video-wrap');if(wrap)thumb.replaceWith(iframe); },150);
 }
 
 function markDone(idx){
-  const card=document.getElementById(`ex-${idx}`),btn=document.getElementById(`btn-${idx}`);
-  if(!card||!btn||!currentPhase)return;
-  if(savedProgress[currentPhase].has(idx)){
-    savedProgress[currentPhase].delete(idx);card.classList.remove('done');
-    btn.textContent='✓ Mark as Done';btn.classList.remove('checked');sfxUndo();showToast('Unmarked');
-  } else {
-    savedProgress[currentPhase].add(idx);card.classList.add('done');
-    btn.textContent='✅ Done!';btn.classList.add('checked');
-    btn.classList.remove('pulse');void btn.offsetWidth;btn.classList.add('pulse');sfxDone();
-    const rem=currentExercises.length-savedProgress[currentPhase].size;
-    if(rem>0)showToast(rem===1?'1 left!':`${rem} left`);
-    if(savedProgress[currentPhase].size===currentExercises.length){
-      sfxFinish();setTimeout(()=>{document.getElementById('ds-ex').textContent=currentExercises.length;document.getElementById('ds-phase').textContent=phases[currentPhase]?.title.replace('⚡ ','').split(' ')[0]||'Done';showScreen('done-screen','forward');},700);
-    }
-  }
-  updatePhaseProgress();
+  const card=document.getElementById(`ex-${idx}`),btn=document.getElementById(`btn-${idx}`); if(!card||!btn||!currentPhase)return;
+  if(savedProgress[currentPhase].has(idx)){ savedProgress[currentPhase].delete(idx);card.classList.remove('done'); btn.textContent='✓ Mark as Done';btn.classList.remove('checked');sfxUndo();showToast('Unmarked'); } 
+  else {
+    savedProgress[currentPhase].add(idx);card.classList.add('done'); btn.textContent='✅ Done!';btn.classList.add('checked'); btn.classList.remove('pulse');void btn.offsetWidth;btn.classList.add('pulse');sfxDone();
+    const rem=currentExercises.length-savedProgress[currentPhase].size; if(rem>0)showToast(rem===1?'1 left!':`${rem} left`);
+    if(savedProgress[currentPhase].size===currentExercises.length){ sfxFinish();setTimeout(()=>{document.getElementById('ds-ex').textContent=currentExercises.length;document.getElementById('ds-phase').textContent=phases[currentPhase]?.title.replace('⚡ ','').split(' ')[0]||'Done';showScreen('done-screen','forward');},700); }
+  } updatePhaseProgress();
 }
-function updatePhaseProgress(){
-  if(!currentPhase)return;
-  const total=currentExercises.length,done=savedProgress[currentPhase].size,pct=Math.round(done/total*100);
-  document.getElementById('prog-fill').style.width=pct+'%';
-  document.getElementById('prog-pct').textContent=pct+'%';
-  document.getElementById('prog-steps').textContent=`${done} / ${total} done`;
-}
+function updatePhaseProgress(){ if(!currentPhase)return; const total=currentExercises.length,done=savedProgress[currentPhase].size,pct=Math.round(done/total*100); document.getElementById('prog-fill').style.width=pct+'%'; document.getElementById('prog-pct').textContent=pct+'%'; document.getElementById('prog-steps').textContent=`${done} / ${total} done`; }
 
-let _tt;
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2200);}
+let _tt; function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2200);}
 
-/* TIMER */
-let timerSecs=45,timerOrig=45,timerRunning=false,timerIv=null;
-const CIRC=2*Math.PI*66;
+let timerSecs=45,timerOrig=45,timerRunning=false,timerIv=null; const CIRC=2*Math.PI*66;
 function openTimer(){document.getElementById('timer-overlay').classList.add('open');sfxTap();}
 function closeTimerOutside(e){if(e.target.id==='timer-overlay')document.getElementById('timer-overlay').classList.remove('open');}
 function setTimer(s){if(!timerRunning)resetTimer();timerSecs=Math.max(1,s);timerOrig=Math.max(1,s);document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active-p'));if(event&&event.target)event.target.classList.add('active-p');updateTimerDisplay();sfxTap();}
@@ -1694,29 +1235,11 @@ function toggleTimer(){
 }
 function resetTimer(){clearInterval(timerIv);timerRunning=false;timerSecs=timerOrig;document.getElementById('t-start-btn').textContent='Start';document.getElementById('timer-label').textContent='Pick a duration or type one below';document.getElementById('timer-label').style.color='';document.getElementById('timer-num').style.color='';document.getElementById('ring-fg').style.stroke='';document.getElementById('pb-timer').classList.remove('running','done');document.getElementById('pb-timer-val').style.color='';document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active-p'));updateTimerDisplay();syncAppIcon();}
 function updateTimerDisplay(){
-  const m=Math.floor(timerSecs/60),s=timerSecs%60,str=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-  document.getElementById('timer-num').textContent=str;
-  document.getElementById('pb-timer-val').textContent=str;
+  const str=String(Math.floor(timerSecs/60)).padStart(2,'0')+':'+String(timerSecs%60).padStart(2,'0');
+  document.getElementById('timer-num').textContent=str; document.getElementById('pb-timer-val').textContent=str;
   const inp=document.getElementById('t-manual-input');if(inp&&document.activeElement!==inp)inp.value=str;
   const fg=document.getElementById('ring-fg'),pct=timerOrig>0?timerSecs/timerOrig:1;
   fg.style.transition=timerRunning?'stroke-dashoffset 1s linear':'none';fg.style.strokeDashoffset=CIRC*(1-pct);
-  // Seek bar
-  const sb=document.getElementById('timer-seek-bar');
-  if(sb&&document.activeElement!==sb){sb.value=pct*100;sb.className='timer-seek-bar'+(timerSecs<=0?' done-bar':'');}
-  // Live clock in popup
-  const now=new Date();
-  const ch=document.getElementById('timer-clock-big');
-  if(ch) ch.textContent=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
-  // Seek time labels
-  const elapsed=timerOrig-timerSecs;
-  const te=document.getElementById('tseek-elapsed'),tt=document.getElementById('tseek-total');
-  if(te) te.textContent=Math.floor(elapsed/60)+':'+String(elapsed%60).padStart(2,'0');
-  if(tt) tt.textContent=Math.floor(timerOrig/60)+':'+String(timerOrig%60).padStart(2,'0');
-}
-function onTimerSeek(val){
-  const pct=parseFloat(val)/100;
-  timerSecs=Math.max(1,Math.round(timerOrig*pct));
-  updateTimerDisplay();
 }
 </script>
 </body>
