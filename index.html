@@ -98,7 +98,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .finisher-card{background:linear-gradient(135deg,#1a1820,#110f14);border-color:#3a2a1a;}
 .bonus-badge{background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.25);border-radius:8px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--warm);flex-shrink:0;}
 
-/* ══ SPOTIFY MUSIC CARD ══ */
+/* ══ SPOTIFY MUSIC CARD (home screen widget — login/playlist only) ══ */
 .music-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:11px;opacity:0;}
 .music-card.visible{animation:cardSlide .42s var(--ease) .15s forwards;}
 .music-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
@@ -106,15 +106,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .music-title{font-family:'Bebas Neue',sans-serif;font-size:17px;line-height:1;}
 .music-sub{font-size:11px;color:var(--muted);margin-top:1px;}
 
-/* spotify connect state */
+/* spotify login state */
 .spot-connect{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 0 8px;}
-.spot-logo{font-size:36px;margin-bottom:4px;}
 .spot-connect p{font-size:13px;color:var(--muted);text-align:center;line-height:1.5;max-width:240px;}
-.spot-btn{display:inline-flex;align-items:center;gap:8px;background:var(--spot);color:#000;border:none;border-radius:30px;padding:12px 24px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:transform .18s var(--spring),filter .18s;text-decoration:none;}
-.spot-btn:hover{filter:brightness(1.1);transform:scale(1.03);}
+.spot-btn{display:inline-flex;align-items:center;gap:10px;background:var(--spot);color:#000;border:none;border-radius:500px;padding:14px 28px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .18s var(--spring),filter .18s;text-decoration:none;letter-spacing:.02em;}
+.spot-btn:hover{filter:brightness(1.08);transform:scale(1.03);}
 .spot-btn:active{transform:scale(.97);}
 
-/* spotify logged-in state */
+/* spotify logged-in widget: user bar + playlists */
 .spot-user{display:flex;align-items:center;gap:10px;background:rgba(29,185,84,.06);border:1px solid rgba(29,185,84,.15);border-radius:12px;padding:10px 12px;margin-bottom:12px;}
 .spot-avatar{width:34px;height:34px;border-radius:50%;background:rgba(29,185,84,.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden;}
 .spot-avatar img{width:100%;height:100%;object-fit:cover;}
@@ -122,40 +121,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .spot-logout{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:11px;padding:4px 8px;cursor:pointer;transition:background .15s;}
 .spot-logout:hover{background:var(--border);}
 
-/* now playing */
-.music-now-playing{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.03);border-radius:12px;padding:10px 12px;margin-bottom:10px;}
-.music-art{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,#0d2b1a,#0a2010);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden;transition:background .6s ease;}
-.music-art img{width:100%;height:100%;object-fit:cover;border-radius:8px;}
-.music-info{flex:1;min-width:0;}
-.music-track{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.music-artist{font-size:11px;color:var(--muted);}
-.music-bars{display:flex;align-items:flex-end;gap:2px;height:16px;flex-shrink:0;}
-.music-bar{width:3px;background:var(--spot);border-radius:2px;height:6px;}
-.music-bar:nth-child(1){animation:musicPulse .8s .0s ease-in-out infinite;}
-.music-bar:nth-child(2){animation:musicPulse .8s .15s ease-in-out infinite;}
-.music-bar:nth-child(3){animation:musicPulse .8s .3s ease-in-out infinite;}
-.music-bar:nth-child(4){animation:musicPulse .8s .45s ease-in-out infinite;}
-
-/* seek bar */
-.spot-seek{width:100%;margin:6px 0 10px;}
-.spot-seek input{width:100%;-webkit-appearance:none;appearance:none;height:3px;border-radius:3px;background:var(--border2);outline:none;cursor:pointer;}
-.spot-seek input::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--spot);cursor:pointer;}
-.spot-seek-times{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px;}
-
-/* controls */
-.music-controls{display:flex;align-items:center;gap:8px;}
-.m-btn{height:36px;border-radius:10px;border:1px solid var(--border);background:var(--pill);color:var(--text);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s var(--spring),border-color .15s;flex-shrink:0;width:36px;}
-.m-btn:hover{background:var(--border);border-color:var(--border2);}
-.m-btn:active{transform:scale(.9);}
-.m-play{background:var(--spot);border-color:transparent;color:#000;width:44px;height:44px;border-radius:12px;font-size:16px;font-weight:700;}
-.m-play:hover{background:color-mix(in srgb,var(--spot) 80%,white);}
-.m-vol{flex:1;-webkit-appearance:none;appearance:none;height:3px;border-radius:3px;background:var(--border2);outline:none;cursor:pointer;}
-.m-vol::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--spot);cursor:pointer;}
-.m-shuffle,.m-repeat{font-size:12px;opacity:.5;transition:opacity .15s;}
-.m-shuffle.on,.m-repeat.on{opacity:1;color:var(--spot);border-color:rgba(29,185,84,.3);}
-
 /* playlists */
-.spot-playlists{margin-top:10px;}
+.spot-playlists{margin-top:4px;}
 .pl-toggle{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:4px 8px;border-radius:8px;transition:color .15s;margin-top:6px;width:100%;text-align:center;}
 .pl-toggle:hover{color:var(--text);}
 .spot-pl-list{display:flex;flex-direction:column;gap:4px;max-height:0;overflow:hidden;transition:max-height .5s var(--ease);}
@@ -168,32 +135,157 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .pl-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .pl-meta{font-size:10px;color:var(--muted);}
 
-/* ══ FLOATING MINI PLAYER ══ */
-#mini-player{position:fixed;bottom:96px;right:16px;z-index:500;width:270px;background:rgba(18,18,24,.97);border:1px solid var(--border2);border-radius:18px;padding:12px 14px;box-shadow:0 8px 32px rgba(0,0,0,.6);backdrop-filter:blur(16px);display:none;transition:transform .3s var(--spring),opacity .25s ease;}
-#mini-player.visible{display:block;animation:sheetUp .3s var(--spring);}
-#mini-player.hidden-player{transform:translateY(20px);opacity:0;pointer-events:none;}
-.mp-row{display:flex;align-items:center;gap:9px;}
-.mp-art{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,#0d2b1a,#0a2010);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden;}
-.mp-art img{width:100%;height:100%;object-fit:cover;border-radius:9px;}
-.mp-info{flex:1;min-width:0;}
-.mp-track{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.mp-artist{font-size:10px;color:var(--muted);}
-.mp-bars{display:flex;align-items:flex-end;gap:2px;height:12px;flex-shrink:0;}
-.mp-bar{width:2.5px;background:var(--spot);border-radius:2px;}
-.mp-bar:nth-child(1){animation:musicPulse .8s .0s ease-in-out infinite;}
-.mp-bar:nth-child(2){animation:musicPulse .8s .18s ease-in-out infinite;}
-.mp-bar:nth-child(3){animation:musicPulse .8s .36s ease-in-out infinite;}
-.mp-close{width:22px;height:22px;border-radius:6px;border:none;background:rgba(255,255,255,.07);color:var(--muted);font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.mp-controls{display:flex;align-items:center;gap:5px;margin-top:9px;}
-.mp-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--pill);color:var(--text);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s var(--spring);}
-.mp-btn:active{transform:scale(.9);}
-.mp-play{background:var(--spot);border-color:transparent;color:#000;width:34px;height:34px;border-radius:10px;font-weight:700;}
-.mp-vol{flex:1;-webkit-appearance:none;appearance:none;height:3px;border-radius:3px;background:var(--border2);outline:none;cursor:pointer;}
-.mp-vol::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--spot);cursor:pointer;}
-#mini-player-fab{position:fixed;bottom:96px;right:16px;z-index:499;width:44px;height:44px;border-radius:14px;background:rgba(29,185,84,.15);border:1px solid rgba(29,185,84,.25);color:var(--spot);font-size:18px;cursor:pointer;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);transition:transform .2s var(--spring),background .2s;box-shadow:0 4px 16px rgba(0,0,0,.4);}
-#mini-player-fab.visible{display:flex;}
-#mini-player-fab:hover{transform:scale(1.1);background:rgba(29,185,84,.25);}
-#mini-player-fab:active{transform:scale(.92);}
+/* ══════════════════════════════════════════════════
+   SPOTIFY BOTTOM PLAYER BAR — production quality
+   Three-col layout: [track info] [controls] [vol]
+══════════════════════════════════════════════════ */
+#spot-player-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:900;
+  height:88px;
+  background:rgba(18,18,18,.95);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-top:1px solid rgba(255,255,255,.1);
+  display:none; /* shown when logged in */
+  align-items:center;
+  padding:0 16px;
+  gap:0;
+  /* push screens up when bar is visible */
+}
+#spot-player-bar.spb-visible{display:flex;}
+
+/* Body padding so content isn't hidden under bar */
+body.has-spot-bar .screen{padding-bottom:96px;}
+
+/* Left column — track info */
+.spb-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0;max-width:280px;}
+.spb-art{width:56px;height:56px;border-radius:4px;background:linear-gradient(135deg,#0d2b1a,#0a1a10);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:24px;transition:box-shadow .3s ease;}
+.spb-art img{width:100%;height:100%;object-fit:cover;display:block;}
+.spb-art-playing{box-shadow:0 0 0 2px rgba(29,185,84,.5);}
+.spb-meta{flex:1;min-width:0;}
+.spb-track{font-size:14px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
+.spb-artist{font-size:12px;color:#b3b3b3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.spb-heart{background:none;border:none;color:#b3b3b3;font-size:16px;cursor:pointer;padding:6px;border-radius:50%;transition:color .12s,transform .15s var(--spring);flex-shrink:0;}
+.spb-heart:hover{color:#fff;transform:scale(1.1);}
+.spb-heart.liked{color:var(--spot);}
+
+/* Center column — controls + progress */
+.spb-center{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;max-width:560px;padding:0 8px;}
+.spb-controls{display:flex;align-items:center;gap:16px;}
+
+/* Control icon buttons */
+.spb-btn{background:none;border:none;color:#b3b3b3;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:4px;border-radius:50%;transition:color .12s ease,transform .12s ease;line-height:1;}
+.spb-btn:hover{color:#fff;transform:scale(1.07);}
+.spb-btn:active{transform:scale(.93);}
+.spb-btn.on{color:var(--spot);}
+.spb-btn.on::after{content:'';display:block;width:4px;height:4px;background:var(--spot);border-radius:50%;position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);}
+.spb-btn{position:relative;}
+.spb-btn-sm{font-size:18px;}
+.spb-btn-lg{font-size:32px;color:#fff;} /* play/pause */
+.spb-btn-lg:hover{transform:scale(1.06);}
+
+/* Progress bar */
+.spb-progress{width:100%;display:flex;align-items:center;gap:8px;}
+.spb-time{font-size:11px;color:#b3b3b3;flex-shrink:0;min-width:32px;font-variant-numeric:tabular-nums;}
+.spb-time-right{text-align:right;}
+.spb-seek{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:4px;outline:none;cursor:pointer;
+  /* filled portion via background gradient, updated via JS */
+  background:linear-gradient(to right,var(--spot) 0%,#535353 0%);
+  transition:height .15s ease;
+}
+.spb-seek:hover{height:6px;}
+.spb-seek::-webkit-slider-thumb{
+  -webkit-appearance:none;width:12px;height:12px;border-radius:50%;
+  background:#fff;cursor:pointer;opacity:0;
+  transition:opacity .15s ease,transform .15s ease;
+}
+.spb-seek:hover::-webkit-slider-thumb{opacity:1;}
+.spb-seek:active::-webkit-slider-thumb{transform:scale(1.25);}
+.spb-seek::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:none;cursor:pointer;opacity:0;}
+.spb-seek:hover::-moz-range-thumb{opacity:1;}
+
+/* Right column — volume + extras */
+.spb-right{display:flex;align-items:center;gap:10px;flex:1;justify-content:flex-end;max-width:280px;}
+.spb-vol-wrap{display:flex;align-items:center;gap:6px;}
+.spb-vol-icon{font-size:16px;}
+.spb-vol{width:88px;-webkit-appearance:none;appearance:none;height:4px;border-radius:4px;outline:none;cursor:pointer;
+  background:linear-gradient(to right,var(--spot) 50%,#535353 50%);
+  transition:height .15s ease;
+}
+.spb-vol:hover{height:6px;}
+.spb-vol::-webkit-slider-thumb{
+  -webkit-appearance:none;width:12px;height:12px;border-radius:50%;
+  background:#fff;cursor:pointer;opacity:0;
+  transition:opacity .15s ease,transform .15s ease;
+}
+.spb-vol:hover::-webkit-slider-thumb{opacity:1;}
+.spb-vol:active::-webkit-slider-thumb{transform:scale(1.25);}
+.spb-vol::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:none;cursor:pointer;opacity:0;}
+.spb-vol:hover::-moz-range-thumb{opacity:1;}
+
+/* SDK error/status strip */
+.spb-status{position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:rgba(255,60,60,.9);color:#fff;font-size:11px;padding:4px 12px;border-radius:20px;white-space:nowrap;pointer-events:none;transition:opacity .3s;opacity:0;}
+.spb-status.show{opacity:1;}
+.spb-reconnect{background:rgba(29,185,84,.12);color:var(--spot);border-color:rgba(29,185,84,.3)!important;}
+
+/* Equaliser bars (now playing indicator) */
+.spb-bars{display:flex;align-items:flex-end;gap:2px;height:14px;flex-shrink:0;}
+.spb-bar{width:3px;background:var(--spot);border-radius:2px;height:6px;}
+.spb-bar:nth-child(1){animation:musicPulse .8s .0s ease-in-out infinite;}
+.spb-bar:nth-child(2){animation:musicPulse .8s .15s ease-in-out infinite;}
+.spb-bar:nth-child(3){animation:musicPulse .8s .30s ease-in-out infinite;}
+.spb-bar:nth-child(4){animation:musicPulse .8s .45s ease-in-out infinite;}
+
+/* ── RESPONSIVE ── */
+/* Tablet: hide volume slider, shrink left */
+@media(max-width:1024px){
+  .spb-left{max-width:200px;}
+  .spb-right{max-width:180px;}
+  .spb-vol{width:64px;}
+}
+@media(max-width:768px){
+  .spb-left{max-width:none;flex:none;}
+  .spb-right{display:none;}
+  .spb-center{display:none;}
+  /* Mobile: compact bar — art + name + play only */
+  #spot-player-bar{
+    height:64px;padding:0 12px;gap:12px;cursor:pointer;
+  }
+  .spb-mobile-info{flex:1;min-width:0;}
+  .spb-mobile-track{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;}
+  .spb-mobile-artist{font-size:11px;color:#b3b3b3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .spb-mobile-play{background:none;border:none;color:#fff;font-size:28px;cursor:pointer;padding:4px;flex-shrink:0;}
+  /* Mobile progress microbar at very top of bar */
+  #spb-mobile-prog{position:absolute;top:0;left:0;right:0;height:2px;background:var(--spot);transition:width .5s linear;}
+}
+
+/* ── MOBILE NOW-PLAYING MODAL (slides up on tap) ── */
+#spot-nowplaying-modal{
+  position:fixed;inset:0;z-index:950;
+  background:linear-gradient(180deg,#1a1a2e 0%,#121212 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  padding:40px 24px 100px;
+  transform:translateY(100%);
+  transition:transform .3s cubic-bezier(.25,.8,.25,1);
+  pointer-events:none;
+}
+#spot-nowplaying-modal.open{transform:translateY(0);pointer-events:all;}
+.snm-close{position:absolute;top:max(16px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);
+  width:36px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;cursor:pointer;}
+.snm-art{width:260px;height:260px;border-radius:8px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6);flex-shrink:0;}
+.snm-art img{width:100%;height:100%;object-fit:cover;display:block;}
+.snm-meta{text-align:center;width:100%;}
+.snm-track{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;}
+.snm-artist{font-size:15px;color:#b3b3b3;}
+.snm-progress{width:100%;display:flex;flex-direction:column;gap:6px;}
+.snm-controls{display:flex;align-items:center;justify-content:center;gap:24px;width:100%;}
+.snm-btn{background:none;border:none;color:#b3b3b3;font-size:22px;cursor:pointer;padding:8px;border-radius:50%;transition:color .12s;}
+.snm-btn:hover{color:#fff;}
+.snm-btn.on{color:var(--spot);}
+.snm-play{font-size:52px;color:#fff;}
+
+/* ══ FLOATING MINI PLAYER (non-home pages — kept for context) ══ */
+#mini-player{display:none;} /* hidden — bottom bar replaces it on all screens */
+#mini-player-fab{display:none;}
 
 /* WEEKLY */
 .weekly-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px 16px;margin-bottom:22px;opacity:0;}
@@ -396,42 +488,18 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       </div>
       <!-- Not logged in -->
       <div id="spot-login-view" class="spot-connect">
-        <div class="spot-logo">🎧</div>
         <p>Connect Spotify to play your own playlists while you work out. Requires Spotify Premium.</p>
         <button class="spot-btn" onclick="spotLogin()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
-          Connect Spotify
+          Log in with Spotify
         </button>
       </div>
-      <!-- Logged in -->
+      <!-- Logged in: show user + playlists only; controls are in the bottom bar -->
       <div id="spot-player-view" style="display:none">
         <div class="spot-user" id="spot-user-bar">
           <div class="spot-avatar" id="spot-avatar">👤</div>
           <div class="spot-name" id="spot-username">Spotify User</div>
           <button class="spot-logout" onclick="spotLogout()">Disconnect</button>
-        </div>
-        <div class="music-now-playing">
-          <div class="music-art" id="music-art"><span id="music-art-emoji">🎵</span></div>
-          <div class="music-info">
-            <div class="music-track" id="music-track">Not playing</div>
-            <div class="music-artist" id="music-artist">Start a playlist below</div>
-          </div>
-          <div class="music-bars" id="music-bars" style="display:none">
-            <div class="music-bar"></div><div class="music-bar"></div>
-            <div class="music-bar"></div><div class="music-bar"></div>
-          </div>
-        </div>
-        <div class="spot-seek">
-          <input type="range" id="seek-bar" min="0" max="100" value="0" oninput="seekTo(this.value)">
-          <div class="spot-seek-times"><span id="seek-cur">0:00</span><span id="seek-dur">0:00</span></div>
-        </div>
-        <div class="music-controls">
-          <button class="m-btn m-shuffle" id="m-shuffle" onclick="toggleShuffle()" title="Shuffle: off → on → smart">⇄</button>
-          <button class="m-btn" onclick="spotPrev()">⏮</button>
-          <button class="m-btn m-play" id="m-play-btn" onclick="spotTogglePlay()">▶</button>
-          <button class="m-btn" onclick="spotNext()">⏭</button>
-          <button class="m-btn m-repeat" id="m-repeat" onclick="toggleRepeat()" title="Repeat">↺</button>
-          <input class="m-vol" type="range" min="0" max="100" value="50" oninput="setVolume(this.value)">
         </div>
         <div class="spot-playlists" id="spot-playlists">
           <button class="pl-toggle" onclick="togglePlaylists()" id="pl-toggle-btn">▾ Your playlists</button>
@@ -474,22 +542,117 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   <button class="home-btn" onclick="goHome()">Back to Home</button>
 </div>
 
-<!-- FLOATING MINI PLAYER -->
-<div id="mini-player">
-  <div class="mp-row">
-    <div class="mp-art" id="mp-art"><span id="mp-art-emoji">🎵</span></div>
-    <div class="mp-info"><div class="mp-track" id="mp-track">—</div><div class="mp-artist" id="mp-artist">Spotify</div></div>
-    <div class="mp-bars" id="mp-bars" style="display:none"><div class="mp-bar" style="height:4px"></div><div class="mp-bar" style="height:8px"></div><div class="mp-bar" style="height:5px"></div></div>
-    <button class="mp-close" onclick="hideMiniPlayer()">✕</button>
+<!-- ══════════════════════════════════════════════════════
+     SPOTIFY BOTTOM PLAYER BAR
+     Three-column layout: [track info] [controls+progress] [volume]
+     Initialized hidden; shown via JS when logged in.
+══════════════════════════════════════════════════════ -->
+<div id="spot-player-bar">
+  <!-- Status strip (errors / reconnecting) -->
+  <div class="spb-status" id="spb-status"></div>
+
+  <!-- LEFT: album art + track name + artist + heart -->
+  <div class="spb-left">
+    <div class="spb-art" id="spb-art">🎵</div>
+    <div class="spb-meta">
+      <div class="spb-track" id="spb-track">Not playing</div>
+      <div class="spb-artist" id="spb-artist">—</div>
+    </div>
+    <button class="spb-heart" id="spb-heart" title="Save track" onclick="spbToggleLike()">♡</button>
+    <div class="spb-bars" id="spb-bars" style="visibility:hidden">
+      <div class="spb-bar"></div><div class="spb-bar"></div>
+      <div class="spb-bar"></div><div class="spb-bar"></div>
+    </div>
   </div>
-  <div class="mp-controls">
-    <button class="mp-btn" onclick="spotPrev()">⏮</button>
-    <button class="mp-btn mp-play" id="mp-play-btn" onclick="spotTogglePlay()">▶</button>
-    <button class="mp-btn" onclick="spotNext()">⏭</button>
-    <input class="mp-vol" type="range" min="0" max="100" value="50" oninput="setVolume(this.value)">
+
+  <!-- CENTER: shuffle / prev / play-pause / next / repeat + progress -->
+  <div class="spb-center">
+    <div class="spb-controls">
+      <button class="spb-btn spb-btn-sm" id="spb-shuffle" title="Shuffle" onclick="toggleShuffle()">
+        <!-- Shuffle SVG -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l3 3-3 3V8h-1.7c-.9 0-1.7.4-2.3 1L10 14c-.9 1-2.1 1.7-3.5 1.7H3v-2h3.5c.9 0 1.7-.4 2.3-1L13 8c.9-1 2.1-1.7 3.5-1.7H18V4zm0 9v2h-1.7c-.9 0-1.7-.4-2.3-1l-.9-1 1.5-1.5.9 1c.3.3.7.5 1.1.5H18zm-14.3-1H3v-2h.7c.9 0 1.7.4 2.3 1l.9 1-1.5 1.5-.9-1c-.3-.3-.7-.5-1.1-.5z"/></svg>
+      </button>
+      <button class="spb-btn spb-btn-sm" title="Previous" onclick="spotPrev()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+      </button>
+      <button class="spb-btn spb-btn-lg" id="spb-play" title="Play / Pause" onclick="spotTogglePlay()">
+        <!-- Play icon by default; JS swaps innerHTML -->
+        <svg id="spb-play-icon" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="spb-btn spb-btn-sm" title="Next" onclick="spotNext()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6l6-4.3v8.6L8.5 12zM16 6h2v12h-2z"/></svg>
+      </button>
+      <button class="spb-btn spb-btn-sm" id="spb-repeat" title="Repeat" onclick="toggleRepeat()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+      </button>
+    </div>
+    <div class="spb-progress">
+      <span class="spb-time" id="spb-cur">0:00</span>
+      <input class="spb-seek" id="spb-seek" type="range" min="0" max="100" value="0"
+             oninput="spbSeekInput(this.value)" onchange="spbSeekCommit(this.value)">
+      <span class="spb-time spb-time-right" id="spb-dur">0:00</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: queue icon + volume -->
+  <div class="spb-right">
+    <button class="spb-btn spb-btn-sm" title="Queue" onclick="togglePlaylists()" style="font-size:16px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zm13-4v8l6-4-6-4z"/></svg>
+    </button>
+    <div class="spb-vol-wrap">
+      <span class="spb-btn spb-btn-sm spb-vol-icon" id="spb-vol-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.8-1-3.3-2.5-4.1v8.2c1.5-.8 2.5-2.3 2.5-4.1z"/></svg>
+      </span>
+      <input class="spb-vol" id="spb-vol" type="range" min="0" max="100" value="50"
+             oninput="spbVolumeInput(this.value)">
+    </div>
+  </div>
+
+  <!-- Mobile-only compact layout (visible at <768px via CSS) -->
+  <!-- The left column spb-art / spb-mobile-info / mobile play btn are reused -->
+</div>
+
+<!-- Mobile progress bar inside bar (absolutely positioned) -->
+<div id="spb-mobile-prog" style="display:none"></div>
+
+<!-- MOBILE NOW-PLAYING FULL-SCREEN MODAL -->
+<div id="spot-nowplaying-modal">
+  <div class="snm-close" id="snm-close" onclick="closeMobileNowPlaying()"></div>
+  <div class="snm-art" id="snm-art"><img id="snm-art-img" src="" alt="" style="display:none"><span id="snm-art-emoji" style="font-size:64px">🎵</span></div>
+  <div class="snm-meta">
+    <div class="snm-track" id="snm-track">Not playing</div>
+    <div class="snm-artist" id="snm-artist">—</div>
+  </div>
+  <div class="snm-progress">
+    <input class="spb-seek" id="snm-seek" type="range" min="0" max="100" value="0"
+           oninput="spbSeekInput(this.value)" onchange="spbSeekCommit(this.value)">
+    <div class="spb-progress" style="justify-content:space-between;padding:0 2px">
+      <span class="spb-time" id="snm-cur">0:00</span>
+      <span class="spb-time spb-time-right" id="snm-dur">0:00</span>
+    </div>
+  </div>
+  <div class="snm-controls">
+    <button class="snm-btn" id="snm-shuffle" onclick="toggleShuffle()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18 4l3 3-3 3V8h-1.7c-.9 0-1.7.4-2.3 1L10 14c-.9 1-2.1 1.7-3.5 1.7H3v-2h3.5c.9 0 1.7-.4 2.3-1L13 8c.9-1 2.1-1.7 3.5-1.7H18V4zm0 9v2h-1.7c-.9 0-1.7-.4-2.3-1l-.9-1 1.5-1.5.9 1c.3.3.7.5 1.1.5H18zm-14.3-1H3v-2h.7c.9 0 1.7.4 2.3 1l.9 1-1.5 1.5-.9-1c-.3-.3-.7-.5-1.1-.5z"/></svg>
+    </button>
+    <button class="snm-btn" onclick="spotPrev()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+    </button>
+    <button class="snm-btn snm-play" id="snm-play" onclick="spotTogglePlay()">
+      <svg id="snm-play-icon" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <button class="snm-btn" onclick="spotNext()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2.5-6l6-4.3v8.6L8.5 12zM16 6h2v12h-2z"/></svg>
+    </button>
+    <button class="snm-btn" id="snm-repeat" onclick="toggleRepeat()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+    </button>
   </div>
 </div>
-<div id="mini-player-fab" onclick="showMiniPlayer()">🎵</div>
+
+<!-- Legacy mini player / fab — hidden via CSS, kept so refs don't throw -->
+<div id="mini-player" style="display:none"></div>
+<div id="mini-player-fab" style="display:none"></div>
 
 <!-- TIMER OVERLAY -->
 <div class="timer-overlay" id="timer-overlay" onclick="closeTimerOutside(event)">
@@ -528,11 +691,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
 
 <script>
-/* ══════════════════════════
-   SPOTIFY CONFIG — PKCE flow
-   Works on all browsers &
-   devices. No server needed.
-══════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   SPOTIFY CONFIG — OAuth 2.0 PKCE flow
+   No server required. All tokens in sessionStorage.
+   Refresh token survives page reloads.
+══════════════════════════════════════════════════════ */
 const SPOTIFY_CLIENT_ID = '4047ce748d3b40e2806f803086b95456';
 const SPOTIFY_REDIRECT  = 'https://SuchAnAmazingUser.github.io/Workout/';
 const SPOTIFY_SCOPES    = [
@@ -544,16 +707,22 @@ const SPOTIFY_SCOPES    = [
   'user-read-currently-playing',
   'playlist-read-private',
   'playlist-read-collaborative',
+  'user-library-modify',
+  'user-library-read',
 ].join(' ');
 
-let spotToken    = null;
-let spotPlayer   = null;
-let spotDeviceId = null;
+/* ── State ── */
+let spotToken    = null;  // current access token (kept in closure + sessionStorage)
+let spotPlayer   = null;  // Spotify.Player SDK instance — created ONCE, never re-created
+let spotDeviceId = null;  // SDK device_id assigned by Spotify on ready
 let spotPlaying  = false;
 let spotShuffle  = false;
-let spotRepeat   = 'off';
-let seekUpdateIv = null;
+let spotRepeat   = 'off'; // 'off' | 'context' | 'track'
+let spotConnectMode = false; // true when SDK unavailable → fall back to Connect API
+let shuffleMode  = 'off'; // 'off' | 'shuffle' | 'smart'
 let ambientIv    = null;
+let _seekDragging = false; // true while user drags seek bar
+let _volLevel    = 0.5;
 
 /* ── PKCE helpers ── */
 function _genRandom(len) {
@@ -565,6 +734,7 @@ async function _sha256(plain) {
   return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 }
 
+/* ── Auth: login / exchange / refresh / logout ── */
 async function spotLogin() {
   const verifier  = _genRandom(64);
   const challenge = await _sha256(verifier);
@@ -579,9 +749,11 @@ async function spotLogin() {
 }
 
 async function _exchangeCode(code) {
-  const v = sessionStorage.getItem('pkce_v'); if (!v) return null;
+  const v = sessionStorage.getItem('pkce_v');
+  if (!v) return null;
   const r = await fetch('https://accounts.spotify.com/api/token', {
-    method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ grant_type:'authorization_code', code, redirect_uri:SPOTIFY_REDIRECT, client_id:SPOTIFY_CLIENT_ID, code_verifier:v })
   });
   sessionStorage.removeItem('pkce_v');
@@ -589,58 +761,64 @@ async function _exchangeCode(code) {
 }
 
 async function _refreshToken() {
-  const rt = sessionStorage.getItem('spot_refresh'); if (!rt) return null;
+  const rt = sessionStorage.getItem('spot_refresh');
+  if (!rt) return null;
   const r = await fetch('https://accounts.spotify.com/api/token', {
-    method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ grant_type:'refresh_token', refresh_token:rt, client_id:SPOTIFY_CLIENT_ID })
   });
   if (!r.ok) return null;
-  const d = await r.json(); _storeTokens(d); return d.access_token;
+  const d = await r.json();
+  _storeTokens(d);
+  return d.access_token;
 }
 
 function _storeTokens(d) {
   spotToken = d.access_token;
-  sessionStorage.setItem('spot_token', d.access_token);
+  sessionStorage.setItem('spot_token',  d.access_token);
   sessionStorage.setItem('spot_expiry', Date.now() + d.expires_in * 1000);
   if (d.refresh_token) sessionStorage.setItem('spot_refresh', d.refresh_token);
 }
 
+/* getValidToken — always returns a fresh token; used by SDK callback and API calls */
 async function getValidToken() {
-  const exp = parseInt(sessionStorage.getItem('spot_expiry')||'0');
-  if (spotToken && Date.now() < exp - 30000) return spotToken;
+  const exp = parseInt(sessionStorage.getItem('spot_expiry') || '0');
+  if (spotToken && Date.now() < exp - 30000) return spotToken; // 30s safety margin
   return _refreshToken();
 }
 
 function spotLogout() {
   spotToken = null;
-  ['spot_token','spot_expiry','spot_refresh','pkce_v'].forEach(k=>sessionStorage.removeItem(k));
+  ['spot_token','spot_expiry','spot_refresh','pkce_v'].forEach(k => sessionStorage.removeItem(k));
   if (spotPlayer) { spotPlayer.disconnect(); spotPlayer = null; }
-  clearInterval(seekUpdateIv); seekUpdateIv = null;
-  showLoginView(); sfxTap();
+  _stopProgressPoll();
+  _hideBar();
+  showLoginView();
+  sfxTap();
 }
 
+/* Entry point: called on page load to restore/exchange tokens */
 async function getToken() {
-  // Handle redirect back from Spotify (?code=...)
   const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
+  const code   = params.get('code');
   if (code) {
     history.replaceState(null, '', window.location.pathname);
     const data = await _exchangeCode(code);
     if (data?.access_token) { _storeTokens(data); return data.access_token; }
     return null;
   }
-  // Restore from session
   if (sessionStorage.getItem('spot_token')) return getValidToken();
   return null;
 }
 
 /* ══════════════════════════
-   SPOTIFY API CALLS
+   SPOTIFY API WRAPPER
 ══════════════════════════ */
 async function spotAPI(path, method = 'GET', body = null) {
   const token = await getValidToken();
   if (!token) return null;
-  spotToken = token;
+  spotToken = token; // keep in-memory copy fresh
   const opts = {
     method,
     headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
@@ -655,239 +833,528 @@ async function spotAPI(path, method = 'GET', body = null) {
   } catch(e) { return null; }
 }
 
+/* ══════════════════════════════════════════════════════
+   SPOTIFY WEB PLAYBACK SDK — initialized ONCE
+   The getOAuthToken callback uses a live getter so that
+   the SDK can silently refresh after an hour without
+   destroying and re-creating the Player instance.
+   This is the correct pattern and prevents playback gaps.
+══════════════════════════════════════════════════════ */
+window.onSpotifyWebPlaybackSDKReady = () => {
+  if (!spotToken) return; // SDK loaded before user logged in; initSDK() called later
+
+  _initSDK();
+};
+
+function _initSDK() {
+  if (spotPlayer) return; // already initialized
+
+  spotPlayer = new Spotify.Player({
+    name: 'Workout App 💪',
+    /* getOAuthToken uses a closure over getValidToken so that
+       after ~1h when Spotify internally calls this callback,
+       it gets a refreshed token WITHOUT recreating the player. */
+    getOAuthToken: async cb => {
+      const t = await getValidToken();
+      cb(t || '');
+    },
+    volume: _volLevel
+  });
+
+  /* ── Ready: browser is now a Spotify Connect device ── */
+  spotPlayer.addListener('ready', ({ device_id }) => {
+    spotDeviceId = device_id;
+    spotConnectMode = false;
+    // Silently transfer playback to this device (don't auto-play)
+    spotAPI('/me/player', 'PUT', { device_ids: [device_id], play: false });
+    showToast('🎵 Spotify ready');
+    // Sync any already-playing state
+    setTimeout(updateNowPlaying, 1200);
+  });
+
+  /* ── Not ready: device went offline; attempt reconnect ── */
+  spotPlayer.addListener('not_ready', ({ device_id }) => {
+    if (spotDeviceId === device_id) spotDeviceId = null;
+    spotConnectMode = true;
+    _showStatus('Reconnecting…', true);
+    setTimeout(() => { if (spotPlayer) spotPlayer.connect(); }, 3000);
+  });
+
+  /* ── Errors: user-friendly inline messages ── */
+  spotPlayer.addListener('initialization_error', () => {
+    spotConnectMode = true; spotDeviceId = null;
+    updateNowPlaying(); // fallback to Connect API
+  });
+
+  spotPlayer.addListener('authentication_error', () => {
+    spotConnectMode = true; spotDeviceId = null;
+    _showStatus('Authentication error — please reconnect', false);
+  });
+
+  spotPlayer.addListener('account_error', () => {
+    spotConnectMode = true; spotDeviceId = null;
+    _showStatus('Spotify Premium required for in-browser playback', false);
+  });
+
+  spotPlayer.addListener('playback_error', () => {
+    _showStatus('Playback error — trying next track…', true);
+    setTimeout(updateNowPlaying, 1000);
+  });
+
+  /* ── State changed: sync UI ── */
+  spotPlayer.addListener('player_state_changed', state => {
+    if (!state) return;
+    spotPlaying = !state.paused;
+    const track = state.track_window?.current_track;
+    if (track) {
+      _updateTrackUI(
+        track.name,
+        track.artists.map(a => a.name).join(', '),
+        track.album?.images[0]?.url,
+        state.position,
+        track.duration_ms
+      );
+    }
+    // Sync shuffle/repeat from SDK state
+    spotShuffle = state.shuffle;
+    spotRepeat  = state.repeat_mode === 0 ? 'off' : state.repeat_mode === 1 ? 'context' : 'track';
+    _syncShuffleUI();
+    _syncRepeatUI();
+    _syncPlayUI();
+  });
+
+  spotPlayer.connect().then(ok => {
+    if (!ok) { spotConnectMode = true; spotDeviceId = null; }
+  });
+}
+
+/* ══════════════════════════
+   API HELPERS
+══════════════════════════ */
 async function loadUserProfile() {
   const data = await spotAPI('/me');
   if (!data) return;
   document.getElementById('spot-username').textContent = data.display_name || 'Spotify User';
   document.getElementById('spot-sub').textContent = 'Playing as ' + (data.display_name || 'you');
   const avatar = document.getElementById('spot-avatar');
-  if (data.images && data.images.length > 0) {
-    avatar.innerHTML = `<img src="${data.images[0].url}" alt="avatar">`;
-  }
+  if (data.images?.length > 0) avatar.innerHTML = `<img src="${data.images[0].url}" alt="avatar">`;
 }
 
 async function loadPlaylists() {
   const data = await spotAPI('/me/playlists?limit=50');
-  if (!data || !data.items) return;
+  if (!data?.items) return;
   const list = document.getElementById('spot-pl-list');
   list.innerHTML = '';
   data.items.forEach(pl => {
     if (!pl) return;
     const item = document.createElement('div');
     item.className = 'pl-item';
-    const img = pl.images && pl.images[0] ? `<img class="pl-art" src="${pl.images[0].url}" alt="">` : `<div class="pl-art" style="display:flex;align-items:center;justify-content:center;font-size:16px">🎵</div>`;
+    const img = pl.images?.[0] ? `<img class="pl-art" src="${pl.images[0].url}" alt="">` : `<div class="pl-art" style="display:flex;align-items:center;justify-content:center;font-size:16px">🎵</div>`;
     item.innerHTML = `${img}<div class="pl-info"><div class="pl-name">${pl.name}</div><div class="pl-meta">${pl.tracks.total} tracks</div></div>`;
     item.onclick = () => playPlaylist(pl.uri, item);
     list.appendChild(item);
   });
-  list.dataset.loaded='1';
-  var btn=document.getElementById('pl-toggle-btn');
-  if(btn)btn.textContent='Your playlists ('+data.items.length+')';
+  list.dataset.loaded = '1';
+  const btn = document.getElementById('pl-toggle-btn');
+  if (btn) btn.textContent = 'Your playlists (' + data.items.length + ')';
 }
 
-/* ── Device resolution ──
-   On desktop: use the SDK player device.
-   On mobile / when SDK unavailable: use
-   whatever active device Spotify already
-   has (phone app, desktop app, etc.).
-   Falls back to first available device. */
-let spotConnectMode = false; // true = using Connect API, no SDK device
-
 async function getActiveDeviceId() {
-  // SDK device ready — use it
   if (spotDeviceId) return spotDeviceId;
-
-  // Ask Spotify for available devices
   const data = await spotAPI('/me/player/devices');
-  if (!data || !data.devices || !data.devices.length) return null;
-
-  // Prefer the currently active one
+  if (!data?.devices?.length) return null;
   const active = data.devices.find(d => d.is_active);
-  if (active) return active.id;
-
-  // Otherwise use the first available
-  return data.devices[0].id;
+  return active ? active.id : data.devices[0].id;
 }
 
 async function ensureActiveDevice() {
   const id = await getActiveDeviceId();
-  if (!id) {
-    showToast('Open Spotify on any device first, then try again');
-    return null;
-  }
+  if (!id) { showToast('Open Spotify on any device first'); return null; }
   return id;
 }
 
 async function playPlaylist(uri, itemEl) {
   const deviceId = await ensureActiveDevice();
   if (!deviceId) return;
-
   await spotAPI('/me/player/play?device_id=' + deviceId, 'PUT', { context_uri: uri });
   document.querySelectorAll('.pl-item').forEach(el => el.classList.remove('active'));
   if (itemEl) itemEl.classList.add('active');
   spotPlaying = true;
-  updatePlayUI();
-  setTimeout(updateNowPlaying, 1000);
+  _syncPlayUI();
+  setTimeout(updateNowPlaying, 900);
   sfxTap();
 }
 
+/* Full now-playing sync from API (used on load + Connect fallback + vis-change) */
 async function updateNowPlaying() {
   const data = await spotAPI('/me/player');
-  if (!data || !data.item) return;
-  const track = data.item;
+  if (!data?.item) return;
+
+  const track    = data.item;
   const isPlaying = data.is_playing;
-  const trackName = track.name;
-  const artistName = track.artists.map(a => a.name).join(', ');
-  const albumArt = track.album?.images[0]?.url;
+  const pos      = data.progress_ms || 0;
+  const dur      = track.duration_ms;
+  const art      = track.album?.images[0]?.url;
 
-  ['music-track','mp-track'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=trackName; });
-  ['music-artist','mp-artist'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=artistName; });
-  if (albumArt) {
-    document.getElementById('music-art').innerHTML = `<img src="${albumArt}" alt="">`;
-    document.getElementById('mp-art').innerHTML    = `<img src="${albumArt}" alt="">`;
-    setAmbientFromArt(albumArt);
-  }
+  _updateTrackUI(track.name, track.artists.map(a => a.name).join(', '), art, pos, dur);
 
-  const dur = track.duration_ms, pos = data.progress_ms || 0;
-  _pMs=pos;_dMs=dur;_lSync=Date.now();
-  const seekBar = document.getElementById('seek-bar');
-  if (seekBar && !seekBar.matches(':active')) seekBar.value = dur > 0 ? (pos/dur*100) : 0;
-  document.getElementById('seek-cur').textContent = msToTime(pos);
-  document.getElementById('seek-dur').textContent = msToTime(dur);
-
-  // Sync shuffle/repeat UI from actual state
+  // Sync shuffle/repeat from API state
   if (data.shuffle_state !== undefined) {
     spotShuffle = data.shuffle_state;
-    const sb = document.getElementById('m-shuffle');
-    if (sb) {
-      sb.classList.toggle('on', spotShuffle);
-      sb.textContent = spotShuffle ? '⇄✦' : '⇄';
-    }
+    _syncShuffleUI();
+  }
+  if (data.repeat_state) {
+    spotRepeat = data.repeat_state;
+    _syncRepeatUI();
   }
 
   spotPlaying = isPlaying;
-  updatePlayUI();
+  _syncPlayUI();
+}
+
+/* ── Core UI updater: track info + progress bar ── */
+function _updateTrackUI(name, artist, artUrl, posMs, durMs) {
+  // Update all text elements
+  _setText('spb-track',  name);
+  _setText('spb-artist', artist);
+  _setText('snm-track',  name);
+  _setText('snm-artist', artist);
+
+  // Album art
+  if (artUrl) {
+    document.getElementById('spb-art').innerHTML = `<img src="${artUrl}" alt="">`;
+    const snmImg = document.getElementById('snm-art-img');
+    if (snmImg) { snmImg.src = artUrl; snmImg.style.display = ''; document.getElementById('snm-art-emoji').style.display = 'none'; }
+    setAmbientFromArt(artUrl);
+  }
+
+  // Persist position for interpolation
+  _pMs = posMs; _dMs = durMs; _lSync = Date.now();
+
+  // Seek bar fill
+  _updateSeekFill(durMs > 0 ? posMs / durMs * 100 : 0, posMs, durMs);
+}
+
+function _setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+/* ── Progress interpolation: 500ms interval ── */
+var _pMs = 0, _dMs = 1, _lSync = 0, _progressIv = null;
+
+function _startProgressPoll() {
+  if (_progressIv) return;
+  _progressIv = setInterval(() => {
+    if (!spotPlaying || _seekDragging) return;
+    const pos = Math.min(_pMs + (Date.now() - _lSync), _dMs);
+    const pct = _dMs > 0 ? pos / _dMs * 100 : 0;
+    _updateSeekFill(pct, pos, _dMs);
+  }, 500);
+}
+
+function _stopProgressPoll() {
+  clearInterval(_progressIv);
+  _progressIv = null;
+}
+
+/* Update seek bar + time labels; also updates mobile modal */
+function _updateSeekFill(pct, posMs, durMs) {
+  const seek  = document.getElementById('spb-seek');
+  const cur   = document.getElementById('spb-cur');
+  const dur   = document.getElementById('spb-dur');
+  const mSeek = document.getElementById('snm-seek');
+  const mCur  = document.getElementById('snm-cur');
+  const mDur  = document.getElementById('snm-dur');
+  const mobProg = document.getElementById('spb-mobile-prog');
+
+  if (seek && !_seekDragging) {
+    seek.value = pct;
+    // Filled track color
+    seek.style.background = `linear-gradient(to right,#1DB954 ${pct}%,#535353 ${pct}%)`;
+  }
+  if (mSeek && !_seekDragging) {
+    mSeek.value = pct;
+    mSeek.style.background = `linear-gradient(to right,#1DB954 ${pct}%,#535353 ${pct}%)`;
+  }
+  if (cur)  cur.textContent  = msToTime(posMs);
+  if (dur)  dur.textContent  = msToTime(durMs);
+  if (mCur) mCur.textContent = msToTime(posMs);
+  if (mDur) mDur.textContent = msToTime(durMs);
+  if (mobProg) mobProg.style.width = pct + '%';
 }
 
 function msToTime(ms) {
   const s = Math.floor(ms / 1000);
-  return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 }
 
+/* Seek input (drag) — only update fill, don't call API yet */
+function spbSeekInput(val) {
+  _seekDragging = true;
+  const pct = parseFloat(val);
+  const posMs = _dMs * pct / 100;
+  _updateSeekFill(pct, posMs, _dMs);
+}
+
+/* Seek commit (pointerup) — call API */
+async function spbSeekCommit(val) {
+  _seekDragging = false;
+  const posMs = Math.floor(_dMs * parseFloat(val) / 100);
+  _pMs = posMs; _lSync = Date.now();
+  await spotAPI('/me/player/seek?position_ms=' + posMs, 'PUT');
+}
+
+// Legacy alias (home card seek)
+function seekTo(val) { spbSeekCommit(val); }
+
+/* ── Volume ── */
+function spbVolumeInput(val) {
+  _volLevel = parseFloat(val) / 100;
+  // Update fill gradient
+  const slider = document.getElementById('spb-vol');
+  if (slider) slider.style.background = `linear-gradient(to right,#1DB954 ${val}%,#535353 ${val}%)`;
+  if (spotPlayer) spotPlayer.setVolume(_volLevel);
+}
+
+// Legacy alias
+function setVolume(v) { spbVolumeInput(v); }
+
+/* ── Play / Pause ── */
 async function spotTogglePlay() {
   sfxTap();
-  // Optimistic: flip UI immediately so it feels instant
+  // Optimistic UI flip
   spotPlaying = !spotPlaying;
-  updatePlayUI();
-  const deviceId = await ensureActiveDevice();
-  if (!deviceId) { spotPlaying = !spotPlaying; updatePlayUI(); return; }
-  if (!spotPlaying) {
-    await spotAPI('/me/player/pause', 'PUT');
+  _syncPlayUI();
+
+  if (spotPlayer && !spotConnectMode) {
+    // SDK path — togglePlay is instant
+    await spotPlayer.togglePlay();
   } else {
-    await spotAPI('/me/player/play?device_id=' + deviceId, 'PUT');
-    setTimeout(updateNowPlaying, 400);
+    // Connect API path
+    const deviceId = await ensureActiveDevice();
+    if (!deviceId) { spotPlaying = !spotPlaying; _syncPlayUI(); return; }
+    if (spotPlaying) {
+      await spotAPI('/me/player/play?device_id=' + deviceId, 'PUT');
+      setTimeout(updateNowPlaying, 400);
+    } else {
+      await spotAPI('/me/player/pause', 'PUT');
+    }
   }
 }
 
-var _pMs=0,_dMs=1,_lSync=0,_pIv=null;
-function _startInterp(){
-  if(_pIv)return;
-  _pIv=setInterval(function(){
-    if(!spotPlaying)return;
-    var pos=Math.min(_pMs+(Date.now()-_lSync),_dMs);
-    var pct=_dMs>0?pos/_dMs*100:0;
-    var sb=document.getElementById('seek-bar');
-    if(sb&&!sb.matches(':active'))sb.value=pct;
-    var sc=document.getElementById('seek-cur');
-    if(sc)sc.textContent=msToTime(pos);
-  },250);
-}
-function _stopInterp(){clearInterval(_pIv);_pIv=null;}
-
-function updatePlayUI() {
-  const icon = spotPlaying ? '⏸' : '▶';
-  ['m-play-btn','mp-play-btn'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=icon; });
-  ['music-bars','mp-bars'].forEach(id => { const el=document.getElementById(id); if(el) el.style.display=spotPlaying?'flex':'none'; });
-  if (spotPlaying) {
-    setAmbient(true);
-    _startInterp();
-    if (!seekUpdateIv) seekUpdateIv = setInterval(updateNowPlaying, 2000);
-    syncAppIcon();
-  } else {
-    setAmbient(false);
-    _stopInterp();
-    clearInterval(seekUpdateIv); seekUpdateIv = null;
-    syncAppIcon();
-  }
+async function spotNext() {
+  sfxTap();
+  await spotAPI('/me/player/next', 'POST');
+  setTimeout(updateNowPlaying, 500);
 }
 
-async function spotNext() { sfxTap(); await spotAPI('/me/player/next','POST'); setTimeout(updateNowPlaying,400); }
-async function spotPrev() { sfxTap(); await spotAPI('/me/player/previous','POST'); setTimeout(updateNowPlaying,400); }
-
-async function seekTo(pct) {
-  const data = await spotAPI('/me/player');
-  if (!data?.item) return;
-  await spotAPI('/me/player/seek?position_ms=' + Math.floor(data.item.duration_ms * pct / 100), 'PUT');
+async function spotPrev() {
+  sfxTap();
+  await spotAPI('/me/player/previous', 'POST');
+  setTimeout(updateNowPlaying, 500);
 }
 
-async function setVolume(v) {
-  await spotAPI('/me/player/volume?volume_percent=' + Math.round(v), 'PUT');
-}
-
-/* Smart Shuffle — cycles: off → normal shuffle → smart shuffle (Spotify's AI) */
-let shuffleMode = 'off'; // 'off' | 'shuffle' | 'smart'
-
+/* ── Shuffle (3-state: off → shuffle → smart shuffle) ── */
 async function toggleShuffle() {
   const modes = ['off', 'shuffle', 'smart'];
   shuffleMode = modes[(modes.indexOf(shuffleMode) + 1) % 3];
 
-  const btn = document.getElementById('m-shuffle');
-
   if (shuffleMode === 'off') {
     await spotAPI('/me/player/shuffle?state=false', 'PUT');
     spotShuffle = false;
-    if (btn) { btn.classList.remove('on'); btn.textContent = '⇄'; }
     showToast('Shuffle off');
   } else if (shuffleMode === 'shuffle') {
     await spotAPI('/me/player/shuffle?state=true', 'PUT');
     spotShuffle = true;
-    if (btn) { btn.classList.add('on'); btn.textContent = '⇄'; }
     showToast('Shuffle on');
   } else {
-    // Smart Shuffle — Spotify's enhanced shuffle uses the same endpoint
-    // but we also toggle it back on in case it was already on to trigger
-    // Spotify's "Smart Shuffle" mode which activates automatically when
-    // shuffle is enabled on a playlist context with recommendations.
+    // Smart Shuffle: cycle off→on to trigger Spotify's AI recommendations
     await spotAPI('/me/player/shuffle?state=false', 'PUT');
     await new Promise(r => setTimeout(r, 200));
     await spotAPI('/me/player/shuffle?state=true', 'PUT');
     spotShuffle = true;
-    if (btn) { btn.classList.add('on'); btn.textContent = '⇄✦'; }
     showToast('✦ Smart Shuffle on');
   }
+  _syncShuffleUI();
   sfxTap();
 }
 
+/* ── Repeat (off → context → track) ── */
 async function toggleRepeat() {
-  const states = ['off','context','track'];
-  spotRepeat = states[(states.indexOf(spotRepeat)+1) % 3];
+  const states = ['off', 'context', 'track'];
+  spotRepeat = states[(states.indexOf(spotRepeat) + 1) % 3];
   await spotAPI('/me/player/repeat?state=' + spotRepeat, 'PUT');
-  const btn = document.getElementById('m-repeat');
-  if (btn) { btn.classList.toggle('on', spotRepeat!=='off'); btn.textContent = spotRepeat==='track'?'↺¹':'↺'; }
+  _syncRepeatUI();
   sfxTap();
+}
+
+/* ── Heart / Like ── */
+async function spbToggleLike() {
+  const btn = document.getElementById('spb-heart');
+  if (!btn) return;
+  const liked = btn.classList.toggle('liked');
+  btn.textContent = liked ? '♥' : '♡';
+  // (Save track API call could be wired here)
+  sfxTap();
+}
+
+/* ── UI sync helpers ── */
+function _syncPlayUI() {
+  const playIcon = `<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+  const pauseIcon = `<svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+  const snmPlayIcon = `<svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+  const snmPauseIcon = `<svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+
+  const spbPlayIcon = document.getElementById('spb-play-icon');
+  const snmPlayIconEl = document.getElementById('snm-play-icon');
+  if (spbPlayIcon) spbPlayIcon.parentElement.innerHTML = spotPlaying ? pauseIcon : playIcon;
+  if (snmPlayIconEl) snmPlayIconEl.parentElement.innerHTML = spotPlaying ? snmPauseIcon : snmPlayIcon;
+
+  // Equaliser bars
+  const bars = document.getElementById('spb-bars');
+  if (bars) bars.style.visibility = spotPlaying ? 'visible' : 'hidden';
+
+  // Album art glow
+  const art = document.getElementById('spb-art');
+  if (art) art.classList.toggle('spb-art-playing', spotPlaying);
+
+  if (spotPlaying) {
+    setAmbient(true);
+    _startProgressPoll();
+    // Full state sync every 2s when playing via Connect (SDK fires events itself)
+    if (spotConnectMode && !_syncIv) _syncIv = setInterval(updateNowPlaying, 2000);
+    syncAppIcon();
+  } else {
+    setAmbient(false);
+    _stopProgressPoll();
+    clearInterval(_syncIv); _syncIv = null;
+    syncAppIcon();
+  }
+}
+let _syncIv = null;
+
+function _syncShuffleUI() {
+  const on = spotShuffle;
+  const smart = shuffleMode === 'smart';
+  [document.getElementById('spb-shuffle'), document.getElementById('snm-shuffle')].forEach(btn => {
+    if (!btn) return;
+    btn.classList.toggle('on', on);
+    btn.title = smart ? 'Smart Shuffle' : on ? 'Shuffle on' : 'Shuffle off';
+    btn.style.opacity = on ? '1' : '.6';
+  });
+}
+
+function _syncRepeatUI() {
+  const on = spotRepeat !== 'off';
+  const track = spotRepeat === 'track';
+  [document.getElementById('spb-repeat'), document.getElementById('snm-repeat')].forEach(btn => {
+    if (!btn) return;
+    btn.classList.toggle('on', on);
+    btn.style.opacity = on ? '1' : '.6';
+    btn.title = track ? 'Repeat track' : on ? 'Repeat context' : 'Repeat off';
+  });
+}
+
+/* ── Bottom bar show/hide ── */
+function _showBar() {
+  const bar = document.getElementById('spot-player-bar');
+  const mobProg = document.getElementById('spb-mobile-prog');
+  if (!bar) return;
+  bar.classList.add('spb-visible');
+  document.body.classList.add('has-spot-bar');
+  if (mobProg) mobProg.style.display = '';
+  // Init volume slider fill
+  const vol = document.getElementById('spb-vol');
+  if (vol) { vol.value = _volLevel * 100; spbVolumeInput(vol.value); }
+}
+
+function _hideBar() {
+  const bar = document.getElementById('spot-player-bar');
+  if (!bar) return;
+  bar.classList.remove('spb-visible');
+  document.body.classList.remove('has-spot-bar');
+  closeMobileNowPlaying();
+}
+
+/* Status strip */
+function _showStatus(msg, isTemp) {
+  const el = document.getElementById('spb-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  if (isTemp) setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+/* ── Mobile now-playing modal ── */
+function openMobileNowPlaying() {
+  document.getElementById('spot-nowplaying-modal')?.classList.add('open');
+}
+function closeMobileNowPlaying() {
+  document.getElementById('spot-nowplaying-modal')?.classList.remove('open');
+}
+
+/* ── Visibility sync: re-sync state when tab regains focus ── */
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && spotToken) updateNowPlaying();
+});
+
+/* ══════════════════════════
+   UI STATE (card helpers)
+══════════════════════════ */
+function showLoginView() {
+  document.getElementById('spot-login-view').style.display = 'flex';
+  document.getElementById('spot-player-view').style.display = 'none';
+  document.getElementById('spot-sub').textContent = 'Connect to play your music';
+  _hideBar();
+}
+
+function showPlayerView() {
+  document.getElementById('spot-login-view').style.display = 'none';
+  document.getElementById('spot-player-view').style.display = 'block';
+  document.getElementById('spot-sub').textContent = 'Connected';
+  _showBar();
+  loadUserProfile();
+  loadPlaylists();
+  // Initialize SDK now that we have a token
+  if (window.Spotify?.Player) _initSDK();
+  // Sync any already-playing state after short delay
+  setTimeout(updateNowPlaying, 800);
+}
+
+function togglePlaylists() {
+  const list = document.getElementById('spot-pl-list');
+  const btn  = document.getElementById('pl-toggle-btn');
+  if (!list) return;
+  if (!list.dataset.loaded) {
+    if (btn) btn.textContent = 'Loading…';
+    loadPlaylists().then(() => { list.classList.add('open'); if (btn) btn.textContent = 'Hide playlists'; });
+    return;
+  }
+  list.classList.toggle('open');
+  if (btn) btn.textContent = list.classList.contains('open') ? 'Hide playlists' : 'Your playlists (' + list.children.length + ')';
+}
+
+/* ── Mini player (legacy stubs — bar replaces it) ── */
+function showMiniPlayer() {}
+function hideMiniPlayer() {}
+function syncMiniPlayer(screenId) {
+  // Mobile bar tap → open modal when on non-home pages
+  const bar = document.getElementById('spot-player-bar');
+  if (!bar || !spotToken) return;
+  if (window.innerWidth < 768) {
+    bar.onclick = openMobileNowPlaying;
+  } else {
+    bar.onclick = null;
+  }
 }
 
 /* ══════════════════════════
    AMBIENT BG FROM ART
 ══════════════════════════ */
-const trackColors = [
-  [80,40,180],[40,60,160],[200,80,20],[20,100,120],
-  [60,20,180],[180,60,20],[20,150,80],[20,60,160]
-];
-let _ambientPhase = 0, _ambientColor = [29,185,84];
+let _ambientPhase = 0, _ambientColor = [29, 185, 84];
 
 function setAmbientFromArt(imgUrl) {
-  // Sample a dominant color from the album art via canvas
   const img = new Image();
   img.crossOrigin = 'anonymous';
   img.onload = () => {
@@ -897,10 +1364,10 @@ function setAmbientFromArt(imgUrl) {
       const ctx = c.getContext('2d');
       ctx.drawImage(img, 0, 0, 8, 8);
       const d = ctx.getImageData(2, 2, 4, 4).data;
-      let r=0,g=0,b=0;
-      for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];}
-      const n=d.length/4;
-      _ambientColor=[Math.round(r/n),Math.round(g/n),Math.round(b/n)];
+      let r = 0, g = 0, b = 0;
+      for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i+1]; b += d[i+2]; }
+      const n = d.length / 4;
+      _ambientColor = [Math.round(r/n), Math.round(g/n), Math.round(b/n)];
     } catch(e) {}
   };
   img.src = imgUrl;
@@ -917,134 +1384,10 @@ function setAmbient(playing) {
   ambientIv = setInterval(() => {
     _ambientPhase += 0.018;
     const alpha = 0.1 + Math.sin(_ambientPhase) * 0.05;
-    const xPct = 50 + Math.sin(_ambientPhase * 0.7) * 14;
+    const xPct  = 50 + Math.sin(_ambientPhase * 0.7) * 14;
     document.getElementById('ambient-bg').style.background =
       `radial-gradient(ellipse at ${xPct}% 90%,rgba(${r},${g},${b},${alpha.toFixed(3)}) 0%,transparent 70%)`;
   }, 80);
-}
-
-/* ══════════════════════════
-   SPOTIFY PLAYBACK SDK
-   Desktop: SDK creates a
-   browser device we control.
-   Mobile: SDK won't load but
-   Connect API controls the
-   Spotify app directly.
-══════════════════════════ */
-window.onSpotifyWebPlaybackSDKReady = () => {
-  if (!spotToken) return;
-
-  spotPlayer = new Spotify.Player({
-    name: 'Workout App',
-    getOAuthToken: async cb => { const t = await getValidToken(); cb(t || ''); },
-    volume: 0.5
-  });
-
-  spotPlayer.addListener('ready', ({ device_id }) => {
-    spotDeviceId = device_id;
-    spotConnectMode = false;
-    // Transfer playback silently to this device
-    spotAPI('/me/player', 'PUT', { device_ids: [device_id], play: false });
-    showToast('🎵 Spotify ready!');
-    updateNowPlaying();
-  });
-
-  spotPlayer.addListener('not_ready', ({ device_id }) => {
-    if (spotDeviceId === device_id) spotDeviceId = null;
-    spotConnectMode = true;
-  });
-
-  spotPlayer.addListener('initialization_error', () => {
-    // Mobile browser or unsupported — silently fall back to Connect mode
-    spotConnectMode = true;
-    spotDeviceId = null;
-    updateNowPlaying();
-  });
-
-  spotPlayer.addListener('authentication_error', () => {
-    spotConnectMode = true; spotDeviceId = null;
-  });
-
-  spotPlayer.addListener('account_error', () => {
-    showToast('Spotify Premium required for in-browser playback');
-    spotConnectMode = true; spotDeviceId = null;
-  });
-
-  spotPlayer.addListener('player_state_changed', state => {
-    if (!state) return;
-    spotPlaying = !state.paused;
-    const track = state.track_window?.current_track;
-    if (track) {
-      ['music-track','mp-track'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=track.name; });
-      ['music-artist','mp-artist'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=track.artists.map(a=>a.name).join(', '); });
-      const img = track.album?.images[0]?.url;
-      if (img) {
-        document.getElementById('music-art').innerHTML = `<img src="${img}" alt="">`;
-        document.getElementById('mp-art').innerHTML    = `<img src="${img}" alt="">`;
-        setAmbientFromArt(img);
-      }
-    }
-    updatePlayUI();
-  });
-
-  spotPlayer.connect().then(success => {
-    if (!success) { spotConnectMode = true; spotDeviceId = null; }
-  });
-};
-
-/* ══════════════════════════
-   UI STATE HELPERS
-══════════════════════════ */
-function showLoginView() {
-  document.getElementById('spot-login-view').style.display = 'flex';
-  document.getElementById('spot-player-view').style.display = 'none';
-  document.getElementById('spot-sub').textContent = 'Connect to play your music';
-}
-function showPlayerView() {
-  document.getElementById('spot-login-view').style.display = 'none';
-  document.getElementById('spot-player-view').style.display = 'block';
-  document.getElementById('spot-sub').textContent = 'Connected';
-  loadUserProfile();
-  loadPlaylists();
-  // Show what's currently playing if anything
-  setTimeout(updateNowPlaying, 800);
-}
-function togglePlaylists() {
-  const list = document.getElementById('spot-pl-list');
-  const btn  = document.getElementById('pl-toggle-btn');
-  if (!list) return;
-  // Reload if empty (first tap after login)
-  if (!list.dataset.loaded) {
-    if(btn)btn.textContent='Loading...';
-    loadPlaylists().then(()=>{ list.classList.add('open'); if(btn)btn.textContent='Hide playlists'; });
-    return;
-  }
-  list.classList.toggle('open');
-  if (btn) btn.textContent = list.classList.contains('open') ? 'Hide playlists' : 'Your playlists (' + list.children.length + ')';
-}
-
-/* Mini player */
-function showMiniPlayer() {
-  const mp = document.getElementById('mini-player');
-  const fab = document.getElementById('mini-player-fab');
-  mp.classList.remove('hidden-player'); mp.classList.add('visible');
-  fab.classList.remove('visible');
-}
-function hideMiniPlayer() {
-  const mp = document.getElementById('mini-player');
-  const fab = document.getElementById('mini-player-fab');
-  mp.classList.add('hidden-player');
-  setTimeout(() => mp.classList.remove('visible'), 300);
-  fab.classList.add('visible');
-}
-function syncMiniPlayer(screenId) {
-  const mp = document.getElementById('mini-player');
-  const fab = document.getElementById('mini-player-fab');
-  if (screenId === 'home') {
-    mp.classList.remove('visible', 'hidden-player'); fab.classList.remove('visible');
-  } else if (spotToken) {
-    if (!mp.classList.contains('visible') && !fab.classList.contains('visible')) showMiniPlayer();
-  }
 }
 
 /* ══════════════════════════
