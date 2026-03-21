@@ -485,11 +485,18 @@ function updateBatteryUI(bat) {
 function initBattery() {
   if (navigator.getBattery) {
     navigator.getBattery().then(bat => {
+      // Immediate update on first fetch
       updateBatteryUI(bat);
-      // Listen for changes
-      bat.addEventListener('levelchange', () => updateBatteryUI(bat));
-      bat.addEventListener('chargingchange', () => updateBatteryUI(bat));
+      // Listen for updates
+      bat.onlevelchange = () => updateBatteryUI(bat);
+      bat.onchargingchange = () => updateBatteryUI(bat);
+    }).catch(e => {
+        const pctEl = document.getElementById('bat-pct');
+        if (pctEl) pctEl.textContent = "n/a";
     });
+  } else {
+    const pctEl = document.getElementById('bat-pct');
+    if (pctEl) pctEl.textContent = "n/a";
   }
 }
 
@@ -507,13 +514,12 @@ const phases={
     {name:'Jumping Jacks',ids:['c4DAnQ6DtF8'],stat:'60 sec',why:'Full-body cardio activation that raises core temperature.',desc:'Jump feet wide as arms go overhead, then return. Stay light on feet.'},
   ]},
   main:{title:'Main Workout',sub:'3 rounds · 30–45 sec rest between exercises · 90 sec between rounds',accent:'var(--main)',
-    blocks:[{label:'🔵 BLOCK A — LOWER BODY & GLUTES',start:0,end:2},{label:'🔴 BLOCK B — PUSH & UPPER BODY',start:3,end:5},{label:'🟢 BLOCK C — CORE & STABILITY',start:6,end:8},{label:'🟡 BLOCK D — FULL BODY & CARDIO',start:9,end:10}],
+    blocks:[{label:'🔵 BLOCK A — LOWER BODY & GLUTES',start:0,end:2},{label:'🔴 BLOCK B — PUSH & UPPER BODY',start:3,end:5},{label:'🟢 BLOCK C — CORE & STABILITY',start:6,end:8},{label:'🟡 BLOCK D — FULL BODY & CARDIO',start:9,end:11}],
     exercises:[
       {name:'Bodyweight Squats',ids:['m0GcZ24pK6k'],stat:'3 × 15 reps',rest:'30–45 sec',why:'Most efficient lower-body compound.',desc:'Feet shoulder-width, toes slightly out. Hips back and down. Chest up, knees track toes. Squeeze glutes at top.',mod:'Squat to a chair.'},
       {name:'Reverse Lunges',ids:['Fzva5HohZBk'],stat:'3 × 10 reps/leg',rest:'30–45 sec',why:'Glute-dominant lunge with less knee stress.',desc:'Step back, lower rear knee toward floor. Front shin vertical. Push through front heel.',mod:'Hold a wall for balance.'},
       {name:'Glute Bridges',ids:['vOvRFsGMMqo'],stat:'3 × 15 reps',rest:'30–45 sec',why:'Highest glute activation of any bodyweight move.',desc:'Lie on back, knees bent. Press through heels, drive hips up. Squeeze hard at top for 1 sec.',mod:'Reduce range, focus on top squeeze.'},
       {name:'Push-Ups',ids:['cYwhWlV3g-0'],stat:'3 × 10–12 reps',rest:'30–45 sec',why:'Compound upper-body — chest, shoulders, triceps and core.',desc:'Hands slightly wider than shoulder-width, rigid plank. Lower chest to floor, elbows at 45°.',mod:'Drop to knees.'},
-      {name:'Push-Ups (cont)',ids:['cYwhWlV3g-0'],stat:'3 × 10–12 reps',rest:'30–45 sec',why:'Compound upper-body — chest, shoulders, triceps and core.',desc:'Hands slightly wider than shoulder-width, rigid plank. Lower chest to floor, elbows at 45°.',mod:'Drop to knees.'},
       {name:'Pike Push-Ups',ids:['DG-NcMnfZ_0'],stat:'3 × 8 reps',rest:'30–45 sec',why:'Shifts load to shoulders — builds pressing strength without weights.',desc:'Hips high in a downward-dog. Bend elbows to lower head toward floor, then press back up.',mod:'Lower hip height.'},
       {name:'Tricep Dips',ids:['GP1XD3PbOE4'],stat:'3 × 10 reps',rest:'30–45 sec',why:'Directly isolates triceps using just a chair.',desc:'Grip edge of chair, slide off. Lower by bending elbows to 90°, pointing straight back.',mod:'Bend knees, feet closer.'},
       {name:'Plank',ids:['A2b2EmIg0dA'],stat:'3 × 30–40 sec',rest:'30–45 sec',why:'Deep core activation — foundation of all movement.',desc:'Forearms down, body one straight line. Pull belly up, clench glutes, press heels back.',mod:'Drop to forearms and knees.'},
@@ -521,6 +527,7 @@ const phases={
       {name:'Dead Bug',ids:['QXKBsQt9eZU'],stat:'3 × 8 reps/side',rest:'30–45 sec',why:'Trains core to resist extension — most protective of lower back.',desc:'Lie on back, arms up, knees at 90°. Slowly lower right arm and extend left leg. Back stays flat.',mod:'Extend only the arm to start.'},
       {name:'Burpees',ids:['G2hv_NYhM-A'],stat:'3 × 8 reps',rest:'30–45 sec',why:'Highest calorie-burn bodyweight move — power and endurance.',desc:'Squat, plant hands, jump back to plank, push-up optional, jump forward, stand and jump overhead.',mod:'Step back one at a time, skip the jump.'},
       {name:'Squat Jumps',ids:['CVaEhXotL7M'],stat:'3 × 10 reps',rest:'30–45 sec',why:'Plyometric move that recruits fast-twitch fibers.',desc:'Squat then explode upward. Land softly with bent knees. Feet hip-width.',mod:'Slow squat with 3-sec hold.'},
+      {name:'Bird Dog',ids:['wiFNA3sqjCA'],stat:'3 × 8 reps/side',rest:'30–45 sec',why:'Core stability and lower back health.',desc:'On all fours, extend opposite arm and leg simultaneously. Maintain a level back.'},
     ]},
   cool:{title:'Cool-Down',sub:'Hold 30–45 sec per side · Breathe deeply',accent:'var(--cool)',exercises:[
     {name:'Standing Quad Stretch',ids:['kHSTR4XHBWQ'],stat:'30–45 sec/side',why:'Releases quads and hip flexors.',desc:'Stand on one leg, pull opposite heel toward glute. Push hip slightly forward.'},
@@ -566,7 +573,7 @@ function updateHomeProgress(){
 }
 
 /* INIT */
-window.addEventListener('load', async () => {
+window.addEventListener('load', () => {
   buildTimeline();
   updateHomeProgress();
   updatePersistBar();
