@@ -253,7 +253,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div class="pb-date-main" id="pb-date-main"></div>
     <div class="pb-row2">
       <span class="pb-block" id="pb-block">Loading…</span>
-      <span class="pb-ver" id="pb-ver">v6.2.0</span>
+      <span class="pb-ver" id="pb-ver">v7.1.0</span>
     </div>
   </div>
   
@@ -444,8 +444,10 @@ async function fetchVersion() {
   } catch(e) { /* silently fail, hardcoded fallback stays */ }
 }
 
+/* ══════════════════════════
+   PERSIST BAR & BATTERY SYNC
+══════════════════════════ */
 function updatePersistBar(){
-  // 1. Handle Date & Time
   const now=new Date();
   const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -456,32 +458,37 @@ function updatePersistBar(){
   const clockEl = document.getElementById('pb-clock');
   if (clockEl) clockEl.textContent = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
 
-  // 2. Handle Schedule Block
   const block=getCurrentBlock(),el=document.getElementById('pb-block');
   if(block){el.textContent='Now: '+block.label;el.className='pb-block active-block';}
   else{el.textContent='No active block';el.className='pb-block';}
+}
 
-  // 3. Handle Battery Status
+function updateBatteryUI(bat) {
+  const level = bat.level * 100;
+  const pctEl = document.getElementById('bat-pct');
+  const fillEl = document.getElementById('bat-level');
+  const shellEl = document.getElementById('bat-shell');
+
+  if (pctEl) pctEl.textContent = Math.round(level) + '%';
+  if (fillEl) {
+    fillEl.style.width = level + '%';
+    if (level <= 20) fillEl.style.background = '#f87171';
+    else if (level <= 50) fillEl.style.background = 'var(--warm)';
+    else fillEl.style.background = 'var(--main)';
+  }
+  if (shellEl) {
+    if (bat.charging) shellEl.classList.add('charging');
+    else shellEl.classList.remove('charging');
+  }
+}
+
+function initBattery() {
   if (navigator.getBattery) {
     navigator.getBattery().then(bat => {
-      const level = bat.level * 100;
-      const pctEl = document.getElementById('bat-pct');
-      const fillEl = document.getElementById('bat-level');
-      const shellEl = document.getElementById('bat-shell');
-
-      if (pctEl) pctEl.textContent = Math.round(level) + '%';
-      if (fillEl) {
-        fillEl.style.width = level + '%';
-        // Color tiers
-        if (level <= 20) fillEl.style.background = '#f87171'; // Red
-        else if (level <= 50) fillEl.style.background = 'var(--warm)'; // Orange
-        else fillEl.style.background = 'var(--main)'; // Green
-      }
-      
-      if (shellEl) {
-        if (bat.charging) shellEl.classList.add('charging');
-        else shellEl.classList.remove('charging');
-      }
+      updateBatteryUI(bat);
+      // Listen for changes
+      bat.addEventListener('levelchange', () => updateBatteryUI(bat));
+      bat.addEventListener('chargingchange', () => updateBatteryUI(bat));
     });
   }
 }
@@ -563,7 +570,8 @@ window.addEventListener('load', async () => {
   buildTimeline();
   updateHomeProgress();
   updatePersistBar();
-  setInterval(updatePersistBar, 1000); // tick every second for clock and batt
+  initBattery();
+  setInterval(updatePersistBar, 1000); 
   fetchVersion();
   syncAppIcon();
   document.querySelectorAll('.phase-card,.weekly-card').forEach((el,i)=>{
