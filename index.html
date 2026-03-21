@@ -338,7 +338,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div class="pb-date-main" id="pb-date-main"></div>
     <div class="pb-row2">
       <span class="pb-block" id="pb-block">Loading…</span>
-      <span class="pb-ver">v6.1.0</span>
+      <span class="pb-ver" id="pb-ver">v6.2.0</span>
     </div>
   </div>
   <div class="pb-clock" id="pb-clock">00:00</div>
@@ -1053,6 +1053,28 @@ function getCurrentBlock(){
   for(const b of dailySchedule){const[h,m]=b.time.split(':').map(Number);if(mins>=h*60+m)active=b;else break;}
   return active;
 }
+/* Auto-version from GitHub commits */
+async function fetchVersion() {
+  try {
+    const res = await fetch(
+      'https://api.github.com/repos/SuchAnAmazingUser/Workout/commits?per_page=10',
+      { headers: { 'Accept': 'application/vnd.github.v3+json' } }
+    );
+    if (!res.ok) return;
+    const commits = await res.json();
+    for (const c of commits) {
+      const msg = c.commit && c.commit.message ? c.commit.message : '';
+      const match = msg.match(/Update\s*[-\u2013]\s*V\.?\s*([\d.]+)/i);
+      if (match) {
+        const ver = 'v' + match[1];
+        const el = document.getElementById('pb-ver');
+        if (el) el.textContent = ver;
+        return;
+      }
+    }
+  } catch(e) { /* silently fail, hardcoded fallback stays */ }
+}
+
 function updatePersistBar(){
   const now=new Date();
   const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -1140,6 +1162,7 @@ window.addEventListener('load', async () => {
   updateHomeProgress();
   updatePersistBar();
   setInterval(updatePersistBar, 1000); // tick every second
+  fetchVersion();
   document.querySelectorAll('.phase-card,.weekly-card,.music-card').forEach((el,i)=>{
     setTimeout(()=>el.classList.add('visible'),80+i*70);
   });
