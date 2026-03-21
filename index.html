@@ -523,11 +523,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
 <script>
 /* ══════════════════════════
-   SPOTIFY CONFIG
+   SPOTIFY CONFIG — PKCE flow
+   Works on all browsers &
+   devices. No server needed.
 ══════════════════════════ */
-const SPOTIFY_CLIENT_ID  = '4047ce748d3b40e2806f803086b95456';
-const SPOTIFY_REDIRECT   = 'https://SuchAnAmazingUser.github.io/Workout/';
-const SPOTIFY_SCOPES     = [
+const SPOTIFY_CLIENT_ID = '4047ce748d3b40e2806f803086b95456';
+const SPOTIFY_REDIRECT  = 'https://SuchAnAmazingUser.github.io/Workout/';
+const SPOTIFY_SCOPES    = [
   'streaming',
   'user-read-email',
   'user-read-private',
@@ -538,61 +540,91 @@ const SPOTIFY_SCOPES     = [
   'playlist-read-collaborative',
 ].join(' ');
 
-/* ══════════════════════════
-   TOKEN MANAGEMENT
-══════════════════════════ */
-let spotToken = null;
-let spotPlayer = null;
+let spotToken    = null;
+let spotPlayer   = null;
 let spotDeviceId = null;
-let spotPlaying = false;
-let spotShuffle = false;
-let spotRepeat = 'off'; // off / context / track
+let spotPlaying  = false;
+let spotShuffle  = false;
+let spotRepeat   = 'off';
 let seekUpdateIv = null;
-let ambientIv = null;
+let ambientIv    = null;
 
-function spotLogin() {
-  const url = 'https://accounts.spotify.com/authorize'
-    + '?response_type=token'
-    + '&client_id=' + encodeURIComponent(SPOTIFY_CLIENT_ID)
-    + '&scope=' + encodeURIComponent(SPOTIFY_SCOPES)
-    + '&redirect_uri=' + encodeURIComponent(SPOTIFY_REDIRECT)
-    + '&show_dialog=false';
-  window.location.href = url;
+/* ── PKCE helpers ── */
+function _genRandom(len) {
+  const a = new Uint8Array(len); crypto.getRandomValues(a);
+  return btoa(String.fromCharCode(...a)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+async function _sha256(plain) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(plain));
+  return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+
+async function spotLogin() {
+  const verifier  = _genRandom(64);
+  const challenge = await _sha256(verifier);
+  sessionStorage.setItem('pkce_v', verifier);
+  window.location.href = 'https://accounts.spotify.com/authorize'
+    + '?response_type=code'
+    + '&client_id='            + encodeURIComponent(SPOTIFY_CLIENT_ID)
+    + '&scope='                + encodeURIComponent(SPOTIFY_SCOPES)
+    + '&redirect_uri='         + encodeURIComponent(SPOTIFY_REDIRECT)
+    + '&code_challenge_method=S256'
+    + '&code_challenge='       + challenge;
+}
+
+async function _exchangeCode(code) {
+  const v = sessionStorage.getItem('pkce_v'); if (!v) return null;
+  const r = await fetch('https://accounts.spotify.com/api/token', {
+    method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body: new URLSearchParams({ grant_type:'authorization_code', code, redirect_uri:SPOTIFY_REDIRECT, client_id:SPOTIFY_CLIENT_ID, code_verifier:v })
+  });
+  sessionStorage.removeItem('pkce_v');
+  return r.ok ? r.json() : null;
+}
+
+async function _refreshToken() {
+  const rt = sessionStorage.getItem('spot_refresh'); if (!rt) return null;
+  const r = await fetch('https://accounts.spotify.com/api/token', {
+    method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body: new URLSearchParams({ grant_type:'refresh_token', refresh_token:rt, client_id:SPOTIFY_CLIENT_ID })
+  });
+  if (!r.ok) return null;
+  const d = await r.json(); _storeTokens(d); return d.access_token;
+}
+
+function _storeTokens(d) {
+  spotToken = d.access_token;
+  sessionStorage.setItem('spot_token', d.access_token);
+  sessionStorage.setItem('spot_expiry', Date.now() + d.expires_in * 1000);
+  if (d.refresh_token) sessionStorage.setItem('spot_refresh', d.refresh_token);
+}
+
+async function getValidToken() {
+  const exp = parseInt(sessionStorage.getItem('spot_expiry')||'0');
+  if (spotToken && Date.now() < exp - 30000) return spotToken;
+  return _refreshToken();
 }
 
 function spotLogout() {
   spotToken = null;
-  sessionStorage.removeItem('spot_token');
-  sessionStorage.removeItem('spot_expiry');
+  ['spot_token','spot_expiry','spot_refresh','pkce_v'].forEach(k=>sessionStorage.removeItem(k));
   if (spotPlayer) { spotPlayer.disconnect(); spotPlayer = null; }
-  clearInterval(seekUpdateIv);
-  showLoginView();
-  sfxTap();
+  clearInterval(seekUpdateIv); seekUpdateIv = null;
+  showLoginView(); sfxTap();
 }
 
-function getToken() {
-  // Check URL hash first (redirect back from Spotify)
-  const hash = window.location.hash.substring(1);
-  if (hash) {
-    const params = new URLSearchParams(hash);
-    const token = params.get('access_token');
-    const expiresIn = parseInt(params.get('expires_in') || '3600');
-    if (token) {
-      spotToken = token;
-      sessionStorage.setItem('spot_token', token);
-      sessionStorage.setItem('spot_expiry', Date.now() + expiresIn * 1000);
-      // Clean the URL
-      history.replaceState(null, '', window.location.pathname);
-      return token;
-    }
+async function getToken() {
+  // Handle redirect back from Spotify (?code=...)
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) {
+    history.replaceState(null, '', window.location.pathname);
+    const data = await _exchangeCode(code);
+    if (data?.access_token) { _storeTokens(data); return data.access_token; }
+    return null;
   }
-  // Check session storage
-  const stored = sessionStorage.getItem('spot_token');
-  const expiry = parseInt(sessionStorage.getItem('spot_expiry') || '0');
-  if (stored && Date.now() < expiry) {
-    spotToken = stored;
-    return stored;
-  }
+  // Restore from session
+  if (sessionStorage.getItem('spot_token')) return getValidToken();
   return null;
 }
 
@@ -600,10 +632,12 @@ function getToken() {
    SPOTIFY API CALLS
 ══════════════════════════ */
 async function spotAPI(path, method = 'GET', body = null) {
-  if (!spotToken) return null;
+  const token = await getValidToken();
+  if (!token) return null;
+  spotToken = token;
   const opts = {
     method,
-    headers: { 'Authorization': 'Bearer ' + spotToken, 'Content-Type': 'application/json' }
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
   };
   if (body) opts.body = JSON.stringify(body);
   try {
@@ -812,7 +846,7 @@ window.onSpotifyWebPlaybackSDKReady = () => {
   if (!spotToken) return;
   spotPlayer = new Spotify.Player({
     name: 'My Workout App',
-    getOAuthToken: cb => cb(spotToken),
+    getOAuthToken: async cb => { const t = await getValidToken(); cb(t || ''); },
     volume: 0.5
   });
 
@@ -1004,7 +1038,7 @@ function updateHomeProgress(){
 }
 
 /* INIT */
-window.addEventListener('load',()=>{
+window.addEventListener('load', async () => {
   buildTimeline();
   updateHomeProgress();
   updatePersistBar();
@@ -1013,8 +1047,9 @@ window.addEventListener('load',()=>{
     setTimeout(()=>el.classList.add('visible'),80+i*70);
   });
   // Handle Spotify auth
-  const token = getToken();
+  const token = await getToken();
   if (token) {
+    spotToken = token;
     showPlayerView();
   } else {
     showLoginView();
