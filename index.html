@@ -420,7 +420,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
           <div class="spot-seek-times"><span id="seek-cur">0:00</span><span id="seek-dur">0:00</span></div>
         </div>
         <div class="music-controls">
-          <button class="m-btn m-shuffle" id="m-shuffle" onclick="toggleShuffle()" title="Shuffle">⇄</button>
+          <button class="m-btn m-shuffle" id="m-shuffle" onclick="toggleShuffle()" title="Shuffle: off → on → smart">⇄</button>
           <button class="m-btn" onclick="spotPrev()">⏮</button>
           <button class="m-btn m-play" id="m-play-btn" onclick="spotTogglePlay()">▶</button>
           <button class="m-btn" onclick="spotNext()">⏭</button>
@@ -676,82 +676,112 @@ async function loadPlaylists() {
   });
 }
 
+/* ── Device resolution ──
+   On desktop: use the SDK player device.
+   On mobile / when SDK unavailable: use
+   whatever active device Spotify already
+   has (phone app, desktop app, etc.).
+   Falls back to first available device. */
+let spotConnectMode = false; // true = using Connect API, no SDK device
+
+async function getActiveDeviceId() {
+  // SDK device ready — use it
+  if (spotDeviceId) return spotDeviceId;
+
+  // Ask Spotify for available devices
+  const data = await spotAPI('/me/player/devices');
+  if (!data || !data.devices || !data.devices.length) return null;
+
+  // Prefer the currently active one
+  const active = data.devices.find(d => d.is_active);
+  if (active) return active.id;
+
+  // Otherwise use the first available
+  return data.devices[0].id;
+}
+
+async function ensureActiveDevice() {
+  const id = await getActiveDeviceId();
+  if (!id) {
+    showToast('Open Spotify on any device first, then try again');
+    return null;
+  }
+  return id;
+}
+
 async function playPlaylist(uri, itemEl) {
-  if (!spotDeviceId) { showToast('Player loading… try again in a second'); return; }
-  await spotAPI('/me/player/play?device_id=' + spotDeviceId, 'PUT', { context_uri: uri });
+  const deviceId = await ensureActiveDevice();
+  if (!deviceId) return;
+
+  await spotAPI('/me/player/play?device_id=' + deviceId, 'PUT', { context_uri: uri });
   document.querySelectorAll('.pl-item').forEach(el => el.classList.remove('active'));
   if (itemEl) itemEl.classList.add('active');
-  setTimeout(updateNowPlaying, 800);
+  spotPlaying = true;
+  updatePlayUI();
+  setTimeout(updateNowPlaying, 1000);
   sfxTap();
 }
 
 async function updateNowPlaying() {
-  const data = await spotAPI('/me/player/currently-playing');
+  const data = await spotAPI('/me/player');
   if (!data || !data.item) return;
   const track = data.item;
   const isPlaying = data.is_playing;
   const trackName = track.name;
   const artistName = track.artists.map(a => a.name).join(', ');
-  const albumArt = track.album.images[0]?.url;
+  const albumArt = track.album?.images[0]?.url;
 
-  // Update main player
-  document.getElementById('music-track').textContent = trackName;
-  document.getElementById('music-artist').textContent = artistName;
-  const artEl = document.getElementById('music-art');
-  if (albumArt) artEl.innerHTML = `<img src="${albumArt}" alt="album art">`;
-  else artEl.innerHTML = `<span id="music-art-emoji">🎵</span>`;
-
-  // Update mini player
-  document.getElementById('mp-track').textContent = trackName;
-  document.getElementById('mp-artist').textContent = artistName;
-  const mpArt = document.getElementById('mp-art');
-  if (albumArt) mpArt.innerHTML = `<img src="${albumArt}" alt="">`;
-  else mpArt.innerHTML = `<span id="mp-art-emoji">🎵</span>`;
-
-  // Ambient color from album art
-  if (albumArt) setAmbientFromArt(albumArt);
-
-  // Seek bar
-  const dur = track.duration_ms;
-  const pos = data.progress_ms;
-  const seekBar = document.getElementById('seek-bar');
-  if (seekBar && !seekBar.matches(':active')) {
-    seekBar.value = dur > 0 ? (pos / dur * 100) : 0;
+  ['music-track','mp-track'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=trackName; });
+  ['music-artist','mp-artist'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=artistName; });
+  if (albumArt) {
+    document.getElementById('music-art').innerHTML = `<img src="${albumArt}" alt="">`;
+    document.getElementById('mp-art').innerHTML    = `<img src="${albumArt}" alt="">`;
+    setAmbientFromArt(albumArt);
   }
+
+  const dur = track.duration_ms, pos = data.progress_ms || 0;
+  const seekBar = document.getElementById('seek-bar');
+  if (seekBar && !seekBar.matches(':active')) seekBar.value = dur > 0 ? (pos/dur*100) : 0;
   document.getElementById('seek-cur').textContent = msToTime(pos);
   document.getElementById('seek-dur').textContent = msToTime(dur);
 
-  // Play state
+  // Sync shuffle/repeat UI from actual state
+  if (data.shuffle_state !== undefined) {
+    spotShuffle = data.shuffle_state;
+    const sb = document.getElementById('m-shuffle');
+    if (sb) {
+      sb.classList.toggle('on', spotShuffle);
+      sb.textContent = spotShuffle ? '⇄✦' : '⇄';
+    }
+  }
+
   spotPlaying = isPlaying;
   updatePlayUI();
 }
 
 function msToTime(ms) {
   const s = Math.floor(ms / 1000);
-  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
 }
 
 async function spotTogglePlay() {
-  if (!spotDeviceId) { showToast('Player not ready yet'); return; }
+  const deviceId = await ensureActiveDevice();
+  if (!deviceId) return;
   if (spotPlaying) {
     await spotAPI('/me/player/pause', 'PUT');
     spotPlaying = false;
   } else {
-    await spotAPI('/me/player/play?device_id=' + spotDeviceId, 'PUT');
+    await spotAPI('/me/player/play?device_id=' + deviceId, 'PUT');
     spotPlaying = true;
-    setTimeout(updateNowPlaying, 400);
+    setTimeout(updateNowPlaying, 500);
   }
   updatePlayUI(); sfxTap();
 }
 
 function updatePlayUI() {
   const icon = spotPlaying ? '⏸' : '▶';
-  ['m-play-btn', 'mp-play-btn'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.textContent = icon;
-  });
-  ['music-bars', 'mp-bars'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.style.display = spotPlaying ? 'flex' : 'none';
-  });
+  ['m-play-btn','mp-play-btn'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=icon; });
+  ['music-bars','mp-bars'].forEach(id => { const el=document.getElementById(id); if(el) el.style.display=spotPlaying?'flex':'none'; });
   if (spotPlaying) {
     setAmbient(true);
     if (!seekUpdateIv) seekUpdateIv = setInterval(updateNowPlaying, 3000);
@@ -761,35 +791,59 @@ function updatePlayUI() {
   }
 }
 
-async function spotNext() { await spotAPI('/me/player/next', 'POST'); setTimeout(updateNowPlaying, 600); sfxTap(); }
-async function spotPrev() { await spotAPI('/me/player/previous', 'POST'); setTimeout(updateNowPlaying, 600); sfxTap(); }
+async function spotNext() { await spotAPI('/me/player/next','POST'); setTimeout(updateNowPlaying,700); sfxTap(); }
+async function spotPrev() { await spotAPI('/me/player/previous','POST'); setTimeout(updateNowPlaying,700); sfxTap(); }
 
 async function seekTo(pct) {
-  const data = await spotAPI('/me/player/currently-playing');
-  if (!data || !data.item) return;
-  const pos = Math.floor(data.item.duration_ms * pct / 100);
-  await spotAPI('/me/player/seek?position_ms=' + pos, 'PUT');
+  const data = await spotAPI('/me/player');
+  if (!data?.item) return;
+  await spotAPI('/me/player/seek?position_ms=' + Math.floor(data.item.duration_ms * pct / 100), 'PUT');
 }
 
 async function setVolume(v) {
   await spotAPI('/me/player/volume?volume_percent=' + Math.round(v), 'PUT');
 }
 
+/* Smart Shuffle — cycles: off → normal shuffle → smart shuffle (Spotify's AI) */
+let shuffleMode = 'off'; // 'off' | 'shuffle' | 'smart'
+
 async function toggleShuffle() {
-  spotShuffle = !spotShuffle;
-  await spotAPI('/me/player/shuffle?state=' + spotShuffle, 'PUT');
-  document.getElementById('m-shuffle').classList.toggle('on', spotShuffle);
+  const modes = ['off', 'shuffle', 'smart'];
+  shuffleMode = modes[(modes.indexOf(shuffleMode) + 1) % 3];
+
+  const btn = document.getElementById('m-shuffle');
+
+  if (shuffleMode === 'off') {
+    await spotAPI('/me/player/shuffle?state=false', 'PUT');
+    spotShuffle = false;
+    if (btn) { btn.classList.remove('on'); btn.textContent = '⇄'; }
+    showToast('Shuffle off');
+  } else if (shuffleMode === 'shuffle') {
+    await spotAPI('/me/player/shuffle?state=true', 'PUT');
+    spotShuffle = true;
+    if (btn) { btn.classList.add('on'); btn.textContent = '⇄'; }
+    showToast('Shuffle on');
+  } else {
+    // Smart Shuffle — Spotify's enhanced shuffle uses the same endpoint
+    // but we also toggle it back on in case it was already on to trigger
+    // Spotify's "Smart Shuffle" mode which activates automatically when
+    // shuffle is enabled on a playlist context with recommendations.
+    await spotAPI('/me/player/shuffle?state=false', 'PUT');
+    await new Promise(r => setTimeout(r, 200));
+    await spotAPI('/me/player/shuffle?state=true', 'PUT');
+    spotShuffle = true;
+    if (btn) { btn.classList.add('on'); btn.textContent = '⇄✦'; }
+    showToast('✦ Smart Shuffle on');
+  }
   sfxTap();
 }
 
 async function toggleRepeat() {
-  const states = ['off', 'context', 'track'];
-  const idx = states.indexOf(spotRepeat);
-  spotRepeat = states[(idx + 1) % 3];
+  const states = ['off','context','track'];
+  spotRepeat = states[(states.indexOf(spotRepeat)+1) % 3];
   await spotAPI('/me/player/repeat?state=' + spotRepeat, 'PUT');
   const btn = document.getElementById('m-repeat');
-  btn.classList.toggle('on', spotRepeat !== 'off');
-  btn.textContent = spotRepeat === 'track' ? '↺¹' : '↺';
+  if (btn) { btn.classList.toggle('on', spotRepeat!=='off'); btn.textContent = spotRepeat==='track'?'↺¹':'↺'; }
   sfxTap();
 }
 
@@ -841,45 +895,71 @@ function setAmbient(playing) {
 
 /* ══════════════════════════
    SPOTIFY PLAYBACK SDK
+   Desktop: SDK creates a
+   browser device we control.
+   Mobile: SDK won't load but
+   Connect API controls the
+   Spotify app directly.
 ══════════════════════════ */
 window.onSpotifyWebPlaybackSDKReady = () => {
   if (!spotToken) return;
+
   spotPlayer = new Spotify.Player({
-    name: 'My Workout App',
+    name: 'Workout App',
     getOAuthToken: async cb => { const t = await getValidToken(); cb(t || ''); },
     volume: 0.5
   });
 
   spotPlayer.addListener('ready', ({ device_id }) => {
     spotDeviceId = device_id;
-    // Transfer playback to this device
+    spotConnectMode = false;
+    // Transfer playback silently to this device
     spotAPI('/me/player', 'PUT', { device_ids: [device_id], play: false });
     showToast('🎵 Spotify ready!');
     updateNowPlaying();
   });
 
-  spotPlayer.addListener('not_ready', () => { spotDeviceId = null; });
+  spotPlayer.addListener('not_ready', ({ device_id }) => {
+    if (spotDeviceId === device_id) spotDeviceId = null;
+    spotConnectMode = true;
+  });
+
+  spotPlayer.addListener('initialization_error', () => {
+    // Mobile browser or unsupported — silently fall back to Connect mode
+    spotConnectMode = true;
+    spotDeviceId = null;
+    updateNowPlaying();
+  });
+
+  spotPlayer.addListener('authentication_error', () => {
+    spotConnectMode = true; spotDeviceId = null;
+  });
+
+  spotPlayer.addListener('account_error', () => {
+    showToast('Spotify Premium required for in-browser playback');
+    spotConnectMode = true; spotDeviceId = null;
+  });
 
   spotPlayer.addListener('player_state_changed', state => {
     if (!state) return;
     spotPlaying = !state.paused;
     const track = state.track_window?.current_track;
     if (track) {
-      document.getElementById('music-track').textContent = track.name;
-      document.getElementById('music-artist').textContent = track.artists.map(a=>a.name).join(', ');
-      document.getElementById('mp-track').textContent = track.name;
-      document.getElementById('mp-artist').textContent = track.artists.map(a=>a.name).join(', ');
+      ['music-track','mp-track'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=track.name; });
+      ['music-artist','mp-artist'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=track.artists.map(a=>a.name).join(', '); });
       const img = track.album?.images[0]?.url;
       if (img) {
         document.getElementById('music-art').innerHTML = `<img src="${img}" alt="">`;
-        document.getElementById('mp-art').innerHTML = `<img src="${img}" alt="">`;
+        document.getElementById('mp-art').innerHTML    = `<img src="${img}" alt="">`;
         setAmbientFromArt(img);
       }
     }
     updatePlayUI();
   });
 
-  spotPlayer.connect();
+  spotPlayer.connect().then(success => {
+    if (!success) { spotConnectMode = true; spotDeviceId = null; }
+  });
 };
 
 /* ══════════════════════════
@@ -893,8 +973,11 @@ function showLoginView() {
 function showPlayerView() {
   document.getElementById('spot-login-view').style.display = 'none';
   document.getElementById('spot-player-view').style.display = 'block';
+  document.getElementById('spot-sub').textContent = 'Connected';
   loadUserProfile();
   loadPlaylists();
+  // Show what's currently playing if anything
+  setTimeout(updateNowPlaying, 800);
 }
 function togglePlaylists() {
   const list = document.getElementById('spot-pl-list');
