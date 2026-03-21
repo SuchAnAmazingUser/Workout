@@ -39,16 +39,16 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .pb-timer.done{border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.08);}
 .pb-timer.done .pb-timer-val{color:var(--main);}
 
-/* NEW STATUS GROUP (Clock & Battery) */
+/* STATUS GROUP — battery hidden until API confirms */
 .pb-status-group{display:flex;align-items:center;gap:12px;margin-right:4px;}
 .pb-clock{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--text);letter-spacing:1px;}
-.pb-battery{display:flex;align-items:center;gap:6px;font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--text2);}
+.pb-battery{display:none;align-items:center;gap:6px;font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--text2);}
+.pb-battery.active{display:flex;}
 .bat-shell{width:22px;height:11px;border:1px solid var(--muted);border-radius:2px;position:relative;padding:1px;display:flex;}
 .bat-level{height:100%;width:100%;background:var(--main);border-radius:1px;transition:width 0.4s ease, background 0.4s ease;}
 .bat-shell::after{content:'';position:absolute;right:-3px;top:2.5px;width:2px;height:4px;background:var(--muted);border-radius:0 1px 1px 0;}
 .bat-shell.charging{animation:batPulse 1.5s infinite;border-color:var(--main);}
 .bat-shell.charging::before{content:'⚡';position:absolute;font-size:8px;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;color:#fff;text-shadow:0 0 2px #000;}
-
 @keyframes batPulse{0%,100%{opacity:1}50%{opacity:0.6;box-shadow:0 0 8px var(--main);}}
 
 /* SCREENS */
@@ -70,6 +70,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 @keyframes orbFloat{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
 @keyframes todayPulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.3);opacity:0}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes swipeOutLeft{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-28px)}}
+@keyframes swipeOutRight{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(28px)}}
+@keyframes swipeInLeft{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes swipeInRight{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
 
 /* HERO */
 .hero{background:linear-gradient(155deg,#141422 0%,#0d0d0f 60%);padding:24px 24px 40px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
@@ -195,6 +199,18 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .done-btn.checked{background:color-mix(in srgb,var(--accent) 20%,transparent);border-color:color-mix(in srgb,var(--accent) 38%,transparent);}
 .done-btn.pulse{animation:donePulse .5s ease;}
 
+/* SUBSTITUTE BAR */
+.sub-bar{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);}
+.sub-arrow{width:32px;height:32px;border-radius:9px;background:var(--pill);border:1px solid var(--border);color:var(--text2);font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s,transform .15s var(--spring),color .15s;flex-shrink:0;}
+.sub-arrow:hover:not(:disabled){background:var(--border);border-color:var(--border2);color:var(--text);}
+.sub-arrow:active:not(:disabled){transform:scale(.88);}
+.sub-arrow:disabled{opacity:.25;cursor:default;}
+.sub-center{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:0;padding:0 8px;}
+.sub-dots{display:flex;gap:5px;align-items:center;}
+.sub-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);transition:background .2s,transform .2s var(--spring);}
+.sub-dot.active{background:var(--accent);transform:scale(1.3);}
+.sub-hint{font-size:10px;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;}
+
 /* TIMER */
 .timer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(5px);}
 .timer-overlay.open{display:flex;animation:fadeIn .2s ease;}
@@ -253,12 +269,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div class="pb-date-main" id="pb-date-main"></div>
     <div class="pb-row2">
       <span class="pb-block" id="pb-block">Loading…</span>
-      <span class="pb-ver" id="pb-ver">v7.1.0</span>
+      <span class="pb-ver" id="pb-ver">v8.0.0</span>
     </div>
   </div>
   
   <div class="pb-status-group">
     <div class="pb-clock" id="pb-clock">00:00</div>
+    <!-- Battery hidden by default; JS shows it only if Battery API works -->
     <div class="pb-battery" id="pb-battery">
       <div class="bat-shell" id="bat-shell">
         <div class="bat-level" id="bat-level"></div>
@@ -293,9 +310,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     </div>
     <div class="phase-card" style="--c:var(--main)" onclick="openPhase('main')">
       <div class="phase-icon">💪</div>
-      <div class="phase-info"><div class="phase-title">Main Workout</div><div class="phase-sub">3 rounds · 11 exercises · 30 min</div>
+      <div class="phase-info"><div class="phase-title">Main Workout</div><div class="phase-sub">3 rounds · 12 exercises · 30 min</div>
         <div class="phase-prog-wrap"><div class="phase-prog-row"><span class="phase-prog-label">Progress</span><span class="phase-prog-pct" id="home-pct-main">0%</span></div><div class="phase-prog-track"><div class="phase-prog-fill" id="home-bar-main" style="width:0%"></div></div></div>
-      </div><div class="phase-badge">11 moves</div><div class="chev">›</div>
+      </div><div class="phase-badge">12 moves</div><div class="chev">›</div>
     </div>
     <div class="phase-card" style="--c:var(--cool)" onclick="openPhase('cool')">
       <div class="phase-icon">❄️</div>
@@ -381,6 +398,7 @@ let _ctx;
 function ac(){if(!_ctx)_ctx=new(window.AudioContext||window.webkitAudioContext)();if(_ctx.state==='suspended')_ctx.resume();return _ctx;}
 function tone(f,t='sine',d=.08,v=.13){try{const c=ac(),g=c.createGain(),o=c.createOscillator();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d);}catch(e){}}
 const sfxTap    =()=>tone(520,'sine',.055,.1);
+const sfxSwap   =()=>{tone(480,'sine',.04,.08);setTimeout(()=>tone(620,'sine',.04,.08),55);};
 const sfxDone   =()=>{tone(600,'sine',.07,.12);setTimeout(()=>tone(900,'sine',.09,.1),80);};
 const sfxUndo   =()=>tone(360,'sine',.06,.07);
 const sfxFinish =()=>[440,554,659,880].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.18,.14),i*85));
@@ -441,109 +459,237 @@ async function fetchVersion() {
         return;
       }
     }
-  } catch(e) { /* silently fail, hardcoded fallback stays */ }
+  } catch(e) { /* silently fail */ }
 }
 
 /* ══════════════════════════
-   PERSIST BAR & BATTERY SYNC
+   PERSIST BAR & BATTERY
 ══════════════════════════ */
 function updatePersistBar(){
   const now=new Date();
   const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  
-  const dateEl = document.getElementById('pb-date-main');
-  if (dateEl) dateEl.textContent=`${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
-  
-  const clockEl = document.getElementById('pb-clock');
-  if (clockEl) clockEl.textContent = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-
+  const dateEl=document.getElementById('pb-date-main');
+  if(dateEl)dateEl.textContent=`${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+  const clockEl=document.getElementById('pb-clock');
+  if(clockEl)clockEl.textContent=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
   const block=getCurrentBlock(),el=document.getElementById('pb-block');
   if(block){el.textContent='Now: '+block.label;el.className='pb-block active-block';}
   else{el.textContent='No active block';el.className='pb-block';}
 }
 
-function updateBatteryUI(bat) {
-  const level = bat.level * 100;
-  const pctEl = document.getElementById('bat-pct');
-  const fillEl = document.getElementById('bat-level');
-  const shellEl = document.getElementById('bat-shell');
-
-  if (pctEl) pctEl.textContent = Math.round(level) + '%';
-  if (fillEl) {
-    fillEl.style.width = level + '%';
-    if (level <= 20) fillEl.style.background = '#f87171';
-    else if (level <= 50) fillEl.style.background = 'var(--warm)';
-    else fillEl.style.background = 'var(--main)';
+function updateBatteryUI(bat){
+  const level=bat.level*100;
+  const pctEl=document.getElementById('bat-pct');
+  const fillEl=document.getElementById('bat-level');
+  const shellEl=document.getElementById('bat-shell');
+  if(pctEl)pctEl.textContent=Math.round(level)+'%';
+  if(fillEl){
+    fillEl.style.width=level+'%';
+    if(level<=20)fillEl.style.background='#f87171';
+    else if(level<=50)fillEl.style.background='var(--warm)';
+    else fillEl.style.background='var(--main)';
   }
-  if (shellEl) {
-    if (bat.charging) shellEl.classList.add('charging');
+  if(shellEl){
+    if(bat.charging)shellEl.classList.add('charging');
     else shellEl.classList.remove('charging');
   }
 }
 
-function initBattery() {
-  if (navigator.getBattery) {
-    navigator.getBattery().then(bat => {
-      // Immediate update on first fetch
-      updateBatteryUI(bat);
-      // Listen for updates
-      bat.onlevelchange = () => updateBatteryUI(bat);
-      bat.onchargingchange = () => updateBatteryUI(bat);
-    }).catch(e => {
-        const pctEl = document.getElementById('bat-pct');
-        if (pctEl) pctEl.textContent = "n/a";
-    });
-  } else {
-    const pctEl = document.getElementById('bat-pct');
-    if (pctEl) pctEl.textContent = "n/a";
-  }
+function initBattery(){
+  /* Battery API is unsupported on iOS Safari and deprecated in Firefox.
+     We hide the widget entirely unless the API is present AND returns a real level. */
+  if(typeof navigator.getBattery !== 'function') return;
+  navigator.getBattery().then(bat => {
+    if(typeof bat.level !== 'number') return; // guard against non-standard responses
+    // API works — show the widget and do an initial update
+    const widget = document.getElementById('pb-battery');
+    if(widget) widget.classList.add('active');
+    updateBatteryUI(bat);
+    bat.addEventListener('levelchange', () => updateBatteryUI(bat));
+    bat.addEventListener('chargingchange', () => updateBatteryUI(bat));
+  }).catch(() => { /* silently suppress — widget stays hidden */ });
 }
 
 /* ══════════════════════════
    WORKOUT DATA
+   Each slot has an `alts` array.
+   alts[0] is the default shown first.
 ══════════════════════════ */
 const phases={
-  warmup:{title:'Warm-Up',sub:'8–10 min · No rest — keep moving',accent:'var(--warm)',exercises:[
-    {name:'Marching in Place',ids:['b_6UPkuv0cI'],stat:'60 sec',why:'Raises heart rate and activates hip flexors.',desc:'Drive knees up alternately while pumping arms. Stand tall, brace core, land softly.'},
-    {name:'Arm Circles',ids:['wud3idMnESY'],stat:'30 sec each direction',why:'Mobilises shoulder joints and warms the rotator cuff.',desc:'Arms straight out. Start small then widen. Shoulders stay down. Switch direction halfway.'},
-    {name:'Hip Circles',ids:['6yyVV7OJwwE'],stat:'30 sec each direction',why:'Lubricates hip joints and activates glutes.',desc:'Feet shoulder-width, hands on hips. Draw large slow circles. Upper body stays still.'},
-    {name:'Leg Swings',ids:['difYoBtZi2s'],stat:'10 reps each leg',why:'Dynamically stretches hamstrings and adductors.',desc:'Hold a wall. Swing one leg forward and back in a controlled arc.'},
-    {name:'Inchworms',ids:['08zdJar_3sI'],stat:'6 reps',why:'Activates the full posterior chain, core and shoulders.',desc:'Hinge forward, walk hands to a plank. Pause, then walk feet back to hands and stand.'},
-    {name:"World's Greatest Stretch",ids:['T6j7BpxeqqU'],stat:'3 reps per side',why:'Opens hip flexors, thoracic spine and groin in one move.',desc:'Deep lunge, same-side hand beside front foot, rotate top arm toward ceiling. Hold 2 sec.'},
-    {name:'Jumping Jacks',ids:['c4DAnQ6DtF8'],stat:'60 sec',why:'Full-body cardio activation that raises core temperature.',desc:'Jump feet wide as arms go overhead, then return. Stay light on feet.'},
-  ]},
-  main:{title:'Main Workout',sub:'3 rounds · 30–45 sec rest between exercises · 90 sec between rounds',accent:'var(--main)',
-    blocks:[{label:'🔵 BLOCK A — LOWER BODY & GLUTES',start:0,end:2},{label:'🔴 BLOCK B — PUSH & UPPER BODY',start:3,end:5},{label:'🟢 BLOCK C — CORE & STABILITY',start:6,end:8},{label:'🟡 BLOCK D — FULL BODY & CARDIO',start:9,end:11}],
+  warmup:{title:'Warm-Up',sub:'8–10 min · No rest — keep moving',accent:'var(--warm)',
     exercises:[
-      {name:'Bodyweight Squats',ids:['m0GcZ24pK6k'],stat:'3 × 15 reps',rest:'30–45 sec',why:'Most efficient lower-body compound.',desc:'Feet shoulder-width, toes slightly out. Hips back and down. Chest up, knees track toes. Squeeze glutes at top.',mod:'Squat to a chair.'},
-      {name:'Reverse Lunges',ids:['Fzva5HohZBk'],stat:'3 × 10 reps/leg',rest:'30–45 sec',why:'Glute-dominant lunge with less knee stress.',desc:'Step back, lower rear knee toward floor. Front shin vertical. Push through front heel.',mod:'Hold a wall for balance.'},
-      {name:'Glute Bridges',ids:['vOvRFsGMMqo'],stat:'3 × 15 reps',rest:'30–45 sec',why:'Highest glute activation of any bodyweight move.',desc:'Lie on back, knees bent. Press through heels, drive hips up. Squeeze hard at top for 1 sec.',mod:'Reduce range, focus on top squeeze.'},
-      {name:'Push-Ups',ids:['cYwhWlV3g-0'],stat:'3 × 10–12 reps',rest:'30–45 sec',why:'Compound upper-body — chest, shoulders, triceps and core.',desc:'Hands slightly wider than shoulder-width, rigid plank. Lower chest to floor, elbows at 45°.',mod:'Drop to knees.'},
-      {name:'Pike Push-Ups',ids:['DG-NcMnfZ_0'],stat:'3 × 8 reps',rest:'30–45 sec',why:'Shifts load to shoulders — builds pressing strength without weights.',desc:'Hips high in a downward-dog. Bend elbows to lower head toward floor, then press back up.',mod:'Lower hip height.'},
-      {name:'Tricep Dips',ids:['GP1XD3PbOE4'],stat:'3 × 10 reps',rest:'30–45 sec',why:'Directly isolates triceps using just a chair.',desc:'Grip edge of chair, slide off. Lower by bending elbows to 90°, pointing straight back.',mod:'Bend knees, feet closer.'},
-      {name:'Plank',ids:['A2b2EmIg0dA'],stat:'3 × 30–40 sec',rest:'30–45 sec',why:'Deep core activation — foundation of all movement.',desc:'Forearms down, body one straight line. Pull belly up, clench glutes, press heels back.',mod:'Drop to forearms and knees.'},
-      {name:'Mountain Climbers',ids:['kLh-uczlPLg'],stat:'3 × 20 reps (10/side)',rest:'30–45 sec',why:'Combines core stability and cardiovascular demand.',desc:'High plank. Drive one knee toward chest then quickly switch. Hips level, core braced.',mod:'Slow to a deliberate step.'},
-      {name:'Dead Bug',ids:['QXKBsQt9eZU'],stat:'3 × 8 reps/side',rest:'30–45 sec',why:'Trains core to resist extension — most protective of lower back.',desc:'Lie on back, arms up, knees at 90°. Slowly lower right arm and extend left leg. Back stays flat.',mod:'Extend only the arm to start.'},
-      {name:'Burpees',ids:['G2hv_NYhM-A'],stat:'3 × 8 reps',rest:'30–45 sec',why:'Highest calorie-burn bodyweight move — power and endurance.',desc:'Squat, plant hands, jump back to plank, push-up optional, jump forward, stand and jump overhead.',mod:'Step back one at a time, skip the jump.'},
-      {name:'Squat Jumps',ids:['CVaEhXotL7M'],stat:'3 × 10 reps',rest:'30–45 sec',why:'Plyometric move that recruits fast-twitch fibers.',desc:'Squat then explode upward. Land softly with bent knees. Feet hip-width.',mod:'Slow squat with 3-sec hold.'},
-      {name:'Bird Dog',ids:['wiFNA3sqjCA'],stat:'3 × 8 reps/side',rest:'30–45 sec',why:'Core stability and lower back health.',desc:'On all fours, extend opposite arm and leg simultaneously. Maintain a level back.'},
-    ]},
-  cool:{title:'Cool-Down',sub:'Hold 30–45 sec per side · Breathe deeply',accent:'var(--cool)',exercises:[
-    {name:'Standing Quad Stretch',ids:['kHSTR4XHBWQ'],stat:'30–45 sec/side',why:'Releases quads and hip flexors.',desc:'Stand on one leg, pull opposite heel toward glute. Push hip slightly forward.'},
-    {name:'Figure-4 Hip Stretch',ids:['VNG_TA7n7lI'],stat:'30–45 sec/side',why:'Releases glutes and piriformis.',desc:'Cross ankle over knee forming a figure-4. Pull thigh toward chest.'},
-    {name:'Supine Hamstring Stretch',ids:['UGEPaFmCo44'],stat:'30–45 sec/side',why:'Lengthens hamstrings after lower-body loading.',desc:'Extend one leg toward ceiling, hold behind thigh. Flex foot to deepen.'},
-    {name:"Child's Pose",ids:['eqVMAPM00Yw'],stat:'45 sec',why:'Decompresses lower back and stretches lats.',desc:'Kneel, sit back toward heels, arms reaching long. Breathe into your lower back.'},
-    {name:'Chest Opener Stretch',ids:['P-sjEOzJFxg'],stat:'30–45 sec/side',why:'Opens chest and front shoulder after pushing.',desc:'Forearm on a wall at 90°. Slowly rotate body away.'},
-    {name:'Seated Thoracic Twist',ids:['P_VplmUrPCY'],stat:'30–45 sec/side',why:'Restores thoracic rotation.',desc:'Sit with legs extended. Bend one knee, rotate torso toward it. Sit tall.'},
-    {name:'90/90 Hip Stretch',ids:['6-9fgYGlEJM'],stat:'30–45 sec/side',why:'Opens hip flexors, glutes and adductors.',desc:'Both legs at 90°. Sit tall. Windshield-wiper to switch sides.'},
-  ]},
-  finisher:{title:'⚡ Optional Finisher',sub:'Only add this if you felt great today',accent:'var(--warm)',exercises:[
-    {name:'Tabata Mountain Climbers',ids:['kLh-uczlPLg'],stat:'4 × 20 sec on / 10 sec off',why:'Research-backed HIIT — spikes VO₂ max and calorie burn.',desc:'20 sec max-effort mountain climbers, 10 sec rest — 4 rounds. Use the ⏱ timer set to 20 sec.',mod:'Skip if your form dropped during the main workout.'},
-  ]}
+      {alts:[
+        {name:'Marching in Place',ids:['b_6UPkuv0cI'],stat:'60 sec',why:'Raises heart rate and wakes up hip flexors.',desc:'Drive knees up alternately while pumping arms. Stand tall, brace core, land softly.'},
+        {name:'High Knees',ids:['D0TeaEBEYLU'],stat:'60 sec',why:'Cardio activation with stronger hip flexor engagement.',desc:'Run on the spot driving knees toward your chest. Pump arms in sync, stay on the balls of your feet.'},
+        {name:'Butt Kicks',ids:['7f1-YSgJioc'],stat:'60 sec',why:'Activates hamstrings and keeps heart rate up.',desc:'Jog on the spot, kicking heels up toward your glutes. Keep torso upright.'},
+      ]},
+      {alts:[
+        {name:'Arm Circles',ids:['wud3idMnESY'],stat:'30 sec each direction',why:'Mobilises shoulder joints and warms the rotator cuff.',desc:'Arms straight out. Start small then widen. Shoulders stay down. Switch direction halfway.'},
+        {name:'Shoulder Rolls',ids:['_GOgZaB1Yss'],stat:'30 sec forward / 30 sec back',why:'Releases upper trapezius and prepares shoulder girdle.',desc:'Big slow rolls forward, then reverse. Let arms hang loose. Feel the shoulder blades moving.'},
+        {name:'Chest Swings',ids:['8GpRCf_KQJI'],stat:'20 reps',why:'Opens pec minor and front shoulder before pushing work.',desc:'Swing both arms wide to the sides then cross them in front, alternating which arm is on top each time.'},
+      ]},
+      {alts:[
+        {name:'Hip Circles',ids:['6yyVV7OJwwE'],stat:'30 sec each direction',why:'Lubricates hip joints and activates glutes.',desc:'Feet shoulder-width, hands on hips. Draw large slow circles. Upper body stays still.'},
+        {name:'Hip Hinges',ids:['YaXPRqUwItQ'],stat:'10 reps',why:'Activates posterior chain and teaches the hinge pattern.',desc:'Feet hip-width, soft knees. Push hips back as torso tips forward. Feel hamstrings load, then drive hips forward to stand.'},
+        {name:'Standing Side Bends',ids:['z8KpWBQ9YIs'],stat:'10 reps each side',why:'Mobilises the lateral spine and obliques.',desc:'Feet shoulder-width, arm overhead. Bend slowly to one side until you feel a lateral stretch, return. Alternate sides.'},
+      ]},
+      {alts:[
+        {name:'Leg Swings',ids:['difYoBtZi2s'],stat:'10 reps each leg',why:'Dynamically stretches hamstrings and adductors.',desc:'Hold a wall. Swing one leg forward and back in a controlled arc.'},
+        {name:'Standing Knee Hugs',ids:['ZT7kf1FwK4U'],stat:'10 reps each leg',why:'Stretches glutes and primes balance.',desc:'Lift one knee to chest, hug with both hands. Hold 1 sec. Alternate legs while walking in place.'},
+        {name:'Ankle Rolls',ids:['rtzGOJpxWxE'],stat:'10 reps each foot',why:'Mobilises ankle joints and prevents lower-leg tightness.',desc:'Lift one foot, trace slow circles with toes — 10 one way, 10 the other. Repeat other foot.'},
+      ]},
+      {alts:[
+        {name:'Inchworms',ids:['08zdJar_3sI'],stat:'6 reps',why:'Activates the full posterior chain, core and shoulders.',desc:'Hinge forward, walk hands to a plank. Pause, then walk feet back to hands and stand.'},
+        {name:'Bear Crawl',ids:['9BoF41w8hoI'],stat:'10 steps forward / 10 back',why:'Full-body coordination, core and shoulder stability.',desc:'On hands and knees, lift knees 2 inches off floor. Move opposite hand and foot together, staying low.'},
+        {name:'Downward Dog Pedals',ids:['L2l5UiLnVJw'],stat:'60 sec',why:'Stretches calves and hamstrings while warming the shoulders.',desc:'Downward dog position. Alternate pressing one heel toward the floor at a time, hold 2 sec each side.'},
+      ]},
+      {alts:[
+        {name:"World's Greatest Stretch",ids:['T6j7BpxeqqU'],stat:'3 reps per side',why:"Opens hip flexors, thoracic spine and groin in one move.",desc:'Deep lunge, same-side hand beside front foot, rotate top arm toward ceiling. Hold 2 sec.'},
+        {name:'Spiderman Lunge',ids:['3OPR9r_FiOs'],stat:'5 reps per side',why:'Combines hip flexor stretch with thoracic rotation.',desc:'Step into a deep lunge, drop same-side elbow to the floor, then rotate and reach that arm to the ceiling.'},
+        {name:'Hip Flexor Rock',ids:['DnKSGBN4m34'],stat:'8 reps per side',why:'Dynamically loosens tight hip flexors and improves lunge depth.',desc:'Half-kneeling lunge. Rock hips forward gently until you feel the front hip stretch. Rock back. Repeat rhythmically.'},
+      ]},
+      {alts:[
+        {name:'Jumping Jacks',ids:['c4DAnQ6DtF8'],stat:'60 sec',why:'Full-body cardio activation that raises core temperature.',desc:'Jump feet wide as arms go overhead, then return. Stay light on feet.'},
+        {name:'Step Jacks',ids:['xCiYkRnXwDo'],stat:'60 sec',why:'Low-impact alternative that still raises heart rate.',desc:'Step one foot out wide as arms go up, bring it back, then alternate feet. Same rhythm as a jumping jack — no jump.'},
+        {name:'Skaters',ids:['Tl8BMmV7ZJU'],stat:'60 sec',why:'Lateral movement pattern that warms hips and improves coordination.',desc:'Leap sideways onto one foot, swinging the other leg behind. Touch hand to foot. Leap the other way.'},
+      ]},
+    ]
+  },
+
+  main:{title:'Main Workout',sub:'3 rounds · 30–45 sec rest between exercises · 90 sec between rounds',accent:'var(--main)',
+    blocks:[
+      {label:'🔵 BLOCK A — LOWER BODY & GLUTES',start:0,end:2},
+      {label:'🔴 BLOCK B — PUSH & UPPER BODY',start:3,end:5},
+      {label:'🟢 BLOCK C — CORE & STABILITY',start:6,end:8},
+      {label:'🟡 BLOCK D — FULL BODY & CARDIO',start:9,end:11}
+    ],
+    exercises:[
+      /* A1 */ {alts:[
+        {name:'Bodyweight Squats',ids:['m0GcZ24pK6k'],stat:'3 × 15 reps',rest:'30–45 sec',why:'Most efficient lower-body compound — quads, glutes, hamstrings.',desc:'Feet shoulder-width, toes slightly out. Hips back and down. Chest up, knees track toes. Squeeze glutes at top.',mod:'Squat to a chair seat to control depth.'},
+        {name:'Sumo Squats',ids:['2TGMoFoWjA0'],stat:'3 × 15 reps',rest:'30–45 sec',why:'Wider stance shifts emphasis to inner thighs and glutes.',desc:'Toes turned out 45°, stance wider than shoulders. Drop straight down, keeping chest tall. Drive knees out.',mod:'Hold onto a door frame for balance.'},
+        {name:'Wall Sit',ids:['y-wV4Sdyg44'],stat:'3 × 30 sec',rest:'30–45 sec',why:'Isometric quad and glute hold builds endurance without joints loading.',desc:'Back flat on wall, thighs parallel to floor, 90° at knees. Hold still. Arms can rest on thighs.',mod:'Raise the height of your sit to reduce intensity.'},
+      ]},
+      /* A2 */ {alts:[
+        {name:'Reverse Lunges',ids:['Fzva5HohZBk'],stat:'3 × 10 reps/leg',rest:'30–45 sec',why:'Glute-dominant lunge that places less stress on the knee.',desc:'Step back, lower rear knee toward floor. Front shin vertical. Push through front heel to return.',mod:'Hold a wall for balance.'},
+        {name:'Forward Lunges',ids:['L8fWVMHXboQ'],stat:'3 × 10 reps/leg',rest:'30–45 sec',why:'Classic quad and glute compound with balance challenge.',desc:'Step forward, lower back knee toward floor. Keep torso upright. Push through front foot to return.',mod:'Shorten stride length and hold a wall.'},
+        {name:'Side Lunges',ids:['rJdZ4cqkGus'],stat:'3 × 8 reps/leg',rest:'30–45 sec',why:'Trains inner thighs and adductors — often neglected in forward-plane work.',desc:'Step wide to one side, bend that knee while keeping other leg straight. Sit hips back. Return and repeat.',mod:'Reduce stride width until comfortable.'},
+      ]},
+      /* A3 */ {alts:[
+        {name:'Glute Bridges',ids:['vOvRFsGMMqo'],stat:'3 × 15 reps',rest:'30–45 sec',why:'Highest single-joint glute activation of any bodyweight exercise.',desc:'Lie on back, knees bent, feet flat. Press through heels, drive hips up. Squeeze hard at top for 1 sec.',mod:'Reduce range of motion, focus on the top squeeze.'},
+        {name:'Single-Leg Glute Bridge',ids:['Rk9rTKQKU7c'],stat:'3 × 10 reps/leg',rest:'30–45 sec',why:'Increases glute loading and fixes left-right imbalances.',desc:'One foot flat, one leg extended. Bridge up with the working leg, hold 1 sec at top, lower slowly.',mod:'Keep the non-working foot lightly on the floor.'},
+        {name:'Hip Thrust (floor)',ids:['LM8XHLYJpC0'],stat:'3 × 15 reps',rest:'30–45 sec',why:'Full hip extension with a longer range than a standard bridge.',desc:'Upper back on floor, knees bent. Drop hips low, then drive explosively upward. Chin tucked, ribs down.',mod:'Same as glute bridge — both feet flat.'},
+      ]},
+      /* B1 */ {alts:[
+        {name:'Push-Ups',ids:['cYwhWlV3g-0'],stat:'3 × 10–12 reps',rest:'30–45 sec',why:'Compound upper-body — chest, shoulders, triceps and core in one.',desc:'Hands slightly wider than shoulder-width, rigid plank. Lower chest to floor, elbows at 45°.',mod:'Drop to knees.'},
+        {name:'Wide Push-Ups',ids:['8hkWTHDU_CA'],stat:'3 × 10 reps',rest:'30–45 sec',why:'Wider hand placement shifts emphasis to the outer chest.',desc:'Hands 1.5× shoulder-width, fingers angled slightly out. Lower slowly, elbows flare wider. Press back up.',mod:'Drop to knees.'},
+        {name:'Diamond Push-Ups',ids:['J0DXDuMqnpI'],stat:'3 × 8 reps',rest:'30–45 sec',why:'Narrow grip maximises tricep and inner chest recruitment.',desc:'Hands together forming a diamond under your chest. Keep elbows tracking back along your sides.',mod:'Drop to knees.'},
+      ]},
+      /* B2 */ {alts:[
+        {name:'Pike Push-Ups',ids:['DG-NcMnfZ_0'],stat:'3 × 8 reps',rest:'30–45 sec',why:'Shifts load to shoulders — builds pressing strength without weights.',desc:'Hips high in a downward-dog. Bend elbows to lower head toward floor, then press back up.',mod:'Lower hip height to reduce difficulty.'},
+        {name:'Decline Push-Ups',ids:['4DmCaFEWxnc'],stat:'3 × 8 reps',rest:'30–45 sec',why:'Elevating the feet increases upper-chest and front-delt activation.',desc:'Feet on a low step or bed edge, body in a straight line. Lower chest slowly, press back up.',mod:'Use a lower surface.'},
+        {name:'Shoulder Taps',ids:['7mvBiH2JEyk'],stat:'3 × 20 taps (10/side)',rest:'30–45 sec',why:'Builds shoulder stability and anti-rotation core strength from a push-up position.',desc:'High plank, feet wide. Lift one hand to tap the opposite shoulder, replacing it before rotating. Keep hips still.',mod:'Widen feet for more stability.'},
+      ]},
+      /* B3 */ {alts:[
+        {name:'Tricep Dips (floor)',ids:['TcLzAGGfmFU'],stat:'3 × 10 reps',rest:'30–45 sec',why:'Isolates the triceps using only the floor — no chair needed.',desc:'Sit on floor, hands behind hips, fingers forward. Lift hips, bend elbows to lower toward floor, then press back.',mod:'Keep hips closer to the floor throughout.'},
+        {name:'Tricep Push-Ups',ids:['jox1rb4OEGI'],stat:'3 × 8 reps',rest:'30–45 sec',why:'Push-up variation that directly loads the triceps.',desc:'Hands directly under shoulders or slightly narrower. Lower keeping elbows pinned to your sides throughout.',mod:'Drop to knees.'},
+        {name:'Plank to Push-Up',ids:['KTpHpNe87ms'],stat:'3 × 8 reps',rest:'30–45 sec',why:'Combines tricep and shoulder work while training core stability.',desc:'Start in forearm plank. Press up to high plank one hand at a time, then lower back down. Alternate the leading arm.',mod:'Do it from the knees.'},
+      ]},
+      /* C1 */ {alts:[
+        {name:'Plank',ids:['A2b2EmIg0dA'],stat:'3 × 30–40 sec',rest:'30–45 sec',why:'Deep core activation — the foundation of safe and strong movement.',desc:'Forearms down, body one straight line. Pull belly up, clench glutes, press heels back.',mod:'Drop to forearms and knees.'},
+        {name:'High Plank',ids:['pSHjTRCQxIw'],stat:'3 × 30–40 sec',rest:'30–45 sec',why:'Adds shoulder stability demands vs forearm plank.',desc:'Wrists under shoulders, rigid straight line from head to heel. Keep hips in line — not raised or sagging.',mod:'Drop to knees.'},
+        {name:'Side Plank',ids:['_rdfjUI3A8Y'],stat:'3 × 20 sec each side',rest:'30–45 sec',why:'Targets lateral core and obliques — critical for spinal stability.',desc:'On forearm, feet stacked or staggered. Body forms a straight diagonal. Drive hips up away from the floor.',mod:'Bend the lower knee to the floor.'},
+      ]},
+      /* C2 */ {alts:[
+        {name:'Mountain Climbers',ids:['kLh-uczlPLg'],stat:'3 × 20 reps (10/side)',rest:'30–45 sec',why:'Combines core stability with cardiovascular demand in one move.',desc:'High plank. Drive one knee toward chest then quickly switch. Hips level, core braced.',mod:'Slow to a deliberate step instead of a run.'},
+        {name:'Plank Knee to Elbow',ids:['yqsF7JGxEAo'],stat:'3 × 12 reps (6/side)',rest:'30–45 sec',why:'Slower mountain climber variation with deeper oblique activation.',desc:'From high plank, draw one knee under your body toward the opposite elbow. Return fully before switching.',mod:'Do from forearm plank.'},
+        {name:'Plank Hip Dips',ids:['hE8A6HQc5oc'],stat:'3 × 20 reps (10/side)',rest:'30–45 sec',why:'Rotational core move that trains the obliques in a controlled way.',desc:'Forearm plank. Rotate hips to dip one side toward the floor (2 inches), return to centre, then the other side.',mod:'Keep the dip small and slow.'},
+      ]},
+      /* C3 */ {alts:[
+        {name:'Dead Bug',ids:['QXKBsQt9eZU'],stat:'3 × 8 reps/side',rest:'30–45 sec',why:'Trains the core to resist extension — most protective of the lower back.',desc:'Lie on back, arms up, knees at 90°. Slowly lower right arm and extend left leg. Back stays flat. Return.',mod:'Extend only the arm to start.'},
+        {name:'Bird Dog',ids:['wiFNA3sqjCA'],stat:'3 × 8 reps/side',rest:'30–45 sec',why:'Core stability and lower back health — extends opposite limbs while preventing rotation.',desc:'On all fours, extend opposite arm and leg simultaneously. Hold 2 sec. Maintain a perfectly level back.',mod:'Just slide the foot back rather than lifting it.'},
+        {name:'Hollow Body Hold',ids:['LlDNzBSbPo0'],stat:'3 × 20 sec',rest:'30–45 sec',why:'Full-body tension drill that builds the deep core strength needed for all advanced moves.',desc:'Lie on back. Press lower back into floor. Raise legs to 45° and shoulders slightly off floor, arms overhead. Hold.',mod:'Bend knees and keep arms by your sides.'},
+      ]},
+      /* D1 */ {alts:[
+        {name:'Burpees',ids:['G2hv_NYhM-A'],stat:'3 × 8 reps',rest:'30–45 sec',why:'Highest calorie-burn bodyweight move — power, endurance and every muscle.',desc:'Squat, plant hands, jump back to plank, push-up optional, jump forward, stand and jump overhead.',mod:'Step back one at a time — skip the jump.'},
+        {name:'Half Burpees',ids:['CJLDKpRvKL0'],stat:'3 × 10 reps',rest:'30–45 sec',why:'Full-body conditioning with less impact — removes the final jump.',desc:'Squat, hands to floor, jump both feet back to plank, jump feet forward, stand. No overhead jump.',mod:'Step out and in instead of jumping.'},
+        {name:'Squat Thrusts',ids:['tXLc2yWJb7A'],stat:'3 × 10 reps',rest:'30–45 sec',why:'Core and leg combo with high metabolic demand, gentler on shoulders.',desc:'From standing, drop hands to floor and shoot legs back to plank, then jump them forward and stand. No push-up, no jump.',mod:'Step feet back and forward.'},
+      ]},
+      /* D2 */ {alts:[
+        {name:'Jump Squats',ids:['CVaEhXotL7M'],stat:'3 × 10 reps',rest:'30–45 sec',why:'Plyometric move that recruits fast-twitch fibres for power.',desc:'Squat then explode upward. Land softly with bent knees, absorbing into another squat. Feet hip-width.',mod:'Slow squat with 3-sec hold at the bottom instead.'},
+        {name:'Box Jumps (floor)',ids:['52jLO9jqEFI'],stat:'3 × 8 reps',rest:'30–45 sec',why:'Explosive lower body power builder with full triple extension.',desc:'Stand, swing arms back, then drive arms up and jump forward landing softly. Step back. No box needed.',mod:'Do a broad jump with a small hop.'},
+        {name:'Pulse Squats',ids:['m3MZEaGzN7I'],stat:'3 × 15 reps',rest:'30–45 sec',why:'Constant time-under-tension builds muscular endurance in the quads and glutes.',desc:'Drop into a squat, then pulse 2 inches up and down 3 times before rising fully. That is 1 rep.',mod:'Reduce pulse count to 1 per rep.'},
+      ]},
+      /* D3 */ {alts:[
+        {name:'Bear Crawl (forward/back)',ids:['9BoF41w8hoI'],stat:'3 × 10 steps each way',rest:'30–45 sec',why:'Full-body coordination drill — shoulders, core and hips all fire together.',desc:'Knees 2 inches off floor. Move opposite hand and foot simultaneously. Stay slow and controlled.',mod:'Larger steps, slower pace.'},
+        {name:'Inchworm Push-Up',ids:['NLMvG-f7aSg'],stat:'3 × 6 reps',rest:'30–45 sec',why:'Chains together a hamstring stretch, shoulder warm-up and push-up in one.',desc:'Hinge, walk hands to a plank, do one push-up, walk feet to hands, stand. That is 1 rep.',mod:'Skip the push-up at the end.'},
+        {name:'Sprawls',ids:['0wPHFXvwqHM'],stat:'3 × 10 reps',rest:'30–45 sec',why:'Athletic movement pattern that spikes heart rate and trains explosive hips.',desc:'From standing, drop hands to floor and sprawl hips flat to the ground. Press back to standing explosively.',mod:'Step back rather than sprawling.'},
+      ]},
+    ]
+  },
+
+  cool:{title:'Cool-Down',sub:'Hold 30–45 sec per side · Breathe deeply',accent:'var(--cool)',
+    exercises:[
+      {alts:[
+        {name:'Standing Quad Stretch',ids:['kHSTR4XHBWQ'],stat:'30–45 sec/side',why:'Releases quads and hip flexors taxed during squats and lunges.',desc:'Stand on one leg, pull opposite heel toward glute. Push hip slightly forward. Hold a wall if needed.'},
+        {name:'Lying Quad Stretch',ids:['lrfT4e-NJXI'],stat:'30–45 sec/side',why:'Same target but removes the balance demand.',desc:'Lie on your side, pull top heel toward glutes with the top hand. Keep knees together.'},
+      ]},
+      {alts:[
+        {name:'Figure-4 Hip Stretch',ids:['VNG_TA7n7lI'],stat:'30–45 sec/side',why:'Releases glutes and piriformis worked during all leg exercises.',desc:'Lie on back. Cross ankle over knee forming a figure-4. Pull thigh toward chest.'},
+        {name:'Seated Pigeon',ids:['TsrHCnhz7cc'],stat:'30–45 sec/side',why:'Deep glute and hip external rotator stretch.',desc:'Sit on floor, bend one leg in front of you, extend the other behind. Sit tall or fold forward gently.'},
+      ]},
+      {alts:[
+        {name:'Supine Hamstring Stretch',ids:['UGEPaFmCo44'],stat:'30–45 sec/side',why:'Lengthens hamstrings after lower-body loading.',desc:'Extend one leg toward ceiling, hold behind thigh. Flex foot to deepen the stretch.'},
+        {name:'Standing Hamstring Stretch',ids:['Qpg6MHQ5xXs'],stat:'30–45 sec/side',why:'Same muscles, easier to ease into if the floor stretch is intense.',desc:'Stand, hinge forward and reach toward toes. Bend one knee slightly if needed. Hold.'},
+      ]},
+      {alts:[
+        {name:"Child's Pose",ids:['eqVMAPM00Yw'],stat:'45 sec',why:'Decompresses the lower back and stretches lats.',desc:'Kneel, sit back toward heels, arms reaching long. Breathe into your lower back.'},
+        {name:'Thread the Needle',ids:['lPtMsWFGbhU'],stat:'30 sec/side',why:'Opens thoracic rotation and shoulder — great after push work.',desc:'On all fours, slide one arm under your body along the floor. Lower shoulder toward ground, hold.'},
+      ]},
+      {alts:[
+        {name:'Chest Opener Stretch',ids:['P-sjEOzJFxg'],stat:'30–45 sec/side',why:'Opens pec minor and front shoulder after pushing movements.',desc:'Forearm on a wall at 90°. Slowly rotate body away until you feel the chest stretch.'},
+        {name:'Doorway Chest Stretch',ids:['6RiQrGsX5Os'],stat:'30–45 sec',why:'Both sides simultaneously — efficient chest opener.',desc:'Stand in a doorway or corner. Press both forearms on the frame, step forward until you feel a chest stretch.'},
+      ]},
+      {alts:[
+        {name:'Seated Thoracic Twist',ids:['P_VplmUrPCY'],stat:'30–45 sec/side',why:'Restores thoracic rotation that gets compressed during pushing movements.',desc:'Sit with legs extended. Bend one knee, rotate torso toward it. Sit tall throughout.'},
+        {name:'Supine Spinal Twist',ids:['XYf-J1Ggla4'],stat:'30 sec/side',why:'Passive rotation that releases the thoracic and lumbar spine.',desc:'Lie on back. Pull one knee across your body to the opposite side, arms out. Keep shoulders flat.'},
+      ]},
+      {alts:[
+        {name:'90/90 Hip Stretch',ids:['6-9fgYGlEJM'],stat:'30–45 sec/side',why:'Opens hip flexors, glutes and adductors in one position.',desc:'Both legs at 90°. Sit tall. Windshield-wiper to switch sides.'},
+        {name:'Butterfly Stretch',ids:['5wLUCaFN7CE'],stat:'45 sec',why:'Opens inner thighs and hip flexors — great after squat and lunge work.',desc:'Sit, bring soles together, let knees fall out. Hold ankles, sit tall. Gently press elbows on inner knees.'},
+      ]},
+    ]
+  },
+
+  finisher:{title:'⚡ Optional Finisher',sub:'Only add this if you felt great today',accent:'var(--warm)',
+    exercises:[
+      {alts:[
+        {name:'Tabata Mountain Climbers',ids:['kLh-uczlPLg'],stat:'4 × 20 sec on / 10 sec off',why:'Research-backed HIIT protocol — spikes VO₂ max and calorie burn.',desc:'20 sec max-effort mountain climbers, 10 sec rest — 4 rounds. Use the ⏱ timer set to 20 sec.',mod:'Skip if your form dropped during the main workout.'},
+        {name:'Tabata Squats',ids:['m0GcZ24pK6k'],stat:'4 × 20 sec on / 10 sec off',why:'HIIT with the lower body — keeps metabolic demand high.',desc:'20 sec of fast bodyweight squats, 10 sec rest — 4 rounds. Full depth, controlled landing.',mod:'Reduce rep speed for the last round if needed.'},
+        {name:'30-20-10 Burpees',ids:['G2hv_NYhM-A'],stat:'3 rounds: 30 sec, 20 sec, 10 sec',why:'Descending interval keeps intensity up as fatigue accumulates.',desc:'Round 1: 30 sec max burpees. Rest 30 sec. Round 2: 20 sec. Rest 20 sec. Round 3: 10 sec all-out.',mod:'Use the half-burpee variation.'},
+      ]},
+    ]
+  },
 };
 
 const savedProgress={warmup:new Set(),main:new Set(),cool:new Set(),finisher:new Set()};
+
+/* ══════════════════════════
+   ALT INDEX STATE
+   Key: "phaseKey-slotIdx" → number
+══════════════════════════ */
+const altIndex={};
+function getAltIdx(phaseKey,slotIdx){
+  const k=`${phaseKey}-${slotIdx}`;
+  return altIndex[k]||0;
+}
+function setAltIdx(phaseKey,slotIdx,v){
+  altIndex[`${phaseKey}-${slotIdx}`]=v;
+}
+function getAlt(phaseKey,slotIdx){
+  const slot=phases[phaseKey].exercises[slotIdx];
+  return slot.alts[getAltIdx(phaseKey,slotIdx)];
+}
 
 const weekSchedule=[
   {day:'MON',type:'workout',emoji:'💪',label:'Workout'},{day:'TUE',type:'rest',emoji:'🚶',label:'Walk / Rest'},
@@ -573,12 +719,12 @@ function updateHomeProgress(){
 }
 
 /* INIT */
-window.addEventListener('load', () => {
+window.addEventListener('load',()=>{
   buildTimeline();
   updateHomeProgress();
   updatePersistBar();
   initBattery();
-  setInterval(updatePersistBar, 1000); 
+  setInterval(updatePersistBar,1000);
   fetchVersion();
   syncAppIcon();
   document.querySelectorAll('.phase-card,.weekly-card').forEach((el,i)=>{
@@ -587,7 +733,7 @@ window.addEventListener('load', () => {
 });
 
 /* NAVIGATION */
-let currentPhase=null,currentExercises=[];
+let currentPhase=null;
 function showScreen(id,direction='forward'){
   const prev=document.querySelector('.screen.active,.screen.back-active');
   const next=document.getElementById(id);
@@ -599,11 +745,11 @@ function showScreen(id,direction='forward'){
   next.scrollTop=0;
   setTimeout(syncAppIcon,50);
 }
-function goHome(){sfxBack();showScreen('home','back');resetTimer();currentPhase=null;currentExercises=[];updateHomeProgress();}
+function goHome(){sfxBack();showScreen('home','back');resetTimer();currentPhase=null;updateHomeProgress();}
 
 function openPhase(key){
   sfxTap();currentPhase=key;
-  const p=phases[key];currentExercises=p.exercises;
+  const p=phases[key];
   document.getElementById('phase-title').textContent=p.title;
   document.getElementById('phase-sub').textContent=p.sub;
   document.documentElement.style.setProperty('--accent',p.accent);
@@ -613,51 +759,106 @@ function openPhase(key){
       const lbl=document.createElement('div');lbl.className='block-label';
       lbl.innerHTML=`${b.label}<div class="b-line"></div>`;list.appendChild(lbl);
       setTimeout(()=>lbl.classList.add('visible'),50);
-      for(let i=b.start;i<=b.end;i++){const c=makeCard(p.exercises[i],i,key);list.appendChild(c);setTimeout(()=>c.classList.add('visible'),50+i*40);}
+      for(let i=b.start;i<=b.end;i++){
+        const c=makeCard(i,key);list.appendChild(c);
+        setTimeout(()=>c.classList.add('visible'),50+i*40);
+      }
     });
   } else {
-    p.exercises.forEach((ex,i)=>{const c=makeCard(ex,i,key);list.appendChild(c);setTimeout(()=>c.classList.add('visible'),40+i*50);});
+    p.exercises.forEach((_,i)=>{
+      const c=makeCard(i,key);list.appendChild(c);
+      setTimeout(()=>c.classList.add('visible'),40+i*50);
+    });
   }
   updatePhaseProgress();showScreen('phase-screen','forward');
 }
 
-function makeCard(ex,idx,phaseKey){
+/* ══════════════════════════
+   CARD RENDERING
+══════════════════════════ */
+function makeCard(slotIdx,phaseKey){
   const card=document.createElement('div');
-  card.className='ex-card'+(savedProgress[phaseKey].has(idx)?' done':'');card.id=`ex-${idx}`;
+  const isDone=savedProgress[phaseKey].has(slotIdx);
+  card.className='ex-card'+(isDone?' done':'');
+  card.id=`ex-${slotIdx}`;
+  renderCardInto(card,slotIdx,phaseKey);
+  return card;
+}
+
+function renderCardInto(card,slotIdx,phaseKey){
+  const slot=phases[phaseKey].exercises[slotIdx];
+  const alts=slot.alts;
+  const aIdx=getAltIdx(phaseKey,slotIdx);
+  const ex=alts[aIdx];
+  const isDone=savedProgress[phaseKey].has(slotIdx);
   const restChip=ex.rest?`<div class="stat-chip">⏸ ${ex.rest} rest</div>`:'';
   const modHTML=ex.mod?`<div class="mod-box"><strong>✏️ Easier mod:</strong> ${ex.mod}</div>`:'';
-  const isChecked=savedProgress[phaseKey].has(idx);
+  // sub-bar
+  const dotsHTML=alts.map((_,i)=>`<span class="sub-dot${i===aIdx?' active':''}"></span>`).join('');
+  const subBar=alts.length>1?`
+    <div class="sub-bar">
+      <button class="sub-arrow" onclick="swapAlt('${phaseKey}',${slotIdx},-1)" ${aIdx===0?'disabled':''}aria-label="Previous exercise">‹</button>
+      <div class="sub-center">
+        <div class="sub-dots">${dotsHTML}</div>
+        <div class="sub-hint">Swap exercise · ${aIdx+1} of ${alts.length}</div>
+      </div>
+      <button class="sub-arrow" onclick="swapAlt('${phaseKey}',${slotIdx},1)" ${aIdx===alts.length-1?'disabled':''}aria-label="Next exercise">›</button>
+    </div>`:'';
   card.innerHTML=`
-    <div class="video-wrap"><div class="video-thumb loading" id="vt-${idx}">
+    ${subBar}
+    <div class="video-wrap"><div class="video-thumb loading" id="vt-${slotIdx}">
       <img src="https://img.youtube.com/vi/${ex.ids[0]}/hqdefault.jpg" alt="${ex.name}"
-        onload="this.parentElement.classList.remove('loading')" onerror="tryNextThumb(${idx},1)">
+        onload="this.parentElement.classList.remove('loading')" onerror="tryNextThumb(${slotIdx},1,'${phaseKey}')">
       <div class="play-ring"><div class="play-tri"></div></div>
       <div class="video-label">${ex.name} · Tap to watch demo</div>
     </div></div>
     <div class="ex-body">
-      <div class="ex-top"><div class="ex-num">${idx+1}</div><div><div class="ex-name">${ex.name}</div><div class="ex-why">${ex.why}</div></div></div>
+      <div class="ex-top"><div class="ex-num">${slotIdx+1}</div><div><div class="ex-name">${ex.name}</div><div class="ex-why">${ex.why}</div></div></div>
       <div class="ex-desc">${ex.desc}</div>
       <div class="ex-stats"><div class="stat-chip">${ex.stat}</div>${restChip}</div>
       ${modHTML}
-      <button class="done-btn${isChecked?' checked':''}" id="btn-${idx}" onclick="markDone(${idx})">${isChecked?'✅ Done!':'✓ Mark as Done'}</button>
+      <button class="done-btn${isDone?' checked':''}" id="btn-${slotIdx}" onclick="markDone(${slotIdx})">${isDone?'✅ Done!':'✓ Mark as Done'}</button>
     </div>`;
-  card.querySelector(`#vt-${idx}`).addEventListener('click',()=>loadVideo(idx,0));
+  // attach video click
+  card.querySelector(`#vt-${slotIdx}`).addEventListener('click',()=>loadVideo(slotIdx,0,phaseKey));
+  // hover shine on done button
   const btn=card.querySelector('.done-btn');
   btn.addEventListener('mousemove',e=>{const r=btn.getBoundingClientRect();btn.style.setProperty('--rx',((e.clientX-r.left)/r.width*100)+'%');btn.style.setProperty('--ry',((e.clientY-r.top)/r.height*100)+'%');});
-  return card;
 }
 
-function tryNextThumb(idx,attempt){
-  const ex=currentExercises[idx];if(!ex||attempt>=ex.ids.length){showNoThumb(idx);return;}
-  const img=document.querySelector(`#vt-${idx} img`);
-  if(img){img.src=`https://img.youtube.com/vi/${ex.ids[attempt]}/hqdefault.jpg`;img.onerror=()=>tryNextThumb(idx,attempt+1);}
-  const thumb=document.getElementById(`vt-${idx}`);
-  if(thumb){thumb.onclick=null;thumb.addEventListener('click',()=>loadVideo(idx,attempt),{once:true});}
+/* Swap to a different alt with swipe animation */
+function swapAlt(phaseKey,slotIdx,dir){
+  const slot=phases[phaseKey].exercises[slotIdx];
+  const alts=slot.alts;
+  const cur=getAltIdx(phaseKey,slotIdx);
+  const next=cur+dir;
+  if(next<0||next>=alts.length)return;
+  sfxSwap();
+  const card=document.getElementById(`ex-${slotIdx}`);
+  if(!card)return;
+  const outAnim=dir>0?'swipeOutLeft 160ms var(--ease) forwards':'swipeOutRight 160ms var(--ease) forwards';
+  const inAnim =dir>0?'swipeInLeft  160ms var(--ease) forwards':'swipeInRight  160ms var(--ease) forwards';
+  card.style.animation=outAnim;
+  setTimeout(()=>{
+    setAltIdx(phaseKey,slotIdx,next);
+    renderCardInto(card,slotIdx,phaseKey);
+    card.style.animation=inAnim;
+    const newName=alts[next].name;
+    showToast(newName);
+  },160);
 }
-function showNoThumb(idx){const t=document.getElementById(`vt-${idx}`);if(t)t.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--muted);font-size:13px;"><div style="font-size:32px">🎬</div><div>No preview available</div></div>`;}
-function loadVideo(idx,idxInList){
-  sfxTap();const ex=currentExercises[idx];if(!ex)return;
-  const thumb=document.getElementById(`vt-${idx}`);if(!thumb)return;
+
+function tryNextThumb(slotIdx,attempt,phaseKey){
+  const ex=getAlt(phaseKey||currentPhase,slotIdx);if(!ex||attempt>=ex.ids.length){showNoThumb(slotIdx);return;}
+  const img=document.querySelector(`#vt-${slotIdx} img`);
+  if(img){img.src=`https://img.youtube.com/vi/${ex.ids[attempt]}/hqdefault.jpg`;img.onerror=()=>tryNextThumb(slotIdx,attempt+1,phaseKey||currentPhase);}
+  const thumb=document.getElementById(`vt-${slotIdx}`);
+  if(thumb){thumb.onclick=null;thumb.addEventListener('click',()=>loadVideo(slotIdx,attempt,phaseKey||currentPhase),{once:true});}
+}
+function showNoThumb(slotIdx){const t=document.getElementById(`vt-${slotIdx}`);if(t)t.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--muted);font-size:13px;"><div style="font-size:32px">🎬</div><div>No preview available</div></div>`;}
+function loadVideo(slotIdx,idxInList,phaseKey){
+  sfxTap();const ex=getAlt(phaseKey||currentPhase,slotIdx);if(!ex)return;
+  const thumb=document.getElementById(`vt-${slotIdx}`);if(!thumb)return;
   thumb.innerHTML=`<div class="video-loading"><div class="v-spin"></div><span>Loading…</span></div>`;
   const ytId=ex.ids[idxInList]||ex.ids[0];
   setTimeout(()=>{
@@ -665,32 +866,33 @@ function loadVideo(idx,idxInList){
     iframe.src=`https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
     iframe.allow='autoplay;encrypted-media;picture-in-picture;fullscreen';iframe.allowFullscreen=true;
     iframe.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
-    iframe.onerror=()=>{if(idxInList+1<ex.ids.length)loadVideo(idx,idxInList+1);else showNoThumb(idx);};
+    iframe.onerror=()=>{if(idxInList+1<ex.ids.length)loadVideo(slotIdx,idxInList+1,phaseKey||currentPhase);else showNoThumb(slotIdx);};
     const wrap=thumb.closest('.video-wrap');if(wrap)thumb.replaceWith(iframe);
   },150);
 }
 
-function markDone(idx){
-  const card=document.getElementById(`ex-${idx}`),btn=document.getElementById(`btn-${idx}`);
+function markDone(slotIdx){
+  const card=document.getElementById(`ex-${slotIdx}`),btn=document.getElementById(`btn-${slotIdx}`);
   if(!card||!btn||!currentPhase)return;
-  if(savedProgress[currentPhase].has(idx)){
-    savedProgress[currentPhase].delete(idx);card.classList.remove('done');
+  if(savedProgress[currentPhase].has(slotIdx)){
+    savedProgress[currentPhase].delete(slotIdx);card.classList.remove('done');
     btn.textContent='✓ Mark as Done';btn.classList.remove('checked');sfxUndo();showToast('Unmarked');
   } else {
-    savedProgress[currentPhase].add(idx);card.classList.add('done');
+    savedProgress[currentPhase].add(slotIdx);card.classList.add('done');
     btn.textContent='✅ Done!';btn.classList.add('checked');
     btn.classList.remove('pulse');void btn.offsetWidth;btn.classList.add('pulse');sfxDone();
-    const rem=currentExercises.length-savedProgress[currentPhase].size;
+    const total=phases[currentPhase].exercises.length;
+    const rem=total-savedProgress[currentPhase].size;
     if(rem>0)showToast(rem===1?'1 left!':`${rem} left`);
-    if(savedProgress[currentPhase].size===currentExercises.length){
-      sfxFinish();setTimeout(()=>{document.getElementById('ds-ex').textContent=currentExercises.length;document.getElementById('ds-phase').textContent=phases[currentPhase]?.title.replace('⚡ ','').split(' ')[0]||'Done';showScreen('done-screen','forward');},700);
+    if(savedProgress[currentPhase].size===total){
+      sfxFinish();setTimeout(()=>{document.getElementById('ds-ex').textContent=total;document.getElementById('ds-phase').textContent=phases[currentPhase]?.title.replace('⚡ ','').split(' ')[0]||'Done';showScreen('done-screen','forward');},700);
     }
   }
   updatePhaseProgress();
 }
 function updatePhaseProgress(){
   if(!currentPhase)return;
-  const total=currentExercises.length,done=savedProgress[currentPhase].size,pct=Math.round(done/total*100);
+  const total=phases[currentPhase].exercises.length,done=savedProgress[currentPhase].size,pct=Math.round(done/total*100);
   document.getElementById('prog-fill').style.width=pct+'%';
   document.getElementById('prog-pct').textContent=pct+'%';
   document.getElementById('prog-steps').textContent=`${done} / ${total} done`;
