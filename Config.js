@@ -718,13 +718,13 @@ const PROFILES = [
       Saturday: gymPhases["Saturday"]
     },
     weekSchedule: [
-      { day:'MON', type:'rest',  emoji:'😴', label:'Push Day'   },
-      { day:'TUE', type:'workout',  emoji:'🦵', label:'Still'   },
-      { day:'WED', type:'workout',     emoji:'🦵', label:'Still'       },
-      { day:'THU', type:'rest',  emoji:'😴', label:'Leg Day'    },
-      { day:'FRI', type:'rest',  emoji:'😴', label:'Upper Body' },
-      { day:'SAT', type:'workout', emoji:'💪', label:'Still'   },
-      { day:'SUN', type:'workout',     emoji:'💪', label:'Still'  },
-    ],
+      { day:'MON', type:'rest',     emoji:'😴', label:'Rest Day' },
+      { day:'TUE', type:'workout',  emoji:'🏋️', label:'Torso + Arms' },
+      { day:'WED', type:'workout',  emoji:'🏋️', label:'Push + Core' },
+      { day:'THU', type:'rest',     emoji:'😴', label:'Rest Day' },
+      { day:'FRI', type:'rest',     emoji:'😴', label:'Rest Day' },
+      { day:'SAT', type:'workout',  emoji:'🦵', label:'Lower + Pull' },
+      { day:'SUN', type:'workout',  emoji:'💪', label:'Upper (Push/Pull)' },
+    ]
   },
 ];
