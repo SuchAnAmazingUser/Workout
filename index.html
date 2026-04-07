@@ -524,7 +524,7 @@ function countProfileWeekExercises(profile) {
   return total;
 }
 
-let activeProfileId = localStorage.getItem('wp_activeProfile') || PROFILES[0].id;
+let activeProfileId = sessionStorage.getItem('wp_activeProfile') || PROFILES[0].id;
 let currentProfileData = PROFILES.find(p => p.id === activeProfileId) || PROFILES[0];
 let phases      = getProfileDayPhases(currentProfileData);
 let weekSchedule = currentProfileData.weekSchedule;
@@ -544,7 +544,7 @@ function saveProfileState(profileId) {
     altIndex: { ...altIndex },
     hydSips,
   };
-  try { localStorage.setItem(`wp_state_${profileId}`, JSON.stringify(state)); } catch(e) {}
+  try { sessionStorage.setItem(`wp_state_${profileId}`, JSON.stringify(state)); } catch(e) {}
 }
 
 function loadProfileState(profileId) {
@@ -554,7 +554,7 @@ function loadProfileState(profileId) {
   hydSips = 0;
   updateHydProgress();
   try {
-    const raw = localStorage.getItem(`wp_state_${profileId}`);
+    const raw = sessionStorage.getItem(`wp_state_${profileId}`);
     if (!raw) return;
     const state = JSON.parse(raw);
     ['warmup','main','cool','finisher'].forEach(k => {
@@ -571,7 +571,7 @@ function switchProfile(profileId) {
   sfxTap();
   saveProfileState(activeProfileId);
   activeProfileId = profileId;
-  localStorage.setItem('wp_activeProfile', profileId);
+  sessionStorage.setItem('wp_activeProfile', profileId);
   currentProfileData = PROFILES.find(p => p.id === profileId) || PROFILES[0];
   phases       = getProfileDayPhases(currentProfileData);
   weekSchedule = currentProfileData.weekSchedule;
