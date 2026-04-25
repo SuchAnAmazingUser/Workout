@@ -247,6 +247,21 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .done-btn:active{transform:scale(.97) translateY(0);}
 .done-btn.checked{background:color-mix(in srgb,var(--accent) 20%,transparent);border-color:color-mix(in srgb,var(--accent) 38%,transparent);}
 .done-btn.pulse{animation:donePulse .5s ease;}
+.ex-actions{display:flex;align-items:stretch;gap:8px;}
+.ex-actions .done-btn{width:auto;flex:1;}
+.image-btn{width:46px;min-width:46px;border-radius:12px;background:var(--pill);border:1px solid var(--border);color:var(--accent);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s,transform .18s var(--spring);}
+.image-btn:hover{background:color-mix(in srgb,var(--accent) 12%,var(--pill));border-color:color-mix(in srgb,var(--accent) 35%,var(--border));transform:translateY(-1px);}
+.image-btn:active{transform:scale(.94);}
+
+/* EXERCISE IMAGE VIEWER */
+.image-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:900;display:none;align-items:center;justify-content:center;padding:22px;backdrop-filter:blur(8px);}
+.image-overlay.open{display:flex;animation:fadeIn .18s ease;}
+.image-sheet{position:relative;width:min(100%,520px);max-height:86vh;background:var(--card2);border:1px solid var(--border2);border-radius:18px;box-shadow:0 22px 70px rgba(0,0,0,.75);overflow:hidden;animation:popIn .28s var(--spring);}
+.image-sheet img{display:block;width:100%;max-height:76vh;object-fit:contain;background:#050505;}
+.image-close{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:11px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.16);color:#fff;font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);transition:background .18s,transform .18s var(--spring);}
+.image-close:hover{background:rgba(255,255,255,.14);}
+.image-close:active{transform:scale(.92);}
+.image-caption{padding:11px 14px;font-size:12px;font-weight:700;color:var(--text2);border-top:1px solid var(--border);background:rgba(0,0,0,.18);}
 
 /* ══ HYDRATION POPUP ══ */
 #hydration-overlay{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;padding:20px;pointer-events:none;opacity:0;transition:opacity .35s var(--ease);}
@@ -457,6 +472,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <button class="t-btn t-start" id="t-start-btn" onclick="toggleTimer()">Start</button>
       <button class="t-btn t-reset" onclick="resetTimer()">Reset</button>
     </div>
+  </div>
+</div>
+
+<!-- EXERCISE IMAGE VIEWER -->
+<div class="image-overlay" id="exercise-image-overlay" aria-hidden="true" onclick="closeExerciseImageOutside(event)">
+  <div class="image-sheet" onclick="event.stopPropagation()">
+    <button class="image-close" onclick="closeExerciseImage()" aria-label="Close exercise image">&times;</button>
+    <img id="exercise-image-view" src="" alt="">
+    <div class="image-caption" id="exercise-image-caption"></div>
   </div>
 </div>
 
@@ -1071,6 +1095,7 @@ function renderCardInto(card, slotIdx, phaseKey) {
   const isDone = savedProgress[phaseKey].has(slotIdx);
   const restChip = ex.rest ? `<div class="stat-chip">⏸ ${ex.rest} rest</div>` : '';
   const modHTML  = ex.mod  ? `<div class="mod-box"><strong>✏️ Easier mod:</strong> ${ex.mod}</div>` : '';
+  const imageBtn = ex.image ? `<button class="image-btn" onclick="openExerciseImage(${slotIdx},'${phaseKey}')" aria-label="Open exercise image" title="Exercise image"><span aria-hidden="true">🖼️</span></button>` : '';
   const dotsHTML = alts.map((_,i) => `<span class="sub-dot${i===aIdx?' active':''}"></span>`).join('');
   const subBar   = alts.length > 1 ? `
     <div class="sub-bar">
@@ -1094,7 +1119,10 @@ function renderCardInto(card, slotIdx, phaseKey) {
       <div class="ex-desc">${ex.desc}</div>
       <div class="ex-stats"><div class="stat-chip">${ex.stat}</div>${restChip}</div>
       ${modHTML}
-      <button class="done-btn${isDone?' checked':''}" id="btn-${slotIdx}" onclick="markDone(${slotIdx})">${isDone?'✅ Done!':'✓ Mark as Done'}</button>
+      <div class="ex-actions">
+        <button class="done-btn${isDone?' checked':''}" id="btn-${slotIdx}" onclick="markDone(${slotIdx})">${isDone?'✅ Done!':'✓ Mark as Done'}</button>
+        ${imageBtn}
+      </div>
     </div>`;
   card.querySelector(`#vt-${slotIdx}`).addEventListener('click', () => loadVideo(slotIdx, 0, phaseKey));
   const btn = card.querySelector('.done-btn');
@@ -1158,6 +1186,41 @@ function loadVideo(slotIdx, idxInList, phaseKey) {
     if (wrap) thumb.replaceWith(iframe);
   }, 150);
 }
+
+function openExerciseImage(slotIdx, phaseKey) {
+  const ex = getAlt(phaseKey || currentPhase, slotIdx);
+  if (!ex || !ex.image) return;
+  sfxTap();
+
+  const overlay = document.getElementById('exercise-image-overlay');
+  const img = document.getElementById('exercise-image-view');
+  const caption = document.getElementById('exercise-image-caption');
+  if (!overlay || !img || !caption) return;
+
+  img.src = ex.image;
+  img.alt = ex.imageAlt || `${ex.name} exercise image`;
+  caption.textContent = ex.name;
+  overlay.classList.add('open');
+  overlay.setAttribute('aria-hidden', 'false');
+}
+
+function closeExerciseImage() {
+  const overlay = document.getElementById('exercise-image-overlay');
+  const img = document.getElementById('exercise-image-view');
+  if (!overlay) return;
+
+  overlay.classList.remove('open');
+  overlay.setAttribute('aria-hidden', 'true');
+  if (img) img.src = '';
+}
+
+function closeExerciseImageOutside(e) {
+  if (e.target.id === 'exercise-image-overlay') closeExerciseImage();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeExerciseImage();
+});
 
 function markDone(slotIdx) {
   const card = document.getElementById(`ex-${slotIdx}`);

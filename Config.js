@@ -874,6 +874,181 @@ const gymPhases = {
    Each profile has its own hero display, phase data, and week schedule.
    Progress and alt selections are saved per-profile in localStorage.
 ══════════════════════════════════════════════════════════════════ */
+const gym20Stat = '3 × 8–12 reps';
+const gym20Warmup = gymPhases.Saturday.warmup;
+const gym20Cool = gymPhases.Saturday.cool;
+const gym20Finisher = gymPhases.Saturday.finisher;
+const gym20Rest = gymPhases.Thursday;
+
+function gym20Day(main) {
+  return {
+    warmup: gym20Warmup,
+    main,
+    cool: gym20Cool,
+    finisher: gym20Finisher,
+  };
+}
+
+const gym20Phases = {
+  Saturday: gym20Day({
+    title: 'Main Workout',
+    sub: 'Chest + Back · 3 sets · 8–12 reps',
+    accent: 'var(--main)',
+    blocks: [
+      { label:'BLOCK A — PUSH/PULL STRENGTH', start:0, end:1 },
+      { label:'BLOCK B — MACHINE PRESS + VERTICAL PULL', start:2, end:3 },
+      { label:'BLOCK C — CHEST/BACK ACCESSORY', start:4, end:5 },
+    ],
+    exercises: [
+      { alts: [
+        { name:'Incline Dumbbell Bench Press', ids:['5orOHJL2qS4'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/saturday-01-incline-dumbbell-press.png', imageAlt:'Incline dumbbell bench press exercise image', why:'Upper-chest compound press that also trains the front delts and triceps.', desc:'Lie back on an incline bench with dumbbells over your upper chest. Lower with elbows slightly tucked, then press up and in without clanking the weights.', mod:'Use a lower incline or lighter dumbbells if your shoulders take over.' },
+      ]},
+      { alts: [
+        { name:'Seated Cable Row', ids:['UCXxvVItLoM'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/saturday-02-seated-cable-row.png', imageAlt:'Seated cable row exercise image', why:'Horizontal pull for mid-back thickness, lats, and shoulder-blade control.', desc:'Sit tall with a neutral spine. Pull the handle toward your lower ribs, squeeze shoulder blades back, then return under control.', mod:'Reduce the load until you can row without leaning back.' },
+      ]},
+      { alts: [
+        { name:'Incline Machine Chest Press', ids:['hkU6fSHcslw'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/saturday-03-incline-machine-chest-press.png', imageAlt:'Incline machine chest press exercise image', why:'Stable upper-chest press that lets you load the pecs hard after dumbbells.', desc:'Set the seat so the handles start near upper-chest height. Press forward and slightly upward, then control the return until you feel the chest stretch.', mod:'Stop just before the deepest stretch if your shoulders feel pinched.' },
+      ]},
+      { alts: [
+        { name:'Lat Pulldown', ids:['CAwf7n6Luuc'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/saturday-04-lat-pulldown.png', imageAlt:'Lat pulldown exercise image', why:'Vertical pull that builds back width while giving the biceps useful secondary work.', desc:'Lock thighs under the pad. Pull the bar to upper chest by driving elbows down, then let the shoulders rise under control at the top.', mod:'Use a neutral or slightly closer grip if wide grip bothers your shoulders.' },
+      ]},
+      { alts: [
+        { name:'Seated Cable Chest Fly', ids:['MD1IfN687a8'], stat:gym20Stat, rest:'45–60 sec', image:'assets/gym20/saturday-05-seated-cable-chest-fly.png', imageAlt:'Seated cable chest fly exercise image', why:'Chest isolation that keeps tension through the shortened and stretched positions.', desc:'Sit tall between the cables. Open arms with a soft elbow bend, then sweep hands together in front of the chest and squeeze briefly.', mod:'Use lighter weight and stop the stretch before your shoulders roll forward.' },
+      ]},
+      { alts: [
+        { name:'Barbell Bent-Over Row', ids:['bm0_q9bR_HA'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/saturday-06-barbell-bent-over-row.png', imageAlt:'Barbell bent-over row exercise image', why:'Free-weight row for lats, rhomboids, rear delts, and posterior-chain bracing.', desc:'Hinge until your torso is angled forward, brace hard, and row the bar toward your lower ribs. Lower until arms are long without losing back position.', mod:'Use dumbbells or a lighter bar if your lower back fatigues first.' },
+      ]},
+    ],
+  }),
+
+  Sunday: gym20Day({
+    title: 'Main Workout',
+    sub: 'Shoulders + Arms · 3 sets · 8–12 reps',
+    accent: 'var(--main)',
+    blocks: [
+      { label:'BLOCK A — DELTS + SHOULDER HEALTH', start:0, end:2 },
+      { label:'BLOCK B — ARM ISOLATION', start:3, end:5 },
+    ],
+    exercises: [
+      { alts: [
+        { name:'Seated Dumbbell Shoulder Press', ids:['E9ShwbwZ1zw'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/sunday-01-seated-dumbbell-shoulder-press.png', imageAlt:'Seated dumbbell shoulder press exercise image', why:'Main overhead press for front and side delts with strong triceps assistance.', desc:'Sit upright with dumbbells at shoulder height. Press overhead until arms are nearly straight, then lower to a controlled shoulder-level position.', mod:'Use a bench with back support and keep ribs down.' },
+      ]},
+      { alts: [
+        { name:'Dumbbell Lateral Raise', ids:['xyK8UiC-BUw'], stat:gym20Stat, rest:'45–60 sec', image:'assets/gym20/sunday-02-dumbbell-lateral-raise.png', imageAlt:'Dumbbell lateral raise exercise image', why:'Side-delt isolation for shoulder width without heavy joint loading.', desc:'Stand or sit tall. Raise dumbbells out to the sides with elbows slightly bent, stop around shoulder height, then lower slowly.', mod:'Use lighter dumbbells and lead with elbows instead of hands.' },
+      ]},
+      { alts: [
+        { name:'Cable Face Pull', ids:['vQCi5Xzhoyw'], stat:gym20Stat, rest:'45–60 sec', image:'assets/gym20/sunday-03-cable-face-pull.png', imageAlt:'Cable face pull exercise image', why:'Rear-delt and upper-back work that balances pressing and supports shoulder posture.', desc:'Set the rope around face height. Pull toward your forehead while rotating thumbs back, then return until arms are long.', mod:'Step back less or reduce weight if you shrug during the pull.' },
+      ]},
+      { alts: [
+        { name:'Seated Dumbbell Overhead Triceps Extension', ids:['M8ut-xSj_lo'], stat:gym20Stat, rest:'45–60 sec', image:'assets/gym20/sunday-04-seated-dumbbell-overhead-triceps-extension.png', imageAlt:'Seated dumbbell overhead triceps extension exercise image', why:'Loads the long head of the triceps in a deep stretched position.', desc:'Hold one dumbbell overhead. Keep elbows close, lower behind your head, then extend until arms are straight without flaring.', mod:'Use one lighter dumbbell or do the move one arm at a time.' },
+      ]},
+      { alts: [
+        { name:'Cable Triceps Pushdown', ids:['6Fzep104f0s'], stat:gym20Stat, rest:'45–60 sec', image:'assets/gym20/sunday-05-cable-triceps-pushdown.png', imageAlt:'Cable triceps pushdown exercise image', why:'Direct triceps isolation that pairs well after the stretched overhead movement.', desc:'Pin elbows to your sides and push the bar or rope down until arms are straight. Pause, then return to about 90 degrees.', mod:'Use a rope if a straight bar bothers your wrists.' },
+      ]},
+      { alts: [
+        { name:'Seated Dumbbell Curl', ids:['FwApweWh6SY'], stat:gym20Stat, rest:'45–60 sec', image:'assets/gym20/sunday-06-seated-dumbbell-curl.png', imageAlt:'Seated dumbbell curl exercise image', why:'Stable biceps curl that reduces body swing and keeps tension on the arms.', desc:'Sit tall with arms hanging by your sides. Curl both dumbbells up while keeping elbows still, then lower fully with control.', mod:'Alternate arms if both arms at once makes you lean back.' },
+      ]},
+    ],
+  }),
+
+  Monday: gym20Day({
+    title: 'Main Workout',
+    sub: 'Legs · 3 sets · 8–12 reps',
+    accent: 'var(--main)',
+    blocks: [
+      { label:'BLOCK A — QUAD COMPOUNDS', start:0, end:1 },
+      { label:'BLOCK B — KNEE FLEXION/EXTENSION', start:2, end:3 },
+      { label:'BLOCK C — POSTERIOR CHAIN + CALVES', start:4, end:5 },
+    ],
+    exercises: [
+      { alts: [
+        { name:'Barbell Back Squat', ids:['dW3zj79xfrc'], stat:gym20Stat, rest:'90 sec', image:'assets/gym20/monday-01-barbell-back-squat.png', imageAlt:'Barbell back squat exercise image', why:'Big lower-body compound for quads, glutes, trunk bracing, and overall strength.', desc:'Set the bar across your upper back. Brace, sit between your hips, keep knees tracking toes, then drive up through mid-foot.', mod:'Use a box squat or goblet squat if barbell depth is inconsistent.' },
+      ]},
+      { alts: [
+        { name:'Leg Press', ids:['EotSw18oR9w'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/monday-02-leg-press.png', imageAlt:'Leg press exercise image', why:'Heavy quad and glute volume with less balance demand than free-weight squats.', desc:'Place feet around shoulder width. Lower the sled until hips stay down and knees bend deeply, then press without locking knees hard.', mod:'Move feet slightly higher if knees feel crowded.' },
+      ]},
+      { alts: [
+        { name:'Leg Extension', ids:['m0FOpMEgero'], stat:gym20Stat, rest:'45–60 sec', image:'assets/gym20/monday-03-leg-extension.png', imageAlt:'Leg extension exercise image', why:'Quad isolation that helps finish knee-extension work after compounds.', desc:'Sit back against the pad. Extend until knees are straight, squeeze quads, then lower slowly to the start.', mod:'Use a lighter load and a slower lowering phase.' },
+      ]},
+      { alts: [
+        { name:'Seated Leg Curl', ids:['NxPR7G_YNHI'], stat:gym20Stat, rest:'45–60 sec', image:'assets/gym20/monday-04-seated-leg-curl.png', imageAlt:'Seated leg curl exercise image', why:'Hamstring isolation that balances quad work and supports knee health.', desc:'Set the pad above your ankles. Curl down by bending knees, squeeze hamstrings, then let the weight return under control.', mod:'Reduce range slightly if the stretch feels sharp behind the knee.' },
+      ]},
+      { alts: [
+        { name:'Dumbbell Romanian Deadlift', ids:['hu3jRvTc_po'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/monday-05-dumbbell-romanian-deadlift.png', imageAlt:'Dumbbell Romanian deadlift exercise image', why:'Hip-hinge pattern for hamstrings, glutes, and strong posterior-chain control.', desc:'Hold dumbbells in front of thighs. Push hips back with soft knees, feel hamstrings stretch, then stand by driving hips forward.', mod:'Stop just below the knees until your hinge feels clean.' },
+      ]},
+      { alts: [
+        { name:'Standing Dumbbell Calf Raise', ids:['lyDp3tbx3qU'], stat:gym20Stat, rest:'45–60 sec', image:'assets/gym20/monday-06-standing-dumbbell-calf-raise.png', imageAlt:'Standing dumbbell calf raise exercise image', why:'Direct calf work for the gastrocnemius after heavier leg training.', desc:'Hold dumbbells at your sides. Rise onto the balls of your feet, pause at the top, then lower until calves stretch.', mod:'Use a wall or rack for balance and do one leg at a time if needed.' },
+      ]},
+    ],
+  }),
+
+  Tuesday: gym20Rest,
+
+  Wednesday: gym20Day({
+    title: 'Main Workout',
+    sub: 'Upper Body · 3 sets · 8–12 reps',
+    accent: 'var(--main)',
+    blocks: [
+      { label:'BLOCK A — PUSH/PULL COMPOUNDS', start:0, end:1 },
+      { label:'BLOCK B — SHOULDERS + POSTURE', start:2, end:3 },
+      { label:'BLOCK C — CHEST + BICEPS ACCESSORY', start:4, end:5 },
+    ],
+    exercises: [
+      { alts: [
+        { name:'Incline Dumbbell Bench Press', ids:['5orOHJL2qS4'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/wednesday-01-incline-dumbbell-press.png', imageAlt:'Incline dumbbell bench press exercise image', why:'Upper-chest compound press that repeats the key chest pattern with free weights.', desc:'Set the bench to a moderate incline. Lower dumbbells toward the upper chest, keep elbows controlled, then press smoothly upward.', mod:'Choose a lighter pair and keep the incline below 45 degrees.' },
+      ]},
+      { alts: [
+        { name:'Lat Pulldown', ids:['CAwf7n6Luuc'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/wednesday-02-lat-pulldown.png', imageAlt:'Lat pulldown exercise image', why:'Back-width builder that balances pressing volume in the same block.', desc:'Pull the bar to the upper chest while driving elbows down and slightly back. Control the stretch at the top each rep.', mod:'Keep the torso mostly still and lighten the stack if you swing.' },
+      ]},
+      { alts: [
+        { name:'Seated Dumbbell Shoulder Press', ids:['E9ShwbwZ1zw'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/wednesday-03-seated-dumbbell-shoulder-press.png', imageAlt:'Seated dumbbell shoulder press exercise image', why:'Overhead strength work for delts and triceps after the chest/back pairing.', desc:'Sit tall and press dumbbells from shoulder height to overhead. Lower until elbows are just below shoulder height.', mod:'Use back support and avoid arching hard through the lower back.' },
+      ]},
+      { alts: [
+        { name:'Cable Face Pull', ids:['vQCi5Xzhoyw'], stat:gym20Stat, rest:'45–60 sec', image:'assets/gym20/wednesday-04-cable-face-pull.png', imageAlt:'Cable face pull exercise image', why:'Rear-delt and upper-back work that keeps shoulder training balanced.', desc:'Pull the rope toward eye level, separate the ends, and squeeze the back of your shoulders before returning.', mod:'Lower the weight until the movement stays smooth and controlled.' },
+      ]},
+      { alts: [
+        { name:'Dumbbell Chest Fly', ids:['vJh-4hRLH-o'], stat:gym20Stat, rest:'45–60 sec', image:'assets/gym20/wednesday-05-dumbbell-chest-fly.png', imageAlt:'Dumbbell chest fly exercise image', why:'Chest isolation that adds stretch-focused pec volume without more heavy pressing.', desc:'Lie on a bench with dumbbells above chest. Open arms wide with soft elbows, then bring them back together like hugging a barrel.', mod:'Use a smaller range if your shoulders feel stretched too aggressively.' },
+      ]},
+      { alts: [
+        { name:'Dumbbell Hammer Curl', ids:['VqoFbCmRyyk'], stat:gym20Stat, rest:'45–60 sec', image:'assets/gym20/wednesday-06-dumbbell-hammer-curl.png', imageAlt:'Dumbbell hammer curl exercise image', why:'Targets brachialis, brachioradialis, and biceps for thicker-looking arms.', desc:'Hold dumbbells with palms facing in. Curl without swinging, keep elbows close, then lower to full arm length.', mod:'Alternate arms to keep the torso still.' },
+      ]},
+    ],
+  }),
+
+  Thursday: gym20Day({
+    title: 'Main Workout',
+    sub: 'Lower Body · 3 sets · 8–12 reps',
+    accent: 'var(--main)',
+    blocks: [
+      { label:'BLOCK A — SQUAT + UNILATERAL', start:0, end:1 },
+      { label:'BLOCK B — QUAD MACHINE WORK', start:2, end:3 },
+      { label:'BLOCK C — HINGE + CALVES', start:4, end:5 },
+    ],
+    exercises: [
+      { alts: [
+        { name:'Dumbbell Goblet Squat', ids:['7-80HiXX1K8'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/thursday-01-dumbbell-goblet-squat.png', imageAlt:'Dumbbell goblet squat exercise image', why:'Squat pattern that reinforces depth, bracing, and quad/glute control.', desc:'Hold one dumbbell at your chest. Squat down between your knees, keep chest tall, then drive back up through mid-foot.', mod:'Use a box target to control depth.' },
+      ]},
+      { alts: [
+        { name:'Dumbbell Walking Lunge', ids:['2ea3_b9rFdM'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/thursday-02-dumbbell-walking-lunge.png', imageAlt:'Dumbbell walking lunge exercise image', why:'Unilateral leg work for quads, glutes, balance, and left-right symmetry.', desc:'Step forward into a lunge with dumbbells at your sides. Push through the front foot and step into the next rep under control.', mod:'Do reverse lunges in place if walking lunges feel unstable.' },
+      ]},
+      { alts: [
+        { name:'Leg Press', ids:['EotSw18oR9w'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/thursday-03-leg-press.png', imageAlt:'Leg press exercise image', why:'Machine-based quad and glute volume after the free-weight squat and lunge block.', desc:'Keep hips down and knees tracking toes. Lower with control, press up powerfully, and avoid hard knee lockout.', mod:'Shorten depth slightly if your lower back rounds.' },
+      ]},
+      { alts: [
+        { name:'Leg Extension', ids:['m0FOpMEgero'], stat:gym20Stat, rest:'45–60 sec', image:'assets/gym20/thursday-04-leg-extension.png', imageAlt:'Leg extension exercise image', why:'Finishes the quads with direct knee-extension work.', desc:'Extend legs until quads fully contract, pause briefly, then lower in a slow controlled motion.', mod:'Use lighter weight and focus on a smooth squeeze.' },
+      ]},
+      { alts: [
+        { name:'Barbell Romanian Deadlift', ids:['g5u75sgpn04'], stat:gym20Stat, rest:'60–90 sec', image:'assets/gym20/thursday-05-barbell-romanian-deadlift.png', imageAlt:'Barbell Romanian deadlift exercise image', why:'Hamstring and glute hinge that complements the quad-heavy first half of the session.', desc:'Hold the bar against your thighs. Hinge hips back, keep the bar close, stop when hamstrings stretch, then stand tall.', mod:'Use dumbbells or reduce range until your back stays neutral.' },
+      ]},
+      { alts: [
+        { name:'Standing Dumbbell Calf Raise', ids:['lyDp3tbx3qU'], stat:gym20Stat, rest:'45–60 sec', image:'assets/gym20/thursday-06-standing-dumbbell-calf-raise.png', imageAlt:'Standing dumbbell calf raise exercise image', why:'Second weekly calf exposure for lower-leg strength and size.', desc:'Stand tall with dumbbells. Rise as high as possible onto your toes, pause, then lower slowly through the full range.', mod:'Hold a rack with one hand if balance limits the reps.' },
+      ]},
+    ],
+  }),
+
+  Friday: gym20Rest,
+};
+
 const PROFILES = [
   {
     id: 'home',
@@ -931,6 +1106,35 @@ const PROFILES = [
       { day:'FRI', type:'rest',     emoji:'😴', label:'Rest Day' },
       { day:'SAT', type:'workout',  emoji:'🦵', label:'Lower + Pull' },
       { day:'SUN', type:'workout',  emoji:'💪', label:'Upper (Push/Pull)' },
+    ]
+  },
+  {
+    id: 'gym20',
+    name: 'Gym 2.0',
+    shortName: 'Gym 2.0',
+    icon: '🏋️',
+    hero: {
+      badge: '🏋️ Gym 2.0 Plan',
+      titleHTML: 'GYM<br><span class="g">2.0</span>',
+      pills: ['🏋️ Equipment Plan', '📅 5× / Week', '⚡ 3 Sets · 8–12'],
+    },
+    phases: {
+      Sunday: gym20Phases["Sunday"],
+      Monday: gym20Phases["Monday"],
+      Tuesday: gym20Phases["Tuesday"],
+      Wednesday: gym20Phases["Wednesday"],
+      Thursday: gym20Phases["Thursday"],
+      Friday: gym20Phases["Friday"],
+      Saturday: gym20Phases["Saturday"],
+    },
+    weekSchedule: [
+      { day:'MON', type:'workout',  emoji:'🦵', label:'Legs' },
+      { day:'TUE', type:'rest',     emoji:'😴', label:'Rest Day' },
+      { day:'WED', type:'workout',  emoji:'💪', label:'Upper' },
+      { day:'THU', type:'workout',  emoji:'🦵', label:'Lower' },
+      { day:'FRI', type:'rest',     emoji:'😴', label:'Rest Day' },
+      { day:'SAT', type:'workout',  emoji:'🏋️', label:'Chest + Back' },
+      { day:'SUN', type:'workout',  emoji:'💪', label:'Shoulders + Arms' },
     ]
   },
 ];
