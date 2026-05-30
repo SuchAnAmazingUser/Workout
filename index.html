@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Workout">
+<title>Workout App</title>
+<link id="fav" rel="icon" type="image/svg+xml" href="">
+<link id="apl" rel="apple-touch-icon" href="">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="Config.js"></script>
+<style>
+:root{
+  --bg:#0d0d0f;--card:#16161a;--card2:#1c1c23;
+  --border:#252530;--border2:#303040;
+  --warm:#f5a623;--main:#4ade80;--cool:#60a5fa;--purple:#a78bfa;
+  --text:#f0eff4;--text2:#b0afba;--muted:#5a5a6a;
+  --pill:#1e1e28;--accent:var(--main);
+  --ease:cubic-bezier(.4,0,.2,1);--spring:cubic-bezier(.34,1.56,.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;position:relative;}
+#ambient-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 50% 100%,rgba(13,13,15,0.1) 0%,transparent 70%);transition:background 1.6s ease;}
+
+/* PERSIST BAR */
+#persist-bar{position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(14,14,17,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;padding:10px 16px 8px;padding-top:max(10px,env(safe-area-inset-top));}
+.pb-date{flex:1;min-width:0;}
+.pb-date-main{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.5px;color:var(--text);line-height:1;}
+.pb-block{font-size:10px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pb-block.active-block{color:var(--main);}
+.pb-timer{display:flex;align-items:center;gap:6px;background:var(--pill);border:1px solid var(--border);border-radius:12px;padding:5px 10px;cursor:pointer;transition:background .15s,border-color .15s,transform .15s var(--spring);flex-shrink:0;}
+.pb-timer:hover{background:var(--border);border-color:var(--warm);}
+.pb-timer:active{transform:scale(.95);}
+.pb-timer-icon{font-size:13px;}
+.pb-timer-val{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--warm);letter-spacing:1px;min-width:44px;text-align:center;}
+.pb-timer.running{border-color:rgba(245,166,35,.5);background:rgba(245,166,35,.08);}
+.pb-timer.done{border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.08);}
+.pb-timer.done .pb-timer-val{color:var(--main);}
+
+/* STATUS GROUP */
+.pb-status-group{display:flex;align-items:center;gap:12px;margin-right:4px;}
+.pb-clock{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--text);letter-spacing:1px;}
+.pb-battery{display:none;align-items:center;gap:6px;font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--text2);}
+.pb-battery.active{display:flex;}
+.bat-shell{width:22px;height:11px;border:1px solid var(--muted);border-radius:2px;position:relative;padding:1px;display:flex;}
+.bat-level{height:100%;width:100%;background:var(--main);border-radius:1px;transition:width 0.4s ease, background 0.4s ease;}
+.bat-shell::after{content:'';position:absolute;right:-3px;top:2.5px;width:2px;height:4px;background:var(--muted);border-radius:0 1px 1px 0;}
+.bat-shell.charging{animation:batPulse 1.5s infinite;border-color:var(--main);}
+.bat-shell.charging::before{content:'⚡';position:absolute;font-size:8px;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;color:#fff;text-shadow:0 0 2px #000;}
+@keyframes batPulse{0%,100%{opacity:1}50%{opacity:0.6;box-shadow:0 0 8px var(--main);}}
+
+/* ══ PROFILE PICKER ══ */
+.pb-profile{position:relative;flex-shrink:0;}
+.pb-profile-btn{display:flex;align-items:center;gap:5px;background:var(--pill);border:1px solid var(--border);border-radius:12px;padding:5px 9px 5px 8px;cursor:pointer;transition:background .15s,border-color .15s,transform .15s var(--spring);white-space:nowrap;}
+.pb-profile-btn:hover{background:var(--border);border-color:var(--border2);}
+.pb-profile-btn:active{transform:scale(.95);}
+.pb-profile-btn.open{border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.07);}
+.pb-profile-icon{font-size:13px;line-height:1;}
+.pb-profile-name{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.5px;color:var(--text);max-width:54px;overflow:hidden;text-overflow:ellipsis;}
+.pb-profile-caret{font-size:11px;color:var(--muted);transition:transform .22s var(--ease);}
+.pb-profile-btn.open .pb-profile-caret{transform:rotate(180deg);}
+
+/* Profile Dropdown */
+#profile-dropdown{position:fixed;top:0;right:12px;width:230px;background:var(--card2);border:1px solid var(--border2);border-radius:18px;padding:10px;z-index:998;box-shadow:0 12px 40px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.04);display:none;transform-origin:top right;}
+#profile-dropdown.open{display:block;animation:dropIn .22s var(--spring) forwards;}
+@keyframes dropIn{from{opacity:0;transform:scale(.88) translateY(-8px)}to{opacity:1;transform:none}}
+
+.profile-dropdown-header{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;color:var(--muted);padding:4px 8px 8px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.profile-option{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:12px;cursor:pointer;transition:background .15s,transform .15s var(--spring);position:relative;}
+.profile-option:hover{background:rgba(255,255,255,.05);}
+.profile-option:active{transform:scale(.97);background:rgba(255,255,255,.08);}
+.profile-option.active-profile{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.18);}
+.po-icon{font-size:22px;width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.profile-option.active-profile .po-icon{background:rgba(74,222,128,.1);}
+.po-info{flex:1;min-width:0;}
+.po-name{font-family:'Bebas Neue',sans-serif;font-size:16px;line-height:1;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.po-meta{font-size:10px;color:var(--muted);}
+.po-check{font-size:14px;color:var(--main);opacity:0;transition:opacity .15s;}
+.profile-option.active-profile .po-check{opacity:1;}
+
+/* Dropdown backdrop */
+#profile-backdrop{position:fixed;inset:0;z-index:997;display:none;}
+#profile-backdrop.open{display:block;}
+
+/* SCREENS */
+.screen{display:none;min-height:100vh;flex-direction:column;opacity:0;position:relative;z-index:1;padding-top:54px;}
+.screen.active{display:flex;animation:screenIn .38s var(--ease) forwards;}
+.screen.back-active{display:flex;animation:screenBack .32s var(--ease) forwards;}
+@keyframes screenIn{from{opacity:0;transform:translateX(48px)}to{opacity:1;transform:none}}
+@keyframes screenBack{from{opacity:0;transform:translateX(-48px)}to{opacity:1;transform:none}}
+@keyframes screenOut{from{opacity:1;transform:none}to{opacity:0;transform:translateX(-40px)}}
+@keyframes screenOutBack{from{opacity:1;transform:none}to{opacity:0;transform:translateX(40px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes cardSlide{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes popIn{0%{transform:scale(0) rotate(-20deg);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes donePulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 50%,transparent)}70%{box-shadow:0 0 0 12px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
+@keyframes skele{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes orbFloat{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+@keyframes todayPulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.3);opacity:0}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes swipeOutLeft{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-28px)}}
+@keyframes swipeOutRight{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(28px)}}
+@keyframes swipeInLeft{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes swipeInRight{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+
+/* HERO */
+.hero{background:linear-gradient(155deg,#141422 0%,#0d0d0f 60%);padding:24px 24px 40px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;pointer-events:none;opacity:0;animation:orbFloat 3s var(--ease) forwards;}
+.orb1{width:340px;height:340px;top:-100px;right:-80px;background:radial-gradient(circle,rgba(74,222,128,.07) 0%,transparent 68%);animation-delay:.2s;}
+.orb2{width:200px;height:200px;bottom:-50px;left:-40px;background:radial-gradient(circle,rgba(96,165,250,.05) 0%,transparent 70%);animation-delay:.4s;}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.2);border-radius:30px;padding:5px 14px;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--main);margin-bottom:18px;opacity:0;animation:fadeUp .5s var(--ease) .1s forwards;}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,14vw,72px);line-height:.9;opacity:0;animation:fadeUp .5s var(--ease) .2s forwards;}
+.hero h1 .g{color:var(--main);}
+.hero-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;opacity:0;animation:fadeUp .5s var(--ease) .35s forwards;}
+.hero-pill{background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:30px;padding:5px 13px;font-size:12px;color:var(--text2);}
+
+/* PHASE LIST */
+.day-switcher{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 0;gap:12px;}
+.day-arrow-btn{width:40px;height:40px;border-radius:12px;background:var(--pill);border:1px solid var(--border);color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s var(--spring);flex-shrink:0;}
+.day-arrow-btn:hover:not(:disabled){background:var(--border);border-color:var(--border2);}
+.day-arrow-btn:active:not(:disabled){transform:scale(.90);}
+.day-arrow-btn:disabled{opacity:.3;cursor:default;}
+.day-display{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;}
+.day-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.5px;color:var(--text);}
+.day-date{font-size:12px;color:var(--muted);}
+.day-indicator{font-size:11px;color:var(--main);font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+.phase-list{padding:20px 18px 10px;display:flex;flex-direction:column;gap:11px;flex:1;}
+.phase-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:17px 16px;cursor:pointer;position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;transition:border-color .22s,box-shadow .22s,transform .18s var(--spring);-webkit-user-select:none;user-select:none;opacity:0;}
+.phase-card.visible{animation:cardSlide .42s var(--ease) forwards;}
+.phase-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c);border-radius:3px 0 0 3px;transform:scaleY(0);transition:transform .3s var(--spring);}
+.phase-card.visible::before{transform:scaleY(1);}
+.phase-card::after{content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.06);width:0;height:0;top:50%;left:50%;transform:translate(-50%,-50%);transition:width .5s ease,height .5s ease,opacity .5s ease;opacity:0;pointer-events:none;}
+.phase-card:active::after{width:300px;height:300px;opacity:1;}
+.phase-card:active{transform:scale(.97);}
+.phase-card:hover{border-color:var(--c);box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 20%,transparent);}
+.phase-icon{width:48px;height:48px;border-radius:14px;flex-shrink:0;background:color-mix(in srgb,var(--c) 12%,transparent);display:flex;align-items:center;justify-content:center;font-size:22px;transition:transform .25s var(--spring);}
+.phase-card:hover .phase-icon,.phase-card:active .phase-icon{transform:scale(1.12) rotate(-4deg);}
+.phase-info{flex:1;min-width:0;}
+.phase-title{font-family:'Bebas Neue',sans-serif;font-size:21px;line-height:1;margin-bottom:2px;}
+.phase-sub{font-size:12px;color:var(--muted);}
+.phase-prog-wrap{margin-top:7px;}
+.phase-prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.phase-prog-label{font-size:10px;color:var(--muted);}
+.phase-prog-pct{font-size:10px;font-weight:700;color:var(--c);}
+.phase-prog-track{height:3px;background:var(--border);border-radius:3px;overflow:hidden;}
+.phase-prog-fill{height:100%;background:var(--c);border-radius:3px;transition:width .6s var(--ease);}
+.phase-badge{background:color-mix(in srgb,var(--c) 14%,transparent);border-radius:8px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--c);flex-shrink:0;}
+.chev{color:var(--muted);font-size:20px;transition:transform .22s var(--ease);}
+.phase-card:hover .chev{transform:translateX(5px);color:var(--c);}
+.finisher-card{background:linear-gradient(135deg,#1a1820,#110f14);border-color:#3a2a1a;}
+.bonus-badge{background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.25);border-radius:8px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--warm);flex-shrink:0;}
+
+/* WEEKLY */
+.weekly-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px 16px;margin-bottom:22px;opacity:0;}
+.weekly-card.visible{animation:cardSlide .42s var(--ease) .25s forwards;}
+.weekly-header{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+.weekly-title{font-family:'Bebas Neue',sans-serif;font-size:17px;line-height:1;}
+.weekly-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.timeline{display:flex;align-items:flex-start;position:relative;padding:0 4px;}
+.timeline::before{content:'';position:absolute;top:20px;left:24px;right:24px;height:2px;background:var(--border);z-index:0;}
+.tl-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:1;cursor:default;}
+.tl-dot-wrap{position:relative;width:40px;height:40px;display:flex;align-items:center;justify-content:center;}
+.tl-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:var(--bg);transition:transform .2s var(--spring),border-color .2s,background .2s;z-index:1;}
+.tl-day.workout .tl-dot{background:var(--main);border-color:var(--main);box-shadow:0 0 10px rgba(74,222,128,.3);}
+.tl-day.rest .tl-dot{background:var(--border2);border-color:var(--border2);}
+.tl-day.optional .tl-dot{background:var(--warm);border-color:var(--warm);box-shadow:0 0 8px rgba(245,166,35,.25);}
+.tl-day.today .tl-dot{transform:scale(1.3);}
+.tl-day.today .tl-dot-wrap::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:1.5px solid var(--main);opacity:.5;animation:todayPulse 2s ease-in-out infinite;}
+.tl-label{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--muted);letter-spacing:.5px;}
+.tl-day.today .tl-label{color:var(--text);}
+.tl-activity{font-size:9.5px;color:var(--muted);text-align:center;line-height:1.3;max-width:44px;}
+.tl-day.workout .tl-activity{color:var(--main);}
+.tl-day.optional .tl-activity{color:var(--warm);}
+.tl-emoji{font-size:14px;}
+
+/* PHASE SCREEN */
+.top-bar{padding:14px 18px 15px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);flex-shrink:0;background:rgba(22,22,26,.95);backdrop-filter:blur(12px);position:sticky;top:54px;z-index:50;}
+.back-btn{width:38px;height:38px;border-radius:11px;background:var(--pill);border:1px solid var(--border);color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .18s,transform .18s var(--spring),border-color .18s;}
+.back-btn:hover{background:var(--border);border-color:var(--border2);}
+.back-btn:active{transform:scale(.88) translateX(-3px);}
+.top-bar-info{flex:1;overflow:hidden;}
+.top-bar-title{font-family:'Bebas Neue',sans-serif;font-size:23px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.top-bar-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.prog-wrap{padding:11px 18px;flex-shrink:0;background:rgba(14,14,17,.98);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);position:sticky;top:117px;z-index:48;overflow:visible;}
+.prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.prog-pct{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--accent);transition:color .3s;}
+.prog-steps{font-size:11px;color:var(--muted);}
+.prog-track{height:5px;background:var(--border);border-radius:5px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 60%,white));border-radius:5px;transition:width .6s var(--ease);position:relative;overflow:hidden;}
+.prog-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);animation:shimmer 1.8s infinite;}
+.ex-scroll{flex:1;overflow-y:auto;padding:14px 14px 140px;-webkit-overflow-scrolling:touch;}
+.block-label{display:flex;align-items:center;gap:8px;font-family:'Bebas Neue',sans-serif;font-size:11.5px;letter-spacing:2.5px;color:var(--accent);margin:20px 0 10px 2px;opacity:0;}
+.block-label.visible{animation:fadeUp .3s var(--ease) forwards;}
+.b-line{flex:1;height:1px;background:color-mix(in srgb,var(--accent) 18%,transparent);}
+
+/* EMPTY PHASE STATE */
+.empty-phase{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 32px;text-align:center;flex:1;}
+.empty-phase-icon{font-size:52px;margin-bottom:18px;animation:popIn .5s var(--spring);}
+.empty-phase-title{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--text2);margin-bottom:8px;}
+.empty-phase-msg{font-size:13px;color:var(--muted);line-height:1.65;max-width:260px;}
+
+/* EXERCISE CARD */
+.ex-card{background:var(--card);border:1px solid var(--border);border-radius:18px;margin-bottom:12px;overflow:hidden;opacity:0;transition:opacity .4s,border-color .2s;}
+.ex-card.visible{animation:cardSlide .4s var(--ease) forwards;}
+.ex-card.done{opacity:.32;}
+.ex-card:not(.done):hover{border-color:var(--border2);}
+.video-wrap{width:100%;position:relative;background:#000;border-bottom:1px solid var(--border);overflow:hidden;}
+.video-wrap::before{content:'';display:block;padding-top:56.25%;}
+.video-wrap iframe,.video-wrap video{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+.video-thumb{position:absolute;inset:0;cursor:pointer;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.video-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .35s var(--ease),filter .3s;filter:brightness(.85);}
+.video-thumb:hover img{transform:scale(1.04);filter:brightness(.7);}
+.video-thumb:active img{transform:scale(.98);}
+.video-thumb.loading img{opacity:0;}
+.video-thumb.loading::before{content:'';position:absolute;inset:0;background:linear-gradient(110deg,var(--card) 30%,var(--card2) 50%,var(--card) 70%);background-size:200% 100%;animation:skele 1.4s infinite;}
+.play-ring{position:absolute;width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);transition:transform .22s var(--spring),background .2s;box-shadow:0 4px 24px rgba(0,0,0,.5);}
+.video-thumb:hover .play-ring{transform:scale(1.1);background:rgba(220,30,30,.75);border-color:transparent;}
+.video-thumb:active .play-ring{transform:scale(.93);}
+.play-tri{width:0;height:0;border-top:11px solid transparent;border-bottom:11px solid transparent;border-left:20px solid #fff;margin-left:5px;}
+.video-label{position:absolute;bottom:0;left:0;right:0;padding:28px 12px 10px;background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:11px;font-weight:600;color:rgba(255,255,255,.85);}
+.video-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;color:var(--muted);font-size:12px;}
+.v-spin{width:28px;height:28px;border-radius:50%;border:2.5px solid var(--border);border-top-color:var(--accent);animation:spin .75s linear infinite;}
+.ex-body{padding:14px 15px;}
+.ex-top{display:flex;align-items:flex-start;gap:11px;margin-bottom:9px;}
+.ex-num{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .3s,transform .25s var(--spring);}
+.ex-card:hover .ex-num{transform:rotate(-5deg) scale(1.05);}
+.ex-card.done .ex-num{background:rgba(255,255,255,.06);color:var(--muted);}
+.ex-name{font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1;margin-bottom:3px;}
+.ex-why{font-size:12px;color:var(--muted);line-height:1.5;}
+.ex-desc{font-size:12.5px;color:var(--text2);line-height:1.68;margin-bottom:10px;background:rgba(255,255,255,.025);border-radius:11px;padding:10px 12px;border-left:3px solid color-mix(in srgb,var(--accent) 30%,transparent);}
+.ex-stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px;}
+.stat-chip{background:var(--pill);border:1px solid var(--border);border-radius:7px;padding:4px 10px;font-size:12px;font-weight:600;transition:background .18s,border-color .18s,transform .18s var(--spring);}
+.stat-chip:hover{background:var(--border);transform:translateY(-1px);}
+.mod-box{background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.15);border-radius:10px;padding:9px 12px;font-size:12px;color:#c9922b;line-height:1.5;margin-bottom:10px;transition:background .2s;}
+.mod-box:hover{background:rgba(245,166,35,.1);}
+.mod-box strong{color:var(--warm);}
+.done-btn{width:100%;padding:13px;border-radius:12px;background:color-mix(in srgb,var(--accent) 11%,transparent);border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;position:relative;overflow:hidden;transition:background .22s,border-color .22s,transform .18s var(--spring);}
+.done-btn::before{content:'';position:absolute;inset:0;border-radius:12px;background:radial-gradient(circle at var(--rx,50%) var(--ry,50%),rgba(255,255,255,.14) 0%,transparent 60%);opacity:0;transition:opacity .3s;}
+.done-btn:hover::before{opacity:1;}
+.done-btn:hover{background:color-mix(in srgb,var(--accent) 18%,transparent);border-color:color-mix(in srgb,var(--accent) 35%,transparent);transform:translateY(-1px);}
+.done-btn:active{transform:scale(.97) translateY(0);}
+.done-btn.checked{background:color-mix(in srgb,var(--accent) 20%,transparent);border-color:color-mix(in srgb,var(--accent) 38%,transparent);}
+.done-btn.pulse{animation:donePulse .5s ease;}
+.ex-actions{display:flex;align-items:stretch;gap:8px;}
+.ex-actions .done-btn{width:auto;flex:1;}
+.image-btn{width:46px;min-width:46px;border-radius:12px;background:var(--pill);border:1px solid var(--border);color:var(--accent);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s,transform .18s var(--spring);}
+.image-btn:hover{background:color-mix(in srgb,var(--accent) 12%,var(--pill));border-color:color-mix(in srgb,var(--accent) 35%,var(--border));transform:translateY(-1px);}
+.image-btn:active{transform:scale(.94);}
+
+/* EXERCISE IMAGE VIEWER */
+.image-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:900;display:none;align-items:center;justify-content:center;padding:22px;backdrop-filter:blur(8px);}
+.image-overlay.open{display:flex;animation:fadeIn .18s ease;}
+.image-sheet{position:relative;width:min(100%,520px);max-height:86vh;background:var(--card2);border:1px solid var(--border2);border-radius:18px;box-shadow:0 22px 70px rgba(0,0,0,.75);overflow:hidden;animation:popIn .28s var(--spring);}
+.image-sheet img{display:block;width:100%;max-height:76vh;object-fit:contain;background:#050505;}
+.image-close{position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:11px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.16);color:#fff;font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);transition:background .18s,transform .18s var(--spring);}
+.image-close:hover{background:rgba(255,255,255,.14);}
+.image-close:active{transform:scale(.92);}
+.image-caption{padding:11px 14px;font-size:12px;font-weight:700;color:var(--text2);border-top:1px solid var(--border);background:rgba(0,0,0,.18);}
+
+/* ══ HYDRATION POPUP ══ */
+#hydration-overlay{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;padding:20px;pointer-events:none;opacity:0;transition:opacity .35s var(--ease);}
+#hydration-overlay.show{opacity:1;pointer-events:auto;}
+.hydration-card{background:linear-gradient(145deg,#0e1e2a,#091520);border:1px solid rgba(96,165,250,.35);border-radius:26px;padding:32px 28px 26px;width:100%;max-width:360px;text-align:center;box-shadow:0 0 0 1px rgba(96,165,250,.1),0 24px 60px rgba(0,0,0,.8),0 0 80px rgba(96,165,250,.08);transform:scale(.88) translateY(20px);transition:transform .45s var(--spring),opacity .35s var(--ease);position:relative;overflow:hidden;}
+#hydration-overlay.show .hydration-card{transform:none;}
+.hydration-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(96,165,250,.08) 0%,transparent 65%);pointer-events:none;}
+.hydration-ripple{position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(96,165,250,.18) 0%,transparent 70%);animation:hydRipple 2.4s ease-in-out infinite;}
+@keyframes hydRipple{0%,100%{transform:translateX(-50%) scale(1);opacity:.6}50%{transform:translateX(-50%) scale(1.18);opacity:1}}
+.hydration-drop{font-size:62px;display:block;margin-bottom:8px;animation:dropBounce 2s var(--spring) infinite;filter:drop-shadow(0 0 18px rgba(96,165,250,.5));}
+@keyframes dropBounce{0%,100%{transform:translateY(0) scale(1)}40%{transform:translateY(-10px) scale(1.06)}70%{transform:translateY(-4px) scale(.97)}}
+.hydration-title{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:1px;color:#93c5fd;line-height:1;margin-bottom:6px;}
+.hydration-reason{font-size:12px;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;color:rgba(96,165,250,.65);margin-bottom:14px;}
+.hydration-msg{font-size:14.5px;color:var(--text2);line-height:1.6;margin-bottom:20px;padding:0 4px;}
+.hydration-amount{display:inline-flex;align-items:center;gap:8px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.25);border-radius:30px;padding:7px 18px;font-family:'Bebas Neue',sans-serif;font-size:18px;color:#93c5fd;letter-spacing:.5px;margin-bottom:22px;}
+.hydration-amount span{font-size:22px;}
+.hydration-btns{display:flex;gap:10px;}
+.hydration-done{flex:1;padding:14px;border-radius:14px;background:linear-gradient(135deg,#1e6fa8,#1a5c8a);border:none;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:transform .18s var(--spring),filter .18s;box-shadow:0 4px 18px rgba(96,165,250,.3);}
+.hydration-done:hover{filter:brightness(1.12);transform:translateY(-2px);}
+.hydration-done:active{transform:scale(.96);}
+.hydration-snooze{padding:14px 16px;border-radius:14px;background:var(--pill);border:1px solid var(--border2);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:background .15s,transform .15s var(--spring);}
+.hydration-snooze:hover{background:var(--border2);color:var(--text);}
+.hydration-snooze:active{transform:scale(.95);}
+.hydration-progress{margin-top:16px;display:flex;align-items:center;gap:8px;}
+.hyd-prog-label{font-size:11px;color:var(--muted);white-space:nowrap;}
+.hyd-prog-track{flex:1;height:4px;background:var(--border);border-radius:4px;overflow:hidden;}
+.hyd-prog-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#93c5fd);border-radius:4px;transition:width .6s var(--ease);}
+.hyd-close{position:absolute;top:12px;right:14px;width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;}
+.hyd-close:hover{background:var(--border);color:var(--text);}
+
+/* SUBSTITUTE BAR */
+.sub-bar{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);}
+.sub-arrow{width:32px;height:32px;border-radius:9px;background:var(--pill);border:1px solid var(--border);color:var(--text2);font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s,transform .15s var(--spring),color .15s;flex-shrink:0;}
+.sub-arrow:hover:not(:disabled){background:var(--border);border-color:var(--border2);color:var(--text);}
+.sub-arrow:active:not(:disabled){transform:scale(.88);}
+.sub-arrow:disabled{opacity:.25;cursor:default;}
+.sub-center{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:0;padding:0 8px;}
+.sub-dots{display:flex;gap:5px;align-items:center;}
+.sub-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);transition:background .2s,transform .2s var(--spring);}
+.sub-dot.active{background:var(--accent);transform:scale(1.3);}
+.sub-hint{font-size:10px;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;}
+
+/* TIMER */
+.timer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(5px);}
+.timer-overlay.open{display:flex;animation:fadeIn .2s ease;}
+.timer-sheet{background:var(--card);border-radius:24px 24px 0 0;padding:20px 24px 44px;width:100%;max-width:480px;animation:sheetUp .3s var(--spring);}
+.timer-handle{width:40px;height:4px;background:var(--border2);border-radius:4px;margin:0 auto 20px;}
+.timer-ring{position:relative;width:148px;height:148px;margin:0 auto 12px;}
+.timer-ring svg{position:absolute;inset:0;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--border2);stroke-width:6;}
+.ring-fg{fill:none;stroke:var(--warm);stroke-width:6;stroke-linecap:round;stroke-dasharray:439.6;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke .3s;}
+.timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:2px;color:var(--warm);transition:color .3s;}
+.timer-label{text-align:center;font-size:13px;color:var(--muted);margin-bottom:14px;transition:color .3s;}
+.timer-manual{display:flex;align-items:center;gap:6px;margin-bottom:12px;}
+.t-manual-input{flex:1;background:var(--pill);border:1px solid var(--border);border-radius:10px;padding:8px 10px;color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:20px;text-align:center;outline:none;transition:border-color .15s;}
+.t-manual-input:focus{border-color:var(--warm);}
+.t-adj{height:34px;min-width:38px;border-radius:9px;border:1px solid var(--border);background:var(--pill);color:var(--text2);font-size:11px;font-weight:700;cursor:pointer;transition:background .15s,transform .15s var(--spring),border-color .15s,color .15s;padding:0 6px;}
+.t-adj:hover{background:var(--border);color:var(--text);}
+.t-adj:active{transform:scale(.93);}
+.t-adj.pos{border-color:rgba(74,222,128,.2);color:var(--main);}
+.t-adj.pos:hover{background:rgba(74,222,128,.1);border-color:var(--main);}
+.t-adj.neg{border-color:rgba(248,113,113,.2);color:#f87171;}
+.t-adj.neg:hover{background:rgba(248,113,113,.1);border-color:#f87171;}
+.timer-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.preset-btn{background:var(--pill);border:1px solid var(--border);border-radius:10px;padding:10px 4px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:background .15s,border-color .15s,transform .15s var(--spring),color .15s;}
+.preset-btn:hover{background:var(--border);border-color:var(--warm);color:var(--warm);transform:translateY(-2px);}
+.preset-btn:active{transform:scale(.94);}
+.preset-btn.active-p{border-color:var(--warm);color:var(--warm);background:rgba(245,166,35,.1);}
+.t-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.t-btn{padding:14px;border-radius:13px;font-size:15px;font-weight:600;cursor:pointer;border:none;transition:transform .18s var(--spring),filter .18s;}
+.t-btn:hover{filter:brightness(1.1);transform:translateY(-2px);}
+.t-btn:active{transform:scale(.96);}
+.t-start{background:var(--warm);color:#000;}
+.t-reset{background:var(--pill);border:1px solid var(--border);color:var(--text);}
+
+/* DONE */
+#done-screen{align-items:center;justify-content:center;padding:40px 28px;text-align:center;background:radial-gradient(circle at 50% 35%,rgba(74,222,128,.08) 0%,transparent 60%);}
+.done-emoji{font-size:84px;margin-bottom:20px;animation:popIn .55s var(--spring);display:block;}
+.done-title{font-family:'Bebas Neue',sans-serif;font-size:58px;color:var(--main);line-height:1;margin-bottom:10px;animation:fadeUp .5s var(--ease) .15s both;}
+.done-sub{font-size:15px;color:var(--muted);line-height:1.65;margin-bottom:32px;max-width:300px;animation:fadeUp .5s var(--ease) .25s both;}
+.done-stats{display:flex;gap:12px;margin-bottom:32px;width:100%;max-width:340px;animation:fadeUp .5s var(--ease) .35s both;}
+.done-stat{flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 10px;transition:transform .2s var(--spring),border-color .2s;}
+.done-stat:hover{transform:translateY(-3px);border-color:var(--border2);}
+.done-stat .val{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--main);}
+.done-stat .lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+.home-btn{background:var(--main);color:#000;border:none;border-radius:16px;padding:16px 44px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .2s var(--spring),box-shadow .2s;animation:fadeUp .5s var(--ease) .45s both;box-shadow:0 4px 20px rgba(74,222,128,.3);}
+.home-btn:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(74,222,128,.4);}
+.home-btn:active{transform:scale(.97);}
+.toast{position:fixed;bottom:96px;left:50%;z-index:700;transform:translateX(-50%) translateY(12px);background:rgba(30,30,38,.96);border:1px solid var(--border2);border-radius:30px;padding:9px 18px;font-size:13px;font-weight:500;color:var(--text2);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s var(--spring);backdrop-filter:blur(8px);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div id="ambient-bg"></div>
+
+<!-- PERSIST BAR -->
+<div id="persist-bar">
+  <div class="pb-date">
+    <div class="pb-date-main" id="pb-date-main"></div>
+    <div class="pb-row2">
+      <span class="pb-block" id="pb-block">Loading…</span>
+      <span class="pb-ver" id="pb-ver">v8.1.1</span>
+    </div>
+  </div>
+
+  <!-- Profile Picker -->
+  <div class="pb-profile" id="pb-profile">
+    <button class="pb-profile-btn" id="pb-profile-btn" onclick="toggleProfileDropdown()">
+      <span class="pb-profile-icon" id="pb-profile-icon">🏠</span>
+      <span class="pb-profile-name" id="pb-profile-name">Home</span>
+      <span class="pb-profile-caret">⌄</span>
+    </button>
+  </div>
+
+  <div class="pb-status-group">
+    <div class="pb-clock" id="pb-clock">00:00</div>
+    <div class="pb-battery" id="pb-battery">
+      <div class="bat-shell" id="bat-shell">
+        <div class="bat-level" id="bat-level"></div>
+      </div>
+      <span id="bat-pct">--%</span>
+    </div>
+  </div>
+
+  <div class="pb-timer" id="pb-timer" onclick="openTimer()">
+    <span class="pb-timer-icon">⏱</span>
+    <span class="pb-timer-val" id="pb-timer-val">00:45</span>
+  </div>
+</div>
+
+<!-- HOME SCREEN -->
+<div id="home" class="screen active">
+  <div class="hero" id="hero">
+    <div class="orb orb1"></div><div class="orb orb2"></div>
+    <div class="hero-badge" id="hero-badge"></div>
+    <h1 id="hero-title"></h1>
+    <div class="hero-pills" id="hero-pills"></div>
+  </div>
+  <div class="phase-list" id="phase-list-wrapper">
+    <!-- Day Switcher -->
+    <div class="day-switcher" id="day-switcher">
+      <button class="day-arrow-btn" id="day-prev-btn" onclick="switchDay(-1)" title="Previous day">←</button>
+      <div class="day-display">
+        <div class="day-name" id="current-day-name">Monday</div>
+        <div class="day-date" id="current-day-date">Jan 20</div>
+        <div class="day-indicator" id="current-day-indicator"></div>
+      </div>
+      <button class="day-arrow-btn" id="day-next-btn" onclick="switchDay(1)" title="Next day">→</button>
+    </div>
+    
+    <div class="phase-list" id="phase-list">
+    <!-- Dynamically rendered by renderHomePhases() -->
+  </div>
+  </div>
+</div>
+
+<!-- PHASE SCREEN -->
+<div id="phase-screen" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goHome()">‹</button>
+    <div class="top-bar-info"><div class="top-bar-title" id="phase-title"></div><div class="top-bar-sub" id="phase-sub"></div></div>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-row"><span class="prog-pct" id="prog-pct">0%</span><span class="prog-steps" id="prog-steps">0 / 0 done</span></div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="ex-scroll" id="ex-list"></div>
+</div>
+
+<!-- DONE SCREEN -->
+<div id="done-screen" class="screen">
+  <span class="done-emoji">🏆</span>
+  <div class="done-title">CRUSHED IT</div>
+  <div class="done-sub">Every session is a deposit in your fitness account. Rest up and come back stronger.</div>
+  <div class="done-stats">
+    <div class="done-stat"><div class="val" id="ds-ex">0</div><div class="lbl">Exercises</div></div>
+    <div class="done-stat"><div class="val" id="ds-phase">—</div><div class="lbl">Phase</div></div>
+    <div class="done-stat"><div class="val">🔥</div><div class="lbl">Keep it up</div></div>
+  </div>
+  <button class="home-btn" onclick="goHome()">Back to Home</button>
+</div>
+
+<!-- TIMER SHEET -->
+<div class="timer-overlay" id="timer-overlay" onclick="closeTimerOutside(event)">
+  <div class="timer-sheet" onclick="event.stopPropagation()">
+    <div class="timer-handle"></div>
+    <div class="timer-ring">
+      <svg viewBox="0 0 148 148"><circle class="ring-bg" cx="74" cy="74" r="66"/><circle class="ring-fg" id="ring-fg" cx="74" cy="74" r="66"/></svg>
+      <div class="timer-num" id="timer-num">00:45</div>
+    </div>
+    <div class="timer-label" id="timer-label">Pick a duration or type one below</div>
+    <div class="timer-manual">
+      <button class="t-adj neg" onclick="adjTimer(-10)">−10</button>
+      <button class="t-adj neg" onclick="adjTimer(-5)">−5</button>
+      <button class="t-adj neg" onclick="adjTimer(-1)">−1</button>
+      <input class="t-manual-input" id="t-manual-input" type="text" value="00:45" placeholder="MM:SS" onchange="applyManualInput(this.value)" onkeydown="if(event.key==='Enter')applyManualInput(this.value)">
+      <button class="t-adj pos" onclick="adjTimer(1)">+1</button>
+      <button class="t-adj pos" onclick="adjTimer(5)">+5</button>
+      <button class="t-adj pos" onclick="adjTimer(10)">+10</button>
+    </div>
+    <div class="timer-presets">
+      <div class="preset-btn" onclick="setTimer(30)">30s</div>
+      <div class="preset-btn" onclick="setTimer(45)">45s</div>
+      <div class="preset-btn" onclick="setTimer(60)">60s</div>
+      <div class="preset-btn" onclick="setTimer(90)">90s</div>
+    </div>
+    <div class="t-controls">
+      <button class="t-btn t-start" id="t-start-btn" onclick="toggleTimer()">Start</button>
+      <button class="t-btn t-reset" onclick="resetTimer()">Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXERCISE IMAGE VIEWER -->
+<div class="image-overlay" id="exercise-image-overlay" aria-hidden="true" onclick="closeExerciseImageOutside(event)">
+  <div class="image-sheet" onclick="event.stopPropagation()">
+    <button class="image-close" onclick="closeExerciseImage()" aria-label="Close exercise image">&times;</button>
+    <img id="exercise-image-view" src="" alt="">
+    <div class="image-caption" id="exercise-image-caption"></div>
+  </div>
+</div>
+
+<!-- HYDRATION POPUP -->
+<div id="hydration-overlay">
+  <div class="hydration-card" id="hydration-card">
+    <button class="hyd-close" onclick="dismissHydration(true)">✕</button>
+    <div class="hydration-ripple"></div>
+    <span class="hydration-drop">💧</span>
+    <div class="hydration-title">HYDRATE NOW</div>
+    <div class="hydration-reason" id="hyd-reason">AFTER EXERCISE</div>
+    <p class="hydration-msg" id="hyd-msg">You just completed an exercise — your muscles are depleted. Drink water now to kickstart recovery and prevent cramps.</p>
+    <div class="hydration-amount"><span>💧</span><span id="hyd-amount">150–250 ml</span></div>
+    <div class="hydration-btns">
+      <button class="hydration-done" onclick="confirmHydration()">✓ Drank it!</button>
+      <button class="hydration-snooze" onclick="snoozeHydration()">5 min</button>
+    </div>
+    <div class="hydration-progress">
+      <span class="hyd-prog-label" id="hyd-count-label">Today: 0 sips</span>
+      <div class="hyd-prog-track"><div class="hyd-prog-fill" id="hyd-prog-fill" style="width:0%"></div></div>
+      <span class="hyd-prog-label" id="hyd-goal-label">Goal: 8</span>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Dropdown (fixed, outside of hero to avoid overflow clipping) -->
+<div id="profile-backdrop" onclick="closeProfileDropdown()"></div>
+<div id="profile-dropdown">
+  <div class="profile-dropdown-header">SWITCH PROFILE</div>
+  <!-- Options injected by buildProfileDropdown() -->
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════
+   AUDIO SFX
+══════════════════════════ */
+let _ctx;
+function ac(){if(!_ctx)_ctx=new(window.AudioContext||window.webkitAudioContext)();if(_ctx.state==='suspended')_ctx.resume();return _ctx;}
+function tone(f,t='sine',d=.08,v=.13){try{const c=ac(),g=c.createGain(),o=c.createOscillator();o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d);}catch(e){}}
+const sfxTap    =()=>tone(520,'sine',.055,.1);
+const sfxSwap   =()=>{tone(480,'sine',.04,.08);setTimeout(()=>tone(620,'sine',.04,.08),55);};
+const sfxDone   =()=>{tone(600,'sine',.07,.12);setTimeout(()=>tone(900,'sine',.09,.1),80);};
+const sfxUndo   =()=>tone(360,'sine',.06,.07);
+const sfxFinish =()=>[440,554,659,880].forEach((f,i)=>setTimeout(()=>tone(f,'triangle',.18,.14),i*85));
+const sfxTimerEnd=()=>[800,800,1000].forEach((f,i)=>setTimeout(()=>tone(f,'square',.1,.09),i*120));
+const sfxBack   =()=>tone(400,'sine',.05,.09);
+
+/* ══════════════════════════
+   PROFILE STATE MANAGEMENT
+══════════════════════════ */
+const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+function getDayName(date = new Date()) {
+  return days[date.getDay()];
+}
+
+function getProfileDayPhases(profile, date = new Date()) {
+  const day = getDayName(date);
+  const phasesForDay = profile?.phases?.[day];
+  if (phasesForDay) return phasesForDay;
+  return profile?.phases?.Sunday
+    || profile?.phases?.Monday
+    || profile?.phases?.Tuesday
+    || profile?.phases?.Wednesday
+    || profile?.phases?.Thursday
+    || profile?.phases?.Friday
+    || profile?.phases?.Saturday
+    || { warmup:{exercises:[]}, main:{exercises:[]}, cool:{exercises:[]}, finisher:{exercises:[]} };
+}
+
+function countExercisesInPhaseSet(phaseSet) {
+  if (!phaseSet) return 0;
+  return ['warmup', 'main', 'cool', 'finisher']
+    .reduce((sum, key) => sum + (phaseSet[key]?.exercises?.length || 0), 0);
+}
+
+function countProfileWeekExercises(profile) {
+  const seen = new Set();
+  let total = 0;
+  for (const dayPhases of Object.values(profile?.phases || {})) {
+    if (!dayPhases || seen.has(dayPhases)) continue;
+    seen.add(dayPhases);
+    total += countExercisesInPhaseSet(dayPhases);
+  }
+  return total;
+}
+
+let activeProfileId = sessionStorage.getItem('wp_activeProfile') || PROFILES[0].id;
+let currentProfileData = PROFILES.find(p => p.id === activeProfileId) || PROFILES[0];
+let phases      = getProfileDayPhases(currentProfileData);
+let weekSchedule = currentProfileData.weekSchedule;
+
+// Day Navigation State
+let selectedDate = new Date();
+selectedDate.setHours(0, 0, 0, 0);
+
+function setSelectedDate(date) {
+  selectedDate = new Date(date);
+  selectedDate.setHours(0, 0, 0, 0);
+  phases = getProfileDayPhases(currentProfileData, selectedDate);
+  renderHomePhases();
+  updateDaySwitcher();
+  sfxTap();
+}
+
+function switchDay(delta) {
+  const newDate = new Date(selectedDate);
+  newDate.setDate(newDate.getDate() + delta);
+  setSelectedDate(newDate);
+}
+
+function updateDaySwitcher() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dayName = getDayName(selectedDate);
+  const monthDay = selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const isToday = selectedDate.getTime() === today.getTime();
+  
+  document.getElementById('current-day-name').textContent = dayName;
+  document.getElementById('current-day-date').textContent = monthDay;
+  
+  const indicator = document.getElementById('current-day-indicator');
+  if (isToday) {
+    indicator.textContent = '🔥 Today';
+  } else if (selectedDate.getTime() < today.getTime()) {
+    const daysAgo = Math.floor((today.getTime() - selectedDate.getTime()) / (1000 * 60 * 60 * 24));
+    indicator.textContent = `${daysAgo} day${daysAgo > 1 ? 's' : ''} ago`;
+  } else {
+    const daysAhead = Math.floor((selectedDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    indicator.textContent = `in ${daysAhead} day${daysAhead > 1 ? 's' : ''}`;
+  }
+}
+
+// Per-profile progress & alt selections (mutable; cleared on profile switch)
+let savedProgress = { warmup: new Set(), main: new Set(), cool: new Set(), finisher: new Set() };
+const altIndex = {};
+
+function saveProfileState(profileId) {
+  const state = {
+    savedProgress: {
+      warmup:   [...savedProgress.warmup],
+      main:     [...savedProgress.main],
+      cool:     [...savedProgress.cool],
+      finisher: [...savedProgress.finisher],
+    },
+    altIndex: { ...altIndex },
+    hydSips,
+  };
+  try { sessionStorage.setItem(`wp_state_${profileId}`, JSON.stringify(state)); } catch(e) {}
+}
+
+function loadProfileState(profileId) {
+  // Clear current state
+  ['warmup','main','cool','finisher'].forEach(k => savedProgress[k].clear());
+  Object.keys(altIndex).forEach(k => delete altIndex[k]);
+  hydSips = 0;
+  updateHydProgress();
+  try {
+    const raw = sessionStorage.getItem(`wp_state_${profileId}`);
+    if (!raw) return;
+    const state = JSON.parse(raw);
+    ['warmup','main','cool','finisher'].forEach(k => {
+      (state.savedProgress?.[k] || []).forEach(v => savedProgress[k].add(v));
+    });
+    Object.assign(altIndex, state.altIndex || {});
+    hydSips = state.hydSips || 0;
+    updateHydProgress();
+  } catch(e) {}
+}
+
+function switchProfile(profileId) {
+  if (profileId === activeProfileId) { closeProfileDropdown(); return; }
+  sfxTap();
+  saveProfileState(activeProfileId);
+  activeProfileId = profileId;
+  sessionStorage.setItem('wp_activeProfile', profileId);
+  currentProfileData = PROFILES.find(p => p.id === profileId) || PROFILES[0];
+  
+  // Reset to today when switching profiles
+  selectedDate = new Date();
+  selectedDate.setHours(0, 0, 0, 0);
+  
+  phases       = getProfileDayPhases(currentProfileData, selectedDate);
+  weekSchedule = currentProfileData.weekSchedule;
+  loadProfileState(profileId);
+  // Re-render home screen
+  renderHero();
+  renderHomePhases();
+  buildTimeline();
+  updateHomeProgress();
+  if (currentPhase) { goHome(); }
+  updateProfileBtn();
+  updateDaySwitcher();
+  closeProfileDropdown();
+  showToast(`${currentProfileData.icon} ${currentProfileData.name}`);
+}
+
+/* ══════════════════════════
+   PROFILE DROPDOWN UI
+══════════════════════════ */
+function buildProfileDropdown() {
+  const dropdown = document.getElementById('profile-dropdown');
+  // Remove old options, keep header
+  const header = dropdown.querySelector('.profile-dropdown-header');
+  dropdown.innerHTML = '';
+  dropdown.appendChild(header);
+
+  PROFILES.forEach(profile => {
+    const isActive = profile.id === activeProfileId;
+    const todayPhases = getProfileDayPhases(profile);
+    const todayExercises = countExercisesInPhaseSet(todayPhases);
+    const weeklyExercises = countProfileWeekExercises(profile);
+    const metaText = todayExercises > 0
+      ? `${todayExercises} today · ${weeklyExercises} weekly`
+      : `Rest day · ${weeklyExercises} weekly`;
+
+    const opt = document.createElement('div');
+    opt.className = `profile-option${isActive ? ' active-profile' : ''}`;
+    opt.innerHTML = `
+      <div class="po-icon">${profile.icon}</div>
+      <div class="po-info">
+        <div class="po-name">${profile.name}</div>
+        <div class="po-meta">${metaText}${isActive ? ' · Active' : ''}</div>
+      </div>
+      <span class="po-check">✓</span>
+    `;
+    opt.addEventListener('click', () => switchProfile(profile.id));
+    dropdown.appendChild(opt);
+  });
+}
+
+function toggleProfileDropdown() {
+  const btn      = document.getElementById('pb-profile-btn');
+  const dropdown = document.getElementById('profile-dropdown');
+  const backdrop = document.getElementById('profile-backdrop');
+  const isOpen   = dropdown.classList.contains('open');
+  if (isOpen) {
+    closeProfileDropdown();
+  } else {
+    buildProfileDropdown();
+    // Position dropdown below the button
+    const rect = btn.getBoundingClientRect();
+    dropdown.style.top = (rect.bottom + 6) + 'px';
+    dropdown.classList.add('open');
+    backdrop.classList.add('open');
+    btn.classList.add('open');
+    sfxTap();
+  }
+}
+
+function closeProfileDropdown() {
+  document.getElementById('profile-dropdown').classList.remove('open');
+  document.getElementById('profile-backdrop').classList.remove('open');
+  document.getElementById('pb-profile-btn').classList.remove('open');
+}
+
+function updateProfileBtn() {
+  document.getElementById('pb-profile-icon').textContent = currentProfileData.icon;
+  document.getElementById('pb-profile-name').textContent = currentProfileData.shortName;
+}
+
+/* ══════════════════════════
+   HERO RENDERING
+══════════════════════════ */
+function renderHero() {
+  const p = currentProfileData.hero;
+  const badge = document.getElementById('hero-badge');
+  const title = document.getElementById('hero-title');
+  const pills = document.getElementById('hero-pills');
+  if (badge) badge.textContent = '';
+  if (badge) badge.innerHTML  = p.badge;
+  if (title) title.innerHTML  = p.titleHTML;
+  if (pills) {
+    pills.innerHTML = p.pills.map(pill => `<span class="hero-pill">${pill}</span>`).join('');
+  }
+  // Reset animations
+  [badge, title, pills].forEach(el => {
+    if (!el) return;
+    el.style.animation = 'none';
+    el.style.opacity   = '0';
+    void el.offsetWidth;
+    el.style.animation = '';
+    el.style.opacity   = '';
+  });
+}
+
+/* ══════════════════════════
+   HOME PHASE CARDS
+══════════════════════════ */
+const phaseOrder     = ['warmup', 'main', 'cool', 'finisher'];
+const phaseIcons     = { warmup:'🔥', main:'💪', cool:'❄️', finisher:'⚡' };
+const phaseColors    = { warmup:'var(--warm)', main:'var(--main)', cool:'var(--cool)', finisher:'var(--warm)' };
+const phaseBadgeSuffix = { warmup:'moves', main:'moves', cool:'stretches', finisher:'moves' };
+
+function renderHomePhases() {
+  const list = document.getElementById('phase-list');
+  list.innerHTML = '';
+
+  phaseOrder.forEach((key, i) => {
+    const phase = phases[key];
+    if (!phase) return;
+    const count      = phase.exercises ? phase.exercises.length : 0;
+    const isFinisher = key === 'finisher';
+    const badgeText  = count > 0 ? `${count} ${phaseBadgeSuffix[key]}` : 'REST DAY';
+
+    const card = document.createElement('div');
+    card.className = `phase-card${isFinisher ? ' finisher-card' : ''}`;
+    card.style.setProperty('--c', phaseColors[key]);
+    card.addEventListener('click', () => openPhase(key));
+    card.innerHTML = `
+      <div class="phase-icon">${phaseIcons[key]}</div>
+      <div class="phase-info">
+        <div class="phase-title">${phase.title.replace('⚡ ', '')}</div>
+        <div class="phase-sub">${phase.sub}</div>
+        <div class="phase-prog-wrap">
+          <div class="phase-prog-row">
+            <span class="phase-prog-label">Progress</span>
+            <span class="phase-prog-pct" id="home-pct-${key}">0%</span>
+          </div>
+          <div class="phase-prog-track">
+            <div class="phase-prog-fill" id="home-bar-${key}" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+      ${isFinisher
+        ? '<div class="bonus-badge">BONUS</div>'
+        : `<div class="phase-badge">${badgeText}</div><div class="chev">›</div>`}
+    `;
+    list.appendChild(card);
+    setTimeout(() => card.classList.add('visible'), 80 + i * 70);
+  });
+
+  // Weekly schedule card
+  const weeklyCard = document.createElement('div');
+  weeklyCard.className = 'weekly-card';
+  weeklyCard.innerHTML = `
+    <div class="weekly-header">
+      <div style="font-size:16px">📅</div>
+      <div>
+        <div class="weekly-title">Weekly Schedule</div>
+        <div class="weekly-sub">Your 7-day training plan</div>
+      </div>
+    </div>
+    <div class="timeline" id="timeline"></div>
+  `;
+  list.appendChild(weeklyCard);
+  setTimeout(() => weeklyCard.classList.add('visible'), 80 + phaseOrder.length * 70 + 50);
+}
+
+/* ══════════════════════════
+   DAILY SCHEDULE BLOCK
+══════════════════════════ */
+function getCurrentBlock() {
+  const now  = new Date();
+  const mins = now.getHours() * 60 + now.getMinutes();
+  let active = null;
+  for (const b of dailySchedule) {
+    const [h, m] = b.time.split(':').map(Number);
+    if (mins >= h * 60 + m) active = b; else break;
+  }
+  return active;
+}
+
+function setAppIcon(e) {
+  try {
+    var s = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>" + encodeURIComponent(e) + "</text></svg>";
+    var fv = document.getElementById('fav'); if (fv) fv.href = s;
+    var ap = document.getElementById('apl'); if (ap) ap.href = s;
+  } catch(ex) {}
+}
+
+function syncAppIcon() {
+  try {
+    if (typeof timerRunning !== 'undefined' && timerRunning && timerSecs > 0) { setAppIcon('⏱'); document.title = '⏱ Timer Running'; return; }
+    if (typeof timerRunning !== 'undefined' && !timerRunning && timerOrig > 0 && timerSecs <= 0) { setAppIcon('✅'); document.title = '✅ Rest Over!'; return; }
+    var sc  = document.querySelector('.screen.active,.screen.back-active');
+    var sid = sc ? sc.id : 'home';
+    if (sid === 'done-screen')  { setAppIcon('🏆'); document.title = 'Crushed It!'; return; }
+    if (sid === 'phase-screen') { setAppIcon('💪'); document.title = 'Workout App'; return; }
+    setAppIcon('💪'); document.title = 'Workout App';
+  } catch(ex) {}
+}
+
+/* Auto-version from GitHub commits */
+async function fetchVersion() {
+  try {
+    const res = await fetch(
+      'https://api.github.com/repos/SuchAnAmazingUser/Workout/commits?per_page=10',
+      { headers: { 'Accept': 'application/vnd.github.v3+json' } }
+    );
+    if (!res.ok) return;
+    const commits = await res.json();
+    for (const c of commits) {
+      const msg   = c.commit && c.commit.message ? c.commit.message : '';
+      const match = msg.match(/Update\s*[-\u2013]\s*V\.?\s*([\d.]+)/i);
+      if (match) {
+        const ver = 'v' + match[1];
+        const el  = document.getElementById('pb-ver');
+        if (el) el.textContent = ver;
+        return;
+      }
+    }
+  } catch(e) { /* silently fail */ }
+}
+
+/* ══════════════════════════
+   PERSIST BAR & BATTERY
+══════════════════════════ */
+function updatePersistBar() {
+  const now    = new Date();
+  const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const dateEl = document.getElementById('pb-date-main');
+  if (dateEl) dateEl.textContent = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+  const clockEl = document.getElementById('pb-clock');
+  if (clockEl) clockEl.textContent = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  const block = getCurrentBlock();
+  const el    = document.getElementById('pb-block');
+  if (block) { el.textContent = 'Now: ' + block.label; el.className = 'pb-block active-block'; }
+  else       { el.textContent = 'No active block';     el.className = 'pb-block'; }
+}
+
+function updateBatteryUI(bat) {
+  const level  = bat.level * 100;
+  const pctEl  = document.getElementById('bat-pct');
+  const fillEl = document.getElementById('bat-level');
+  const shellEl= document.getElementById('bat-shell');
+  if (pctEl)  pctEl.textContent = Math.round(level) + '%';
+  if (fillEl) {
+    fillEl.style.width = level + '%';
+    if (level <= 20)  fillEl.style.background = '#f87171';
+    else if (level <= 50) fillEl.style.background = 'var(--warm)';
+    else              fillEl.style.background = 'var(--main)';
+  }
+  if (shellEl) {
+    if (bat.charging) shellEl.classList.add('charging');
+    else              shellEl.classList.remove('charging');
+  }
+}
+
+function initBattery() {
+  if (typeof navigator.getBattery !== 'function') return;
+  navigator.getBattery().then(bat => {
+    if (typeof bat.level !== 'number') return;
+    const widget = document.getElementById('pb-battery');
+    if (widget) widget.classList.add('active');
+    updateBatteryUI(bat);
+    bat.addEventListener('levelchange',   () => updateBatteryUI(bat));
+    bat.addEventListener('chargingchange',() => updateBatteryUI(bat));
+  }).catch(() => {});
+}
+
+/* ══════════════════════════
+   ALT INDEX STATE
+   Key: "phaseKey-slotIdx" → number
+══════════════════════════ */
+function getAltIdx(phaseKey, slotIdx) { return altIndex[`${phaseKey}-${slotIdx}`] || 0; }
+function setAltIdx(phaseKey, slotIdx, v) { altIndex[`${phaseKey}-${slotIdx}`] = v; }
+function getAlt(phaseKey, slotIdx) {
+  const slot = phases[phaseKey].exercises[slotIdx];
+  return slot.alts[getAltIdx(phaseKey, slotIdx)];
+}
+
+/* ══════════════════════════
+   INIT
+══════════════════════════ */
+const todayIdx = (new Date().getDay() + 6) % 7;
+
+window.addEventListener('load', () => {
+  // Load saved state for the active profile
+  loadProfileState(activeProfileId);
+  // Render UI
+  updateProfileBtn();
+  updateDaySwitcher();
+  renderHero();
+  renderHomePhases();
+  buildTimeline();
+  updateHomeProgress();
+  updatePersistBar();
+  initBattery();
+  setInterval(updatePersistBar, 1000);
+  fetchVersion();
+  syncAppIcon();
+});
+
+window.addEventListener('beforeunload', () => {
+  saveProfileState(activeProfileId);
+});
+
+/* ══════════════════════════
+   WEEKLY TIMELINE
+══════════════════════════ */
+function buildTimeline() {
+  const tl = document.getElementById('timeline');
+  if (!tl) return;
+  tl.innerHTML = '';
+  weekSchedule.forEach((d, i) => {
+    const el = document.createElement('div');
+    el.className = 'tl-day ' + d.type + (i === todayIdx ? ' today' : '');
+    el.innerHTML = `<div class="tl-dot-wrap"><div class="tl-dot"></div></div><div class="tl-label">${d.day}</div><div class="tl-emoji">${d.emoji}</div><div class="tl-activity">${d.label}</div>`;
+    tl.appendChild(el);
+  });
+}
+
+function updateHomeProgress() {
+  phaseOrder.forEach(key => {
+    if (!phases[key]) return;
+    const total = phases[key].exercises ? phases[key].exercises.length : 0;
+    const done  = savedProgress[key].size;
+    const pct   = total > 0 ? Math.round(done / total * 100) : 0;
+    const b = document.getElementById('home-bar-' + key);
+    const p = document.getElementById('home-pct-' + key);
+    if (b) b.style.width  = pct + '%';
+    if (p) p.textContent  = pct + '%';
+  });
+}
+
+/* ══════════════════════════
+   NAVIGATION
+══════════════════════════ */
+let currentPhase = null;
+
+function showScreen(id, direction = 'forward') {
+  const prev = document.querySelector('.screen.active,.screen.back-active');
+  const next = document.getElementById(id);
+  if (!prev || prev === next) return;
+  prev.style.animation = (direction === 'forward') ? 'screenOut .28s var(--ease) forwards' : 'screenOutBack .28s var(--ease) forwards';
+  prev.classList.remove('active', 'back-active');
+  setTimeout(() => { prev.style.animation = ''; }, 300);
+  next.classList.add(direction === 'forward' ? 'active' : 'back-active');
+  next.scrollTop = 0;
+  setTimeout(syncAppIcon, 50);
+}
+
+function goHome() {
+  sfxBack();
+  saveProfileState(activeProfileId);
+  showScreen('home', 'back');
+  resetTimer();
+  currentPhase = null;
+  updateHomeProgress();
+}
+
+function openPhase(key) {
+  sfxTap();
+  currentPhase = key;
+  if (key === 'warmup') setTimeout(() => triggerHydration('preworkout'), 1200);
+  startHydrationTracking();
+  const p = phases[key];
+  document.getElementById('phase-title').textContent = p.title;
+  document.getElementById('phase-sub').textContent   = p.sub;
+  document.documentElement.style.setProperty('--accent', p.accent);
+  const list = document.getElementById('ex-list');
+  list.innerHTML = '';
+
+  // Empty state for profiles with no exercises yet
+  if (!p.exercises || p.exercises.length === 0) {
+    list.innerHTML = `
+      <div class="empty-phase">
+        <div class="empty-phase-icon">🏗️</div>
+        <div class="empty-phase-title">Coming Soon</div>
+        <div class="empty-phase-msg">No exercises have been added to this phase yet. Edit <strong>Config.js</strong> to add workouts to this profile.</div>
+      </div>`;
+    updatePhaseProgress();
+    showScreen('phase-screen', 'forward');
+    return;
+  }
+
+  if (key === 'main' && p.blocks && p.blocks.length > 0) {
+    p.blocks.forEach(b => {
+      const lbl = document.createElement('div');
+      lbl.className = 'block-label';
+      lbl.innerHTML = `${b.label}<div class="b-line"></div>`;
+      list.appendChild(lbl);
+      setTimeout(() => lbl.classList.add('visible'), 50);
+      for (let i = b.start; i <= b.end; i++) {
+        const c = makeCard(i, key);
+        list.appendChild(c);
+        setTimeout(() => c.classList.add('visible'), 50 + i * 40);
+      }
+    });
+  } else {
+    p.exercises.forEach((_, i) => {
+      const c = makeCard(i, key);
+      list.appendChild(c);
+      setTimeout(() => c.classList.add('visible'), 40 + i * 50);
+    });
+  }
+  updatePhaseProgress();
+  showScreen('phase-screen', 'forward');
+}
+
+/* ══════════════════════════
+   CARD RENDERING
+══════════════════════════ */
+function makeCard(slotIdx, phaseKey) {
+  const card   = document.createElement('div');
+  const isDone = savedProgress[phaseKey].has(slotIdx);
+  card.className = 'ex-card' + (isDone ? ' done' : '');
+  card.id = `ex-${slotIdx}`;
+  renderCardInto(card, slotIdx, phaseKey);
+  return card;
+}
+
+function renderCardInto(card, slotIdx, phaseKey) {
+  const slot   = phases[phaseKey].exercises[slotIdx];
+  const alts   = slot.alts;
+  const aIdx   = getAltIdx(phaseKey, slotIdx);
+  const ex     = alts[aIdx];
+  const isDone = savedProgress[phaseKey].has(slotIdx);
+  const restChip = ex.rest ? `<div class="stat-chip">⏸ ${ex.rest} rest</div>` : '';
+  const modHTML  = ex.mod  ? `<div class="mod-box"><strong>✏️ Easier mod:</strong> ${ex.mod}</div>` : '';
+  const imageBtn = ex.image ? `<button class="image-btn" onclick="openExerciseImage(${slotIdx},'${phaseKey}')" aria-label="Open exercise image" title="Exercise image"><span aria-hidden="true">🖼️</span></button>` : '';
+  const thumbSrc = ex.poster || ex.image || (ex.ids?.[0] ? `https://img.youtube.com/vi/${ex.ids[0]}/hqdefault.jpg` : '');
+  const thumbError = ex.ids?.length ? `tryNextThumb(${slotIdx},1,'${phaseKey}')` : `showNoThumb(${slotIdx})`;
+  const dotsHTML = alts.map((_,i) => `<span class="sub-dot${i===aIdx?' active':''}"></span>`).join('');
+  const subBar   = alts.length > 1 ? `
+    <div class="sub-bar">
+      <button class="sub-arrow" onclick="swapAlt('${phaseKey}',${slotIdx},-1)" ${aIdx===0?'disabled':''}aria-label="Previous exercise">‹</button>
+      <div class="sub-center">
+        <div class="sub-dots">${dotsHTML}</div>
+        <div class="sub-hint">Swap exercise · ${aIdx+1} of ${alts.length}</div>
+      </div>
+      <button class="sub-arrow" onclick="swapAlt('${phaseKey}',${slotIdx},1)" ${aIdx===alts.length-1?'disabled':''}aria-label="Next exercise">›</button>
+    </div>` : '';
+  card.innerHTML = `
+    ${subBar}
+    <div class="video-wrap"><div class="video-thumb loading" id="vt-${slotIdx}">
+      <img src="${thumbSrc}" alt="${ex.name}"
+        onload="this.parentElement.classList.remove('loading')" onerror="${thumbError}">
+      <div class="play-ring"><div class="play-tri"></div></div>
+      <div class="video-label">${ex.name} · Tap to watch demo</div>
+    </div></div>
+    <div class="ex-body">
+      <div class="ex-top"><div class="ex-num">${slotIdx+1}</div><div><div class="ex-name">${ex.name}</div><div class="ex-why">${ex.why}</div></div></div>
+      <div class="ex-desc">${ex.desc}</div>
+      <div class="ex-stats"><div class="stat-chip">${ex.stat}</div>${restChip}</div>
+      ${modHTML}
+      <div class="ex-actions">
+        <button class="done-btn${isDone?' checked':''}" id="btn-${slotIdx}" onclick="markDone(${slotIdx})">${isDone?'✅ Done!':'✓ Mark as Done'}</button>
+        ${imageBtn}
+      </div>
+    </div>`;
+  card.querySelector(`#vt-${slotIdx}`).addEventListener('click', () => loadVideo(slotIdx, 0, phaseKey));
+  const btn = card.querySelector('.done-btn');
+  btn.addEventListener('mousemove', e => {
+    const r = btn.getBoundingClientRect();
+    btn.style.setProperty('--rx', ((e.clientX - r.left) / r.width * 100) + '%');
+    btn.style.setProperty('--ry', ((e.clientY - r.top)  / r.height * 100) + '%');
+  });
+}
+
+function swapAlt(phaseKey, slotIdx, dir) {
+  const slot = phases[phaseKey].exercises[slotIdx];
+  const alts = slot.alts;
+  const cur  = getAltIdx(phaseKey, slotIdx);
+  const next = cur + dir;
+  if (next < 0 || next >= alts.length) return;
+  sfxSwap();
+  const card = document.getElementById(`ex-${slotIdx}`);
+  if (!card) return;
+  const outAnim = dir > 0 ? 'swipeOutLeft 160ms var(--ease) forwards' : 'swipeOutRight 160ms var(--ease) forwards';
+  const inAnim  = dir > 0 ? 'swipeInLeft  160ms var(--ease) forwards' : 'swipeInRight  160ms var(--ease) forwards';
+  card.style.animation = outAnim;
+  setTimeout(() => {
+    setAltIdx(phaseKey, slotIdx, next);
+    renderCardInto(card, slotIdx, phaseKey);
+    card.style.animation = inAnim;
+    showToast(alts[next].name);
+  }, 160);
+}
+
+function tryNextThumb(slotIdx, attempt, phaseKey) {
+  const ex = getAlt(phaseKey || currentPhase, slotIdx);
+  if (!ex || !ex.ids?.length || attempt >= ex.ids.length) { showNoThumb(slotIdx); return; }
+  const img = document.querySelector(`#vt-${slotIdx} img`);
+  if (img) { img.src = `https://img.youtube.com/vi/${ex.ids[attempt]}/hqdefault.jpg`; img.onerror = () => tryNextThumb(slotIdx, attempt + 1, phaseKey || currentPhase); }
+  const thumb = document.getElementById(`vt-${slotIdx}`);
+  if (thumb) { thumb.onclick = null; thumb.addEventListener('click', () => loadVideo(slotIdx, attempt, phaseKey || currentPhase), { once: true }); }
+}
+
+function showNoThumb(slotIdx) {
+  const t = document.getElementById(`vt-${slotIdx}`);
+  if (t) t.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--muted);font-size:13px;"><div style="font-size:32px">🎬</div><div>No preview available</div></div>`;
+}
+
+function loadVideo(slotIdx, idxInList, phaseKey) {
+  sfxTap();
+  const ex    = getAlt(phaseKey || currentPhase, slotIdx);
+  if (!ex) return;
+  const thumb = document.getElementById(`vt-${slotIdx}`);
+  if (!thumb) return;
+  thumb.innerHTML = `<div class="video-loading"><div class="v-spin"></div><span>Loading…</span></div>`;
+  setTimeout(() => {
+    if (ex.video) {
+      const video = document.createElement('video');
+      video.src = ex.video;
+      video.poster = ex.poster || ex.image || '';
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      video.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;';
+      const wrap = thumb.closest('.video-wrap');
+      if (wrap) thumb.replaceWith(video);
+      return;
+    }
+    if (!ex.ids?.length) { showNoThumb(slotIdx); return; }
+    const ytId = ex.ids[idxInList] || ex.ids[0];
+    const iframe = document.createElement('iframe');
+    iframe.src   = `https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
+    iframe.allow = 'autoplay;encrypted-media;picture-in-picture;fullscreen';
+    iframe.allowFullscreen = true;
+    iframe.style.cssText   = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
+    iframe.onerror = () => { if (idxInList + 1 < ex.ids.length) loadVideo(slotIdx, idxInList + 1, phaseKey || currentPhase); else showNoThumb(slotIdx); };
+    const wrap = thumb.closest('.video-wrap');
+    if (wrap) thumb.replaceWith(iframe);
+  }, 150);
+}
+
+function openExerciseImage(slotIdx, phaseKey) {
+  const ex = getAlt(phaseKey || currentPhase, slotIdx);
+  if (!ex || !ex.image) return;
+  sfxTap();
+
+  const overlay = document.getElementById('exercise-image-overlay');
+  const img = document.getElementById('exercise-image-view');
+  const caption = document.getElementById('exercise-image-caption');
+  if (!overlay || !img || !caption) return;
+
+  img.src = ex.image;
+  img.alt = ex.imageAlt || `${ex.name} exercise image`;
+  caption.textContent = ex.name;
+  overlay.classList.add('open');
+  overlay.setAttribute('aria-hidden', 'false');
+}
+
+function closeExerciseImage() {
+  const overlay = document.getElementById('exercise-image-overlay');
+  const img = document.getElementById('exercise-image-view');
+  if (!overlay) return;
+
+  overlay.classList.remove('open');
+  overlay.setAttribute('aria-hidden', 'true');
+  if (img) img.src = '';
+}
+
+function closeExerciseImageOutside(e) {
+  if (e.target.id === 'exercise-image-overlay') closeExerciseImage();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeExerciseImage();
+});
+
+function markDone(slotIdx) {
+  const card = document.getElementById(`ex-${slotIdx}`);
+  const btn  = document.getElementById(`btn-${slotIdx}`);
+  if (!card || !btn || !currentPhase) return;
+  if (savedProgress[currentPhase].has(slotIdx)) {
+    savedProgress[currentPhase].delete(slotIdx);
+    card.classList.remove('done');
+    btn.textContent = '✓ Mark as Done';
+    btn.classList.remove('checked');
+    sfxUndo();
+    showToast('Unmarked');
+  } else {
+    savedProgress[currentPhase].add(slotIdx);
+    card.classList.add('done');
+    btn.textContent = '✅ Done!';
+    btn.classList.add('checked');
+    btn.classList.remove('pulse');
+    void btn.offsetWidth;
+    btn.classList.add('pulse');
+    sfxDone();
+    const total = phases[currentPhase].exercises.length;
+    const done  = savedProgress[currentPhase].size;
+    const rem   = total - done;
+    if (rem > 0) showToast(rem === 1 ? '1 left!' : `${rem} left`);
+
+    // Hydration triggers
+    hydExerciseDoneCount++;
+    if (currentPhase === 'main') {
+      if (hydExerciseDoneCount % 3 === 0) setTimeout(() => triggerHydration('round'), 1400);
+      else setTimeout(() => triggerHydration('exercise'), 1400);
+    } else if (currentPhase === 'cool' && done === total) {
+      setTimeout(() => triggerHydration('postworkout'), 1400);
+    } else {
+      setTimeout(() => triggerHydration('exercise'), 1400);
+    }
+
+    if (done === total) {
+      sfxFinish();
+      setTimeout(() => {
+        document.getElementById('ds-ex').textContent    = total;
+        document.getElementById('ds-phase').textContent = phases[currentPhase]?.title.replace('⚡ ', '').split(' ')[0] || 'Done';
+        showScreen('done-screen', 'forward');
+      }, 700);
+    }
+  }
+  updatePhaseProgress();
+  // Auto-save progress after marking
+  saveProfileState(activeProfileId);
+}
+
+function updatePhaseProgress() {
+  if (!currentPhase || !phases[currentPhase]) return;
+  const total = phases[currentPhase].exercises ? phases[currentPhase].exercises.length : 0;
+  const done  = savedProgress[currentPhase].size;
+  const pct   = total > 0 ? Math.round(done / total * 100) : 0;
+  document.getElementById('prog-fill').style.width    = pct + '%';
+  document.getElementById('prog-pct').textContent     = pct + '%';
+  document.getElementById('prog-steps').textContent   = `${done} / ${total} done`;
+}
+
+let _tt;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ══════════════════════════════════════════
+   HYDRATION SYSTEM
+══════════════════════════════════════════ */
+const HYD_GOAL      = 8;
+let hydSips          = 0;
+let hydSnoozeTimeout = null;
+let hydPeriodicInterval = null;
+let hydExerciseDoneCount = 0;
+let hydLastTriggered = 0;
+const HYD_COOLDOWN   = 90000;
+
+function triggerHydration(type) {
+  const now = Date.now();
+  if (now - hydLastTriggered < HYD_COOLDOWN) return;
+  hydLastTriggered = now;
+  const data = hydrationMessages[type]; if (!data) return;
+  const msg  = data.msgs[Math.floor(Math.random() * data.msgs.length)];
+  document.getElementById('hyd-reason').textContent = data.reason;
+  document.getElementById('hyd-msg').textContent    = msg;
+  document.getElementById('hyd-amount').textContent = data.amount;
+  updateHydProgress();
+  document.getElementById('hydration-overlay').classList.add('show');
+  if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+  try {
+    const ctx = ac(), osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+function confirmHydration()  { hydSips++; updateHydProgress(); dismissHydration(false); showToast(`💧 Sip ${hydSips} logged!`); }
+function snoozeHydration()   {
+  dismissHydration(false);
+  hydLastTriggered = Date.now() - HYD_COOLDOWN + 5 * 60 * 1000;
+  clearTimeout(hydSnoozeTimeout);
+  hydSnoozeTimeout = setTimeout(() => triggerHydration('periodic'), 5 * 60 * 1000);
+  showToast('💧 Reminder in 5 min');
+}
+function dismissHydration(manual) {
+  document.getElementById('hydration-overlay').classList.remove('show');
+  if (manual) hydLastTriggered = Date.now();
+}
+function updateHydProgress() {
+  const pct = Math.min(100, Math.round((hydSips / HYD_GOAL) * 100));
+  document.getElementById('hyd-prog-fill').style.width  = pct + '%';
+  document.getElementById('hyd-count-label').textContent = `Today: ${hydSips} sips`;
+  document.getElementById('hyd-goal-label').textContent  = `Goal: ${HYD_GOAL}`;
+}
+function startHydrationTracking() {
+  clearInterval(hydPeriodicInterval);
+  hydPeriodicInterval = setInterval(() => triggerHydration('periodic'), 20 * 60 * 1000);
+}
+
+/* ══════════════════════════
+   TIMER
+══════════════════════════ */
+let timerSecs = 45, timerOrig = 45, timerRunning = false, timerIv = null;
+const CIRC = 2 * Math.PI * 66;
+
+function openTimer()  { document.getElementById('timer-overlay').classList.add('open'); sfxTap(); }
+function closeTimerOutside(e) { if (e.target.id === 'timer-overlay') document.getElementById('timer-overlay').classList.remove('open'); }
+function setTimer(s)  { if (!timerRunning) resetTimer(); timerSecs = Math.max(1, s); timerOrig = Math.max(1, s); document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active-p')); if (event && event.target) event.target.classList.add('active-p'); updateTimerDisplay(); sfxTap(); }
+function adjTimer(delta) { timerSecs = Math.max(1, timerSecs + delta); if (!timerRunning) timerOrig = timerSecs; updateTimerDisplay(); sfxTap(); }
+function applyManualInput(val) {
+  val = val.trim(); let secs;
+  if (val.includes(':')) { const [m,s] = val.split(':').map(Number); secs = (m||0)*60 + (s||0); }
+  else { secs = parseInt(val) || 0; }
+  if (secs > 0) { timerSecs = secs; timerOrig = secs; updateTimerDisplay(); sfxTap(); }
+}
+function toggleTimer() {
+  if (timerRunning) {
+    clearInterval(timerIv); timerRunning = false;
+    document.getElementById('t-start-btn').textContent = 'Resume';
+    document.getElementById('pb-timer').classList.remove('running');
+    sfxTap(); syncAppIcon();
+  } else {
+    timerRunning = true;
+    document.getElementById('t-start-btn').textContent = 'Pause';
+    document.getElementById('pb-timer').classList.add('running');
+    document.getElementById('pb-timer').classList.remove('done');
+    sfxTap(); syncAppIcon();
+    timerIv = setInterval(() => {
+      timerSecs--; updateTimerDisplay();
+      if (timerSecs <= 0) {
+        clearInterval(timerIv); timerRunning = false;
+        document.getElementById('t-start-btn').textContent = 'Start';
+        document.getElementById('timer-label').textContent  = '✅ Rest over — go!';
+        document.getElementById('timer-label').style.color  = 'var(--main)';
+        document.getElementById('timer-num').style.color    = 'var(--main)';
+        document.getElementById('ring-fg').style.stroke     = 'var(--main)';
+        document.getElementById('pb-timer').classList.remove('running');
+        document.getElementById('pb-timer').classList.add('done');
+        document.getElementById('pb-timer-val').style.color = 'var(--main)';
+        sfxTimerEnd();
+        if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
+        syncAppIcon();
+        setTimeout(() => triggerHydration('timerEnd'), 500);
+      }
+    }, 1000);
+  }
+}
+function resetTimer() {
+  clearInterval(timerIv); timerRunning = false; timerSecs = timerOrig;
+  document.getElementById('t-start-btn').textContent  = 'Start';
+  document.getElementById('timer-label').textContent  = 'Pick a duration or type one below';
+  document.getElementById('timer-label').style.color  = '';
+  document.getElementById('timer-num').style.color    = '';
+  document.getElementById('ring-fg').style.stroke     = '';
+  document.getElementById('pb-timer').classList.remove('running', 'done');
+  document.getElementById('pb-timer-val').style.color = '';
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active-p'));
+  updateTimerDisplay(); syncAppIcon();
+}
+function updateTimerDisplay() {
+  const m = Math.floor(timerSecs / 60), s = timerSecs % 60;
+  const str = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  document.getElementById('timer-num').textContent    = str;
+  document.getElementById('pb-timer-val').textContent = str;
+  const inp = document.getElementById('t-manual-input');
+  if (inp && document.activeElement !== inp) inp.value = str;
+  const fg  = document.getElementById('ring-fg');
+  const pct = timerOrig > 0 ? timerSecs / timerOrig : 1;
+  fg.style.transition    = timerRunning ? 'stroke-dashoffset 1s linear' : 'none';
+  fg.style.strokeDashoffset = CIRC * (1 - pct);
+}
+</script>
+</body>
+</html>
