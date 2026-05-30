@@ -1049,6 +1049,331 @@ const gym20Phases = {
   Friday: gym20Rest,
 };
 
+const gym30Rest = gym20Rest;
+const gym30Cool = gym20Cool;
+const gym30Finisher = gym20Finisher;
+
+const gym30WarmupAsset = 'assets/gym30/warmup/';
+
+function gym30WarmupExercise(file, name, stat, why, desc, mod) {
+  return { alts: [
+    {
+      name,
+      ids: [],
+      stat,
+      video: `${gym30WarmupAsset}${file}.mp4`,
+      poster: `${gym30WarmupAsset}${file}.jpg`,
+      image: `${gym30WarmupAsset}${file}.jpg`,
+      imageAlt: `${name} warmup clip poster`,
+      why,
+      desc,
+      mod,
+    },
+  ]};
+}
+
+const gym30Warmup = {
+  title: 'Warm-Up',
+  sub: '4-minute full-body dynamic stretching and warmup',
+  accent: 'var(--warm)',
+  exercises: [
+    gym30WarmupExercise(
+      '01-side-arm-rotations',
+      'Side Arm Rotations',
+      '1 round x 15 reps',
+      'Warms the shoulders through a big circular range before pressing, pulling, and arm work.',
+      'Stand tall with arms out to the sides. Make controlled side circles, keeping the shoulders relaxed and ribs down.',
+      'Use smaller circles if your shoulders feel tight.'
+    ),
+    gym30WarmupExercise(
+      '02-reversed-side-arm-rotations',
+      'Reversed Side Arm Rotations',
+      '1 round x 15 reps',
+      'Balances the shoulder warmup by moving the joints through the opposite direction.',
+      'Keep arms lifted to the sides and reverse the circle direction. Move smoothly without shrugging.',
+      'Bend the elbows slightly if straight arms feel uncomfortable.'
+    ),
+    gym30WarmupExercise(
+      '03-moving-side-to-side-arm-swings',
+      'Moving Side to Side Arm Swings',
+      '1 round x 20 reps',
+      'Adds gentle footwork while opening the chest, shoulders, and upper back.',
+      'Step side to side while swinging the arms wide and controlled. Let the torso rotate naturally with the movement.',
+      'Slow the steps down and keep the arm swing smaller.'
+    ),
+    gym30WarmupExercise(
+      '04-side-to-side-twists',
+      'Side to Side Twists',
+      '1 round x 20 reps',
+      'Prepares the trunk and hips for full-body movement by adding controlled rotation.',
+      'Hold your hands together in front of your chest and rotate side to side. Pivot through the feet and keep the core lightly braced.',
+      'Reduce the twist range if your lower back feels tight.'
+    ),
+    gym30WarmupExercise(
+      '05-hip-rotations',
+      'Hip Rotations',
+      '1 round x 10 reps',
+      'Opens the hips and wakes up the glutes before squats, presses, and lower-body training.',
+      'Place hands on hips and draw smooth circles with your hips. Keep the knees soft and move through a comfortable range.',
+      'Make smaller circles and slow the tempo.'
+    ),
+    gym30WarmupExercise(
+      '06-reversed-hip-rotations',
+      'Reversed Hip Rotations',
+      '1 round x 10 reps',
+      'Repeats the hip mobility work in the opposite direction for a more complete warmup.',
+      'Reverse the hip circle direction while keeping your chest tall and feet planted.',
+      'Hold a stable surface if balance becomes distracting.'
+    ),
+    gym30WarmupExercise(
+      '07-alternating-arm-swings-with-calf-raises',
+      'Alternating Arm Swings with Calf Raises',
+      '1 round x follow video pace',
+      'Raises body temperature while coordinating shoulders, calves, and ankle rhythm.',
+      'Alternate arm swings as you rise onto the balls of your feet. Land softly and keep the motion springy but controlled.',
+      'Skip the calf raise and march in place if ankles feel stiff.'
+    ),
+    gym30WarmupExercise(
+      '08-side-to-side-left-leg-swings',
+      'Side to Side Left Leg Swings',
+      '1 round x 15 reps',
+      'Mobilizes the left hip adductors and abductors before lower-body work.',
+      'Hold a stable support and swing the left leg side to side in front of you. Keep the torso steady.',
+      'Use a smaller swing and keep the standing knee slightly bent.'
+    ),
+    gym30WarmupExercise(
+      '09-back-to-front-left-leg-swings',
+      'Back to Front Left Leg Swings',
+      '1 round x 10 reps',
+      'Dynamically stretches the left hamstring and hip flexor line.',
+      'Hold support and swing the left leg forward and back. Keep the movement controlled instead of forcing height.',
+      'Reduce the swing range if your hamstring pulls.'
+    ),
+    gym30WarmupExercise(
+      '10-side-to-side-right-leg-swings',
+      'Side to Side Right Leg Swings',
+      '1 round x 15 reps',
+      'Matches the left-side lateral hip warmup so both hips are ready evenly.',
+      'Hold a stable support and swing the right leg side to side in front of you while keeping your hips square.',
+      'Keep the range small until balance feels easy.'
+    ),
+    gym30WarmupExercise(
+      '11-back-to-front-right-leg-swings',
+      'Back to Front Right Leg Swings',
+      '1 round x 10 reps',
+      'Prepares the right hamstring and hip flexor through a front-to-back swing pattern.',
+      'Hold support and swing the right leg forward and back. Stand tall and avoid rounding your back to chase height.',
+      'Make the swing slower and lower if your hip flexor pinches.'
+    ),
+    gym30WarmupExercise(
+      '12-jump-squats',
+      'Jump Squats',
+      '1 round x up to failure',
+      'Finishes the warmup by raising heart rate and priming the legs for power.',
+      'Squat down, jump up lightly, and land softly into the next rep. Keep knees tracking over toes.',
+      'Do fast bodyweight squats without jumping.'
+    ),
+  ],
+};
+
+function gym30Day(main) {
+  return {
+    warmup: gym30Warmup,
+    main,
+    cool: gym30Cool,
+    finisher: gym30Finisher,
+  };
+}
+
+const gym30Media = {
+  benchPress: {
+    ids: ['hWbUlkb5Ms4'],
+    image: 'https://img.youtube.com/vi/hWbUlkb5Ms4/hqdefault.jpg',
+  },
+  inclineDumbbellPress: {
+    ids: ['5orOHJL2qS4'],
+    image: 'assets/gym20/saturday-01-incline-dumbbell-press.png',
+  },
+  latPulldown: {
+    ids: ['CAwf7n6Luuc', '51ql2-2kLfA'],
+    image: 'assets/gym20/saturday-04-lat-pulldown.png',
+  },
+  seatedCableRow: {
+    ids: ['UCXxvVItLoM'],
+    image: 'assets/gym20/saturday-02-seated-cable-row.png',
+  },
+  shoulderPress: {
+    ids: ['E9ShwbwZ1zw', 'WvLMauqrnK8'],
+    image: 'assets/gym20/sunday-01-seated-dumbbell-shoulder-press.png',
+  },
+  lateralRaise: {
+    ids: ['xyK8UiC-BUw', '0o07iGKUarI'],
+    image: 'assets/gym20/sunday-02-dumbbell-lateral-raise.png',
+  },
+  bicepCurl: {
+    ids: ['MKWBV29S6c0', 'FwApweWh6SY'],
+    image: 'assets/gym20/sunday-06-seated-dumbbell-curl.png',
+  },
+  tricepPushdown: {
+    ids: ['6Fzep104f0s'],
+    image: 'assets/gym20/sunday-05-cable-triceps-pushdown.png',
+  },
+  squat: {
+    ids: ['dW3zj79xfrc'],
+    image: 'assets/gym20/monday-01-barbell-back-squat.png',
+  },
+  legPress: {
+    ids: ['EotSw18oR9w'],
+    image: 'assets/gym20/monday-02-leg-press.png',
+  },
+  romanianDeadlift: {
+    ids: ['g5u75sgpn04', 'hu3jRvTc_po'],
+    image: 'assets/gym20/thursday-05-barbell-romanian-deadlift.png',
+  },
+  legCurl: {
+    ids: ['NxPR7G_YNHI'],
+    image: 'assets/gym20/monday-04-seated-leg-curl.png',
+  },
+  legExtension: {
+    ids: ['m0FOpMEgero'],
+    image: 'assets/gym20/monday-03-leg-extension.png',
+  },
+  calfRaise: {
+    ids: ['lyDp3tbx3qU'],
+    image: 'assets/gym20/monday-06-standing-dumbbell-calf-raise.png',
+  },
+  hipAdduction: {
+    ids: ['BmMmt-c9aNM'],
+    image: 'https://img.youtube.com/vi/BmMmt-c9aNM/hqdefault.jpg',
+  },
+  hipAbduction: {
+    ids: ['tn-ABeb1QAM'],
+    image: 'https://img.youtube.com/vi/tn-ABeb1QAM/hqdefault.jpg',
+  },
+};
+
+function gym30UpperDay() {
+  return gym30Day({
+    title: 'Main Workout',
+    sub: 'Upper Body - beginner to intermediate',
+    accent: 'var(--main)',
+    blocks: [
+      { label:'BLOCK A - CHEST', start:0, end:1 },
+      { label:'BLOCK B - BACK', start:2, end:3 },
+      { label:'BLOCK C - SHOULDERS', start:4, end:5 },
+      { label:'BLOCK D - ARMS', start:6, end:7 },
+    ],
+    exercises: [
+      { alts: [
+        { name:'Bench Press', ids:gym30Media.benchPress.ids, stat:'3 x 8-12 reps', rest:'60-90 sec', image:gym30Media.benchPress.image, imageAlt:'Bench press exercise image', why:'Primary chest press for building pec, shoulder, and triceps strength with a stable bar path.', desc:'Lie with eyes under the bar, feet planted, and shoulder blades pulled back. Lower the bar to mid-chest, then press up while keeping wrists stacked over elbows.', mod:'Use a lighter load or dumbbell press if the bar path feels unstable.' },
+      ]},
+      { alts: [
+        { name:'Incline Dumbbell Press', ids:gym30Media.inclineDumbbellPress.ids, stat:'3 x 10 reps', rest:'60-90 sec', image:gym30Media.inclineDumbbellPress.image, imageAlt:'Incline dumbbell press exercise image', why:'Adds upper-chest volume and gives each side of the body independent pressing work.', desc:'Set the bench to a moderate incline. Lower dumbbells toward the upper chest with elbows slightly tucked, then press up smoothly.', mod:'Lower the incline or reduce weight if your shoulders take over.' },
+      ]},
+      { alts: [
+        { name:'Lat Pulldown', ids:gym30Media.latPulldown.ids, stat:'3 x 10-12 reps', rest:'60-90 sec', image:gym30Media.latPulldown.image, imageAlt:'Lat pulldown exercise image', why:'Vertical pulling work for back width, lats, and beginner-friendly pulling strength.', desc:'Sit with thighs secured. Pull the bar to your upper chest by driving elbows down, then control the stretch back to the top.', mod:'Use a neutral or slightly closer grip if a wide grip bothers your shoulders.' },
+      ]},
+      { alts: [
+        { name:'Seated Cable Row', ids:gym30Media.seatedCableRow.ids, stat:'3 x 10 reps', rest:'60-90 sec', image:gym30Media.seatedCableRow.image, imageAlt:'Seated cable row exercise image', why:'Balances the pulldown with horizontal pulling for mid-back thickness and posture.', desc:'Sit tall with a neutral spine. Pull the handle toward your lower ribs, squeeze shoulder blades together, then return under control.', mod:'Reduce the weight if you need to lean back to finish reps.' },
+      ]},
+      { alts: [
+        { name:'Shoulder Press', ids:gym30Media.shoulderPress.ids, stat:'3 x 10 reps', rest:'60-90 sec', image:gym30Media.shoulderPress.image, imageAlt:'Shoulder press exercise image', why:'Foundational overhead press for stronger front and side delts with triceps assistance.', desc:'Start with weights at shoulder height. Brace your core, press overhead until arms are nearly straight, then lower with control.', mod:'Use a back-supported seat and keep ribs down if your lower back arches.' },
+      ]},
+      { alts: [
+        { name:'Lateral Raise', ids:gym30Media.lateralRaise.ids, stat:'3 x 12-15 reps', rest:'45-60 sec', image:gym30Media.lateralRaise.image, imageAlt:'Lateral raise exercise image', why:'Targets the side delts directly for shoulder width without needing heavy weight.', desc:'Raise the weights out to the sides with soft elbows, stop around shoulder height, then lower slowly.', mod:'Use lighter dumbbells and lead with elbows instead of swinging with the hands.' },
+      ]},
+      { alts: [
+        { name:'Bicep Curl', ids:gym30Media.bicepCurl.ids, stat:'3 x 12 reps', rest:'45-60 sec', image:gym30Media.bicepCurl.image, imageAlt:'Bicep curl exercise image', why:'Direct biceps work to round out the pulling volume and build arm strength.', desc:'Keep elbows near your sides. Curl the weight up without swinging, squeeze briefly, then lower fully under control.', mod:'Alternate arms or sit down if your torso starts rocking.' },
+      ]},
+      { alts: [
+        { name:'Tricep Pushdown', ids:gym30Media.tricepPushdown.ids, stat:'3 x 12 reps', rest:'45-60 sec', image:gym30Media.tricepPushdown.image, imageAlt:'Tricep pushdown exercise image', why:'Direct triceps isolation that supports stronger pressing and fuller upper arms.', desc:'Pin elbows to your sides. Push the rope or bar down until arms are straight, pause, then return to about 90 degrees.', mod:'Use a rope attachment if a straight bar bothers your wrists.' },
+      ]},
+    ],
+  });
+}
+
+function gym30LowerDay() {
+  return gym30Day({
+    title: 'Main Workout',
+    sub: 'Lower Body - quads, hamstrings, glutes, calves, and hips',
+    accent: 'var(--main)',
+    blocks: [
+      { label:'BLOCK A - QUADS + GLUTES', start:0, end:1 },
+      { label:'BLOCK B - HAMSTRINGS + KNEE EXTENSION', start:2, end:4 },
+      { label:'BLOCK C - CALVES + HIPS', start:5, end:7 },
+    ],
+    exercises: [
+      { alts: [
+        { name:'Squat', ids:gym30Media.squat.ids, stat:'3-4 x 8-12 reps', rest:'90 sec', image:gym30Media.squat.image, imageAlt:'Squat exercise image', why:'Main lower-body compound for quads, glutes, trunk bracing, and overall strength.', desc:'Set your stance around shoulder width, brace, and sit between your hips. Keep knees tracking toes, then drive up through mid-foot.', mod:'Use a goblet squat or box squat while building consistent depth.' },
+      ]},
+      { alts: [
+        { name:'Leg Press', ids:gym30Media.legPress.ids, stat:'3 x 10 reps', rest:'60-90 sec', image:gym30Media.legPress.image, imageAlt:'Leg press exercise image', why:'Adds quad and glute volume with less balance demand than free-weight squats.', desc:'Place feet around shoulder width. Lower until hips stay down and knees bend deeply, then press up without hard-locking the knees.', mod:'Move feet slightly higher if your knees feel crowded.' },
+      ]},
+      { alts: [
+        { name:'Romanian Deadlift', ids:gym30Media.romanianDeadlift.ids, stat:'3 x 10 reps', rest:'60-90 sec', image:gym30Media.romanianDeadlift.image, imageAlt:'Romanian deadlift exercise image', why:'Hip-hinge work for hamstrings, glutes, and posterior-chain control.', desc:'Hold the weight close to your thighs. Push hips back with soft knees, feel the hamstrings stretch, then stand by driving hips forward.', mod:'Stop just below the knees until you can keep your back neutral.' },
+      ]},
+      { alts: [
+        { name:'Leg Curl', ids:gym30Media.legCurl.ids, stat:'3 x 12 reps', rest:'45-60 sec', image:gym30Media.legCurl.image, imageAlt:'Leg curl exercise image', why:'Direct hamstring work that balances squats and leg press volume.', desc:'Set the pad above your ankles. Curl by bending the knees, squeeze the hamstrings, then return slowly.', mod:'Use a lighter load and shorten the range if the stretch feels sharp behind the knee.' },
+      ]},
+      { alts: [
+        { name:'Leg Extension', ids:gym30Media.legExtension.ids, stat:'3 x 12 reps', rest:'45-60 sec', image:gym30Media.legExtension.image, imageAlt:'Leg extension exercise image', why:'The counter movement to leg curls, training the quads as you extend the knees forward.', desc:'Sit back against the pad with the roller above your ankles. Extend your knees until legs are nearly straight, squeeze the quads, then lower slowly.', mod:'Use a lighter load and avoid snapping the knees at the top.' },
+      ]},
+      { alts: [
+        { name:'Calf Raise', ids:gym30Media.calfRaise.ids, stat:'4 x 15-20 reps', rest:'45-60 sec', image:gym30Media.calfRaise.image, imageAlt:'Calf raise exercise image', why:'Direct calf training for lower-leg strength and ankle control.', desc:'Rise as high as possible onto the balls of your feet, pause at the top, then lower until the calves stretch.', mod:'Hold a rack for balance or perform one leg at a time with lighter weight.' },
+      ]},
+      { alts: [
+        { name:'Hip Adduction', ids:gym30Media.hipAdduction.ids, stat:'3 x 12 reps', rest:'45-60 sec', image:gym30Media.hipAdduction.image, imageAlt:'Hip adduction exercise image', why:'Targets the inner thighs and helps balance hip strength around the pelvis.', desc:'Sit tall on the adduction machine with pads against the inner thighs. Bring the knees together under control, squeeze, then return slowly.', mod:'Use a smaller range and lighter load until the movement feels smooth.' },
+      ]},
+      { alts: [
+        { name:'Hip Abduction', ids:gym30Media.hipAbduction.ids, stat:'3 x 12 reps', rest:'45-60 sec', image:gym30Media.hipAbduction.image, imageAlt:'Hip abduction exercise image', why:'The counter movement to hip adduction, training the outer hips and glute medius as the knees open.', desc:'Sit tall on the abduction machine with pads outside the thighs. Open your knees under control, squeeze the outer hips, then return slowly.', mod:'Keep the torso still and use a smaller range if your hips shift or pinch.' },
+      ]},
+    ],
+  });
+}
+
+function gym30FullBodyDay() {
+  return gym30Day({
+    title: 'Main Workout',
+    sub: 'Full Body - legs, chest, back, shoulders, and arms',
+    accent: 'var(--main)',
+    blocks: [
+      { label:'BLOCK A - LEGS + CHEST', start:0, end:1 },
+      { label:'BLOCK B - BACK + SHOULDERS', start:2, end:3 },
+      { label:'BLOCK C - ARMS', start:4, end:5 },
+    ],
+    exercises: [
+      { alts: [
+        { name:'Squat', ids:gym30Media.squat.ids, stat:'3 x 8-10 reps', rest:'90 sec', image:gym30Media.squat.image, imageAlt:'Squat exercise image', why:'Starts the full-body day with the biggest lower-body strength pattern.', desc:'Brace hard, sit between your hips, and keep knees tracking toes. Stand by pushing the floor away through mid-foot.', mod:'Use goblet squats if barbell squats need more practice.' },
+      ]},
+      { alts: [
+        { name:'Bench Press', ids:gym30Media.benchPress.ids, stat:'3 x 8-10 reps', rest:'60-90 sec', image:gym30Media.benchPress.image, imageAlt:'Bench press exercise image', why:'Main upper-body press for chest, shoulders, and triceps in the full-body session.', desc:'Plant feet, pinch shoulder blades, lower the bar to mid-chest, then press up while keeping wrists over elbows.', mod:'Use dumbbells or reduce load if shoulder position feels uncomfortable.' },
+      ]},
+      { alts: [
+        { name:'Lat Pulldown', ids:gym30Media.latPulldown.ids, stat:'3 x 10 reps', rest:'60-90 sec', image:gym30Media.latPulldown.image, imageAlt:'Lat pulldown exercise image', why:'Pairs the press with vertical pulling so the full-body day stays balanced.', desc:'Pull the bar to your upper chest by driving elbows down. Control the return and keep the torso mostly still.', mod:'Lighten the stack if you need momentum to move the bar.' },
+      ]},
+      { alts: [
+        { name:'Shoulder Press', ids:gym30Media.shoulderPress.ids, stat:'3 x 10 reps', rest:'60-90 sec', image:gym30Media.shoulderPress.image, imageAlt:'Shoulder press exercise image', why:'Adds overhead pressing for delts and triceps without overcomplicating the session.', desc:'Press from shoulder height to overhead while bracing your core. Lower until elbows are just below shoulder height.', mod:'Use a seated version with back support if standing feels unstable.' },
+      ]},
+      { alts: [
+        { name:'Bicep Curl', ids:gym30Media.bicepCurl.ids, stat:'2-3 x 12 reps', rest:'45-60 sec', image:gym30Media.bicepCurl.image, imageAlt:'Bicep curl exercise image', why:'Simple arm accessory that adds direct biceps volume after back work.', desc:'Curl without swinging, keep elbows close, and lower to full arm length each rep.', mod:'Alternate arms to keep the torso still.' },
+      ]},
+      { alts: [
+        { name:'Tricep Pushdown', ids:gym30Media.tricepPushdown.ids, stat:'2-3 x 12 reps', rest:'45-60 sec', image:gym30Media.tricepPushdown.image, imageAlt:'Tricep pushdown exercise image', why:'Finishes the upper-body push muscles with easy-to-control triceps isolation.', desc:'Keep elbows tucked, push down to straight arms, pause, and return with control.', mod:'Use a lighter stack if your elbows drift forward.' },
+      ]},
+    ],
+  });
+}
+
+const gym30Phases = {
+  Saturday: gym30UpperDay(),
+  Sunday: gym30LowerDay(),
+  Monday: gym30Rest,
+  Tuesday: gym30UpperDay(),
+  Wednesday: gym30LowerDay(),
+  Thursday: gym30FullBodyDay(),
+  Friday: gym30Rest,
+};
+
 const PROFILES = [
   {
     id: 'home',
@@ -1135,6 +1460,35 @@ const PROFILES = [
       { day:'FRI', type:'rest',     emoji:'😴', label:'Rest Day' },
       { day:'SAT', type:'workout',  emoji:'🏋️', label:'Chest + Back' },
       { day:'SUN', type:'workout',  emoji:'💪', label:'Shoulders + Arms' },
+    ]
+  },
+  {
+    id: 'gym30',
+    name: 'Gym 3.0',
+    shortName: 'Gym 3.0',
+    icon: '🏋️',
+    hero: {
+      badge: '🏋️ Gym 3.0 Plan',
+      titleHTML: 'GYM<br><span class="g">3.0</span>',
+      pills: ['🏋️ Equipment Plan', '📅 5× / Week', '⚡ Beginner-Intermediate'],
+    },
+    phases: {
+      Sunday: gym30Phases["Sunday"],
+      Monday: gym30Phases["Monday"],
+      Tuesday: gym30Phases["Tuesday"],
+      Wednesday: gym30Phases["Wednesday"],
+      Thursday: gym30Phases["Thursday"],
+      Friday: gym30Phases["Friday"],
+      Saturday: gym30Phases["Saturday"],
+    },
+    weekSchedule: [
+      { day:'MON', type:'rest',     emoji:'😴', label:'Break' },
+      { day:'TUE', type:'workout',  emoji:'💪', label:'Upper' },
+      { day:'WED', type:'workout',  emoji:'🦵', label:'Lower' },
+      { day:'THU', type:'workout',  emoji:'🏋️', label:'Full Body' },
+      { day:'FRI', type:'rest',     emoji:'😴', label:'Break' },
+      { day:'SAT', type:'workout',  emoji:'💪', label:'Upper' },
+      { day:'SUN', type:'workout',  emoji:'🦵', label:'Lower' },
     ]
   },
 ];

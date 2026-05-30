@@ -212,7 +212,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .ex-card:not(.done):hover{border-color:var(--border2);}
 .video-wrap{width:100%;position:relative;background:#000;border-bottom:1px solid var(--border);overflow:hidden;}
 .video-wrap::before{content:'';display:block;padding-top:56.25%;}
-.video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+.video-wrap iframe,.video-wrap video{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
 .video-thumb{position:absolute;inset:0;cursor:pointer;overflow:hidden;display:flex;align-items:center;justify-content:center;}
 .video-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .35s var(--ease),filter .3s;filter:brightness(.85);}
 .video-thumb:hover img{transform:scale(1.04);filter:brightness(.7);}
@@ -1096,6 +1096,8 @@ function renderCardInto(card, slotIdx, phaseKey) {
   const restChip = ex.rest ? `<div class="stat-chip">⏸ ${ex.rest} rest</div>` : '';
   const modHTML  = ex.mod  ? `<div class="mod-box"><strong>✏️ Easier mod:</strong> ${ex.mod}</div>` : '';
   const imageBtn = ex.image ? `<button class="image-btn" onclick="openExerciseImage(${slotIdx},'${phaseKey}')" aria-label="Open exercise image" title="Exercise image"><span aria-hidden="true">🖼️</span></button>` : '';
+  const thumbSrc = ex.poster || ex.image || (ex.ids?.[0] ? `https://img.youtube.com/vi/${ex.ids[0]}/hqdefault.jpg` : '');
+  const thumbError = ex.ids?.length ? `tryNextThumb(${slotIdx},1,'${phaseKey}')` : `showNoThumb(${slotIdx})`;
   const dotsHTML = alts.map((_,i) => `<span class="sub-dot${i===aIdx?' active':''}"></span>`).join('');
   const subBar   = alts.length > 1 ? `
     <div class="sub-bar">
@@ -1109,8 +1111,8 @@ function renderCardInto(card, slotIdx, phaseKey) {
   card.innerHTML = `
     ${subBar}
     <div class="video-wrap"><div class="video-thumb loading" id="vt-${slotIdx}">
-      <img src="https://img.youtube.com/vi/${ex.ids[0]}/hqdefault.jpg" alt="${ex.name}"
-        onload="this.parentElement.classList.remove('loading')" onerror="tryNextThumb(${slotIdx},1,'${phaseKey}')">
+      <img src="${thumbSrc}" alt="${ex.name}"
+        onload="this.parentElement.classList.remove('loading')" onerror="${thumbError}">
       <div class="play-ring"><div class="play-tri"></div></div>
       <div class="video-label">${ex.name} · Tap to watch demo</div>
     </div></div>
@@ -1155,7 +1157,7 @@ function swapAlt(phaseKey, slotIdx, dir) {
 
 function tryNextThumb(slotIdx, attempt, phaseKey) {
   const ex = getAlt(phaseKey || currentPhase, slotIdx);
-  if (!ex || attempt >= ex.ids.length) { showNoThumb(slotIdx); return; }
+  if (!ex || !ex.ids?.length || attempt >= ex.ids.length) { showNoThumb(slotIdx); return; }
   const img = document.querySelector(`#vt-${slotIdx} img`);
   if (img) { img.src = `https://img.youtube.com/vi/${ex.ids[attempt]}/hqdefault.jpg`; img.onerror = () => tryNextThumb(slotIdx, attempt + 1, phaseKey || currentPhase); }
   const thumb = document.getElementById(`vt-${slotIdx}`);
@@ -1174,8 +1176,21 @@ function loadVideo(slotIdx, idxInList, phaseKey) {
   const thumb = document.getElementById(`vt-${slotIdx}`);
   if (!thumb) return;
   thumb.innerHTML = `<div class="video-loading"><div class="v-spin"></div><span>Loading…</span></div>`;
-  const ytId = ex.ids[idxInList] || ex.ids[0];
   setTimeout(() => {
+    if (ex.video) {
+      const video = document.createElement('video');
+      video.src = ex.video;
+      video.poster = ex.poster || ex.image || '';
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      video.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;background:#000;';
+      const wrap = thumb.closest('.video-wrap');
+      if (wrap) thumb.replaceWith(video);
+      return;
+    }
+    if (!ex.ids?.length) { showNoThumb(slotIdx); return; }
+    const ytId = ex.ids[idxInList] || ex.ids[0];
     const iframe = document.createElement('iframe');
     iframe.src   = `https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
     iframe.allow = 'autoplay;encrypted-media;picture-in-picture;fullscreen';
